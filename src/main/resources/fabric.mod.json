@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "mayor",
+	"version": "${version}",
+	"name": "Mayor",
+	"description": "Mod to overhaul Village gameplay",
+	"authors": [
+		"DEV - Globox",
+		"DEV - ShiroJR",
+		"ART - ShiroJR"
+	],
+	"contact": {
+		"homepage": "https://github.com/fabricated-atelier",
+		"sources": "https://github.com/fabricated-atelier/mayor"
+	},
+	"license": "MIT with Attribution Requirement",
+	"icon": "assets/mayor/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.fabricatedatelier.mayor.Mayor"
+		],
+		"client": [
+			"io.fabricatedatelier.mayor.MayorClient"
+		],
+		"fabric-datagen": [
+			"io.fabricatedatelier.mayor.MayorDataGenerator"
+		]
+	},
+	"mixins": [
+		"mayor.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
