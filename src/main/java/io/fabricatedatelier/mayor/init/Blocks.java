@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.init;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.block.CameraDebugBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class Blocks {
-    public static final Block TEST_BLOCK = registerWithItem("test", new Block(AbstractBlock.Settings.create()));
+    public static final Block CAMERA_DEBUG_BLOCK = registerWithItem("camera_debug", new CameraDebugBlock(AbstractBlock.Settings.create()));
 
     private static <T extends Block, U extends BlockItem> T register(String name, T block, @Nullable BlockItemData blockItemData) {
         Registry.register(Registries.BLOCK, Mayor.identifierOf(name), block);
