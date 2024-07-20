@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class CameraHelper {
-    public static final int FULL_ORBIT_TICK_DURATION = 100;
+    public static final int FULL_ORBIT_TICK_DURATION = 10000;
 
     private static CameraHelper instance;
 
@@ -101,8 +101,9 @@ public class CameraHelper {
         return MathHelper.clamp(this.normalizedOrbitProgress, 0f, 1f);
     }
 
-    public void setNormalizedOrbitProgress(float normalizedOrbitProgress) {
+    public CameraHelper setNormalizedOrbitProgress(float normalizedOrbitProgress) {
         this.normalizedOrbitProgress = MathHelper.clamp(normalizedOrbitProgress, 0f, 1f);
+        return this;
     }
 
     public int getTick() {
@@ -125,9 +126,16 @@ public class CameraHelper {
     }
 
     public void updateCameraRotations() {
-        if (this.getTarget().isEmpty()) return;
-        this.setPitch(Math.atan(getHeight()) / getDistance());
-        this.setYaw(MathHelper.atan2(getCameraPos().z, getCameraPos().x));
+        if (this.getTarget().isEmpty() || this.getTarget().get().mayor$getTargetPosition() == null) return;
+        double pitchInRad = Math.asin(getHeight() / getDistance());
+
+        this.setPitch(Math.toDegrees(pitchInRad));
+
+        double deltaX = getTarget().get().mayor$getTargetPosition().x - this.getCameraPos().x;
+        double deltaZ = getTarget().get().mayor$getTargetPosition().z - this.getCameraPos().z;
+
+        double yawInRad = MathHelper.atan2(deltaZ, deltaX);
+        this.setYaw(Math.toDegrees(yawInRad) - 90);
         Mayor.LOGGER.info("{} | {}", getPitch(), getYaw());
     }
 }

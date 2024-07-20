@@ -10,6 +10,6 @@ public abstract class BlockEntityMixin implements CameraTarget {
 
     @Override
     public Vec3d mayor$getTargetPosition() {
-        return ((BlockEntity) (Object) this).getPos().toCenterPos();
+        return ((BlockEntity) (Object) this).getPos().toCenterPos().add(0, 1.0, 0);
     }
 }
