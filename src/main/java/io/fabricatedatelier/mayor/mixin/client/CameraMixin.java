@@ -36,10 +36,14 @@ public abstract class CameraMixin {
         }
         if (!(focusedEntity instanceof ClientPlayerEntity clientPlayer)) return;
         CameraHelper camera = CameraHelper.getInstance();
+
+        if (clientPlayer.isSneaking()) {
+            camera.setTarget(null);
+            return;
+        }
         camera.getTarget().ifPresent(target -> {
             tick++;
             float normalizedProgress = (float) tick/ CameraHelper.FULL_ORBIT_TICK_DURATION;
-            Mayor.LOGGER.info(String.valueOf(normalizedProgress));
             camera.setNormalizedOrbitProgress(normalizedProgress);
             camera.updateCameraPos();
             camera.updateCameraRotations();

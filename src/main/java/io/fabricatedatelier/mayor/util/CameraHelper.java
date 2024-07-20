@@ -126,7 +126,7 @@ public class CameraHelper {
 
     public void updateCameraRotations() {
         if (this.getTarget().isEmpty()) return;
-        this.setPitch(Math.atan((getTarget().get().mayor$getTargetPosition().getY() + getHeight()) / getDistance()));
+        this.setPitch(Math.atan(getHeight()) / getDistance());
         this.setYaw(MathHelper.atan2(getCameraPos().z, getCameraPos().x));
         Mayor.LOGGER.info("{} | {}", getPitch(), getYaw());
     }

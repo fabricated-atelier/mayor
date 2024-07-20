@@ -35,6 +35,12 @@ public class CameraDebugBlock extends BlockWithEntity {
     }
 
     @Override
+    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        if (world.isClient()) CameraHelper.getInstance().setTarget(null);
+        return super.onBreak(world, pos, state, player);
+    }
+
+    @Override
     protected MapCodec<? extends BlockWithEntity> getCodec() {
         return createCodec(CameraDebugBlock::new);
     }
