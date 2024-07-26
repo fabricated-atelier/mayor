@@ -138,4 +138,9 @@ public class CameraHelper {
         this.setYaw(Math.toDegrees(yawInRad) - 90);
         Mayor.LOGGER.info("{} | {}", getPitch(), getYaw());
     }
+
+    public void handleScroll(double delta) {
+        //FIXME: is bound to height too? weird rotations are happening here...
+        this.setDistance((float) Math.max(this.getDistance() + delta, 0));
+    }
 }

@@ -1,6 +1,5 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.util.CameraHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
@@ -26,7 +25,8 @@ public abstract class CameraMixin {
     @Shadow
     protected abstract void setRotation(float yaw, float pitch);
 
-    @Unique private int tick = 0;
+    @Unique
+    private int tick = 0;
 
     @Inject(method = "update", at = @At("TAIL"))
     private void test(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
@@ -43,7 +43,7 @@ public abstract class CameraMixin {
         }
         camera.getTarget().ifPresent(target -> {
             tick++;
-            float normalizedProgress = (float) tick/ CameraHelper.FULL_ORBIT_TICK_DURATION;
+            float normalizedProgress = (float) tick / CameraHelper.FULL_ORBIT_TICK_DURATION;
             camera.setNormalizedOrbitProgress(normalizedProgress);
             camera.updateCameraPos();
             camera.updateCameraRotations();

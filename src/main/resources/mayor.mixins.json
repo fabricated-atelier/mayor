@@ -12,6 +12,7 @@
   },
   "client": [
     "client.CameraMixin",
-    "client.MinecraftClientMixin"
+    "client.MinecraftClientMixin",
+    "client.MouseMixin"
   ]
 }

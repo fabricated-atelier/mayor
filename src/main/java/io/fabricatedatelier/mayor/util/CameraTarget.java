@@ -7,7 +7,4 @@ import net.minecraft.util.math.Vec3d;
  */
 public interface CameraTarget {
     Vec3d mayor$getTargetPosition();
-    default double mayor$progressInOrbit() {
-        return -1;
-    }
 }
