@@ -4,12 +4,14 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockEntityMixin",
-    "EntityMixin"
+    "EntityMixin",
+    "access.StructureTemplateAccess"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "client.CameraMixin"
+    "client.CameraMixin",
+    "client.MinecraftClientMixin"
   ]
 }
