@@ -19,7 +19,6 @@ public class KeyBindingMixin {
 
     @Inject(method = "onKeyPressed", at = @At("HEAD"), cancellable = true)
     private static void onKeyPressedMixin(InputUtil.Key key, CallbackInfo info) {
-        System.out.println(key.getCode());
         if (key.getCode() == 81 || key.getCode() == 69) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
@@ -38,7 +37,7 @@ public class KeyBindingMixin {
                 if (key.getCode() == 81 && KeyBindings.majorRotateLeftKeyBind.isDefault()) {
                     KeyBindings.majorRotateLeftKeyBind.setPressed(pressed);
                     info.cancel();
-                }else  if (key.getCode() == 69 && KeyBindings.majorRotateRightKeyBind.isDefault()) {
+                } else if (key.getCode() == 69 && KeyBindings.majorRotateRightKeyBind.isDefault()) {
                     KeyBindings.majorRotateRightKeyBind.setPressed(pressed);
                     info.cancel();
                 }
