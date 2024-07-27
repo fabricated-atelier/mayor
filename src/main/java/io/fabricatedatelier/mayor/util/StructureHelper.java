@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -47,10 +46,15 @@ public class StructureHelper {
         Map<BlockPos, NbtCompound> blockMap = new HashMap<BlockPos, NbtCompound>();
         Optional<StructureTemplate> optional = StructureHelper.getStructureTemplate(serverWorld, structureId);
         if (optional.isPresent() && optional.get() instanceof StructureTemplateAccess structureTemplateAccess) {
+            int centerX = 0;
+            int centerZ = 0;
+            if (center) {
 
-            optional.get().getSize();
-            // structureTemplateAccess.getBlockInfoLists().
+                centerX = optional.get().getSize().getX() / 2;
+                centerZ = optional.get().getSize().getZ() / 2;
 
+                System.out.println(centerX + " : " + centerZ + " : " + optional.get().getSize());
+            }
             for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().get(0).getAll().size(); i++) {
                 StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().get(0).getAll().get(i);
                 if (structureBlockInfo.state().isAir()) {
@@ -66,7 +70,7 @@ public class StructureHelper {
                         Mayor.LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", string, structureBlockInfo.pos());
                     }
                 }
-                BlockPos pos = StructureTemplate.transformAround(structureBlockInfo.pos().up(), BlockMirror.NONE, structureRotation, BlockPos.ORIGIN);
+                BlockPos pos = StructureTemplate.transformAround(structureBlockInfo.pos().up().west(centerX).north(centerZ), BlockMirror.NONE, structureRotation, BlockPos.ORIGIN);
 
                 blockMap.put(pos, NbtHelper.fromBlockState(blockState));
             }
@@ -74,7 +78,7 @@ public class StructureHelper {
         return blockMap;
     }
 
-    public static boolean updateMajorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation, boolean center) {
+    public static boolean updateMayorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation, boolean center) {
         Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockMap(serverPlayerEntity.getServerWorld(), structureId, structureRotation, center);
         if (!blockMap.isEmpty()) {
             MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();

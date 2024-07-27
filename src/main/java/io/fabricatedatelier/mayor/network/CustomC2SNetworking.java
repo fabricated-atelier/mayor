@@ -25,7 +25,8 @@ public class CustomC2SNetworking {
 
             context.server().execute(() -> {
                 MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-                StructureHelper.updateMajorStructure(context.player(), mayorManager.getStructureId(), StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), rotateLeft), mayorManager.getStructureCentered());
+                StructureHelper.updateMayorStructure(context.player(), mayorManager.getStructureId(), StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), rotateLeft),
+                        mayorManager.getStructureCentered());
             });
         });
         ServerPlayNetworking.registerGlobalReceiver(StructureCenterPacket.PACKET_ID, (payload, context) -> {
@@ -33,7 +34,7 @@ public class CustomC2SNetworking {
 
             context.server().execute(() -> {
                 MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-                StructureHelper.updateMajorStructure(context.player(), mayorManager.getStructureId(), mayorManager.getStructureRotation(), center);
+                StructureHelper.updateMayorStructure(context.player(), mayorManager.getStructureId(), mayorManager.getStructureRotation(), center);
             });
         });
     }
