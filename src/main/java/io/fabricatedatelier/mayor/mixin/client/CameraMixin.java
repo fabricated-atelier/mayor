@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.util.CameraHelper;
+import io.fabricatedatelier.mayor.camera.CameraHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -15,9 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
-
-    @Shadow
-    public abstract Vec3d getPos();
 
     @Shadow
     protected abstract void setPos(Vec3d pos);
