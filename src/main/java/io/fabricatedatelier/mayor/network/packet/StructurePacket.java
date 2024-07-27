@@ -3,7 +3,6 @@ package io.fabricatedatelier.mayor.network.packet;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.util.MayorManager;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -34,7 +33,7 @@ public record StructurePacket(Identifier structureId, Map<BlockPos, NbtCompound>
     public static final PacketCodec<RegistryByteBuf, StructurePacket> PACKET_CODEC =
             PacketCodec.tuple(
                     Identifier.PACKET_CODEC, StructurePacket::structureId,
-                    PacketCodecs.map(Object2ObjectOpenHashMap::new, BlockPos.PACKET_CODEC, PacketCodecs.UNLIMITED_NBT_COMPOUND), StructurePacket::posCompoundMap,
+                    PacketCodecs.map(HashMap::new, BlockPos.PACKET_CODEC, PacketCodecs.UNLIMITED_NBT_COMPOUND), StructurePacket::posCompoundMap,
                     PacketCodecs.BYTE.xmap(index -> BlockRotation.values()[index], blockRotation -> (byte) blockRotation.ordinal()), StructurePacket::structureRotation,
                     StructurePacket::new
             );
