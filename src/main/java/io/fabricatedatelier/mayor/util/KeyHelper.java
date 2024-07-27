@@ -10,4 +10,8 @@ public class KeyHelper {
         ClientPlayNetworking.send(new StructureRotatePacket(rotateLeft));
     }
 
+    public static void centerKey(MinecraftClient client, boolean center){
+
+    }
+
 }

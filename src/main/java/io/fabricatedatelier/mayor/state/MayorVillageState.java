@@ -10,6 +10,12 @@ import net.minecraft.world.PersistentState;
 public class MayorVillageState extends PersistentState {
 
     private final ServerWorld world;
+    // village level
+    // blockpos of chests? for structure requirements
+
+    // structures though identifier with origin blockpos and level
+
+    // calculate available structures
 
     public MayorVillageState(ServerWorld world) {
         this.world = world;

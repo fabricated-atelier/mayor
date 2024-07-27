@@ -5,6 +5,8 @@ import java.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryEntryLookup;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -41,10 +43,14 @@ public class StructureHelper {
         return structure;
     }
 
-    public static Map<BlockPos, NbtCompound> getBlockMap(ServerWorld serverWorld, Identifier structureId, BlockRotation structureRotation) {
+    public static Map<BlockPos, NbtCompound> getBlockMap(ServerWorld serverWorld, Identifier structureId, BlockRotation structureRotation, boolean center) {
         Map<BlockPos, NbtCompound> blockMap = new HashMap<BlockPos, NbtCompound>();
         Optional<StructureTemplate> optional = StructureHelper.getStructureTemplate(serverWorld, structureId);
         if (optional.isPresent() && optional.get() instanceof StructureTemplateAccess structureTemplateAccess) {
+
+            optional.get().getSize();
+            // structureTemplateAccess.getBlockInfoLists().
+
             for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().get(0).getAll().size(); i++) {
                 StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().get(0).getAll().get(i);
                 if (structureBlockInfo.state().isAir()) {
@@ -68,8 +74,8 @@ public class StructureHelper {
         return blockMap;
     }
 
-    public static boolean updateMajorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation) {
-        Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockMap(serverPlayerEntity.getServerWorld(), structureId, structureRotation);
+    public static boolean updateMajorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation, boolean center) {
+        Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockMap(serverPlayerEntity.getServerWorld(), structureId, structureRotation, center);
         if (!blockMap.isEmpty()) {
             MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
             mayorManager.setStructureId(structureId);
@@ -108,12 +114,45 @@ public class StructureHelper {
         case BlockRotation.COUNTERCLOCKWISE_90 -> rotateLeft ? BlockRotation.CLOCKWISE_180 : BlockRotation.NONE;
         default -> BlockRotation.NONE;
         };
+    }
 
+    public static BlockPos moveOrigin(BlockPos origin, int keyCode, Direction viewDirection) {
+        return switch (viewDirection.getHorizontal()) {
+        case 0 -> switch (keyCode) {
+        case 0 -> origin.west();
+        case 1 -> origin.east();
+        case 2 -> origin.north();
+        case 3 -> origin.south();
+        default -> origin;
+        };
+        case 1 -> switch (keyCode) {
+        case 0 -> origin.north();
+        case 1 -> origin.south();
+        case 2 -> origin.east();
+        case 3 -> origin.west();
+        default -> origin;
+        };
+        case 2 -> switch (keyCode) {
+        case 0 -> origin.east();
+        case 1 -> origin.west();
+        case 2 -> origin.south();
+        case 3 -> origin.north();
+        default -> origin;
+        };
+        case 3 -> switch (keyCode) {
+        case 0 -> origin.south();
+        case 1 -> origin.north();
+        case 2 -> origin.west();
+        case 3 -> origin.east();
+        default -> origin;
+        };
+        default -> origin;
+        };
     }
 
     public static List<ItemStack> getStructureItemRequirements(ServerWorld serverWorld, Identifier structureId) {
         List<ItemStack> requiredItemStacks = new ArrayList<ItemStack>();
-        Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockMap(serverWorld, structureId, BlockRotation.NONE);
+        Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockMap(serverWorld, structureId, BlockRotation.NONE, false);
 
         RegistryEntryLookup<Block> blockLookup = serverWorld.createCommandRegistryWrapper(RegistryKeys.BLOCK);
 

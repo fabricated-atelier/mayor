@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.util.MayorManager;
+import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +28,16 @@ public class KeyBindingMixin {
                     info.cancel();
                 }
             }
+        } else if (key.getCode() == 262 || key.getCode() == 263 || key.getCode() == 264 || key.getCode() == 265) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+            if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
+                mayorManager.setOriginBlockPos(StructureHelper.moveOrigin(mayorManager.getOriginBlockPos(), key.getCode() - 262, client.player.getHorizontalFacing()));
+                // ClientPlayNetworking.send(new StructureOriginPacket(Optional.of(StructureHelper.moveOrigin(mayorManager.getOriginBlockPos(), key.getCode() - 263))));
+                // Maybe sync origin to server - nope or maybe
+            }
         }
+
     }
 
     @Inject(method = "setKeyPressed", at = @At("HEAD"), cancellable = true)

@@ -61,9 +61,6 @@ public class CustomS2CNetworking {
             context.client().execute(() -> {
                 MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
                 mayorManager.setMajorView(mayorView);
-
-                // TEST
-                System.out.println("SET MAYOR VIEW " + mayorView);
             });
         });
 

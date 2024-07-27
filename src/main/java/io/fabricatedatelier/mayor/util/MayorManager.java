@@ -20,6 +20,7 @@ public class MayorManager {
     @Nullable
     private BlockPos originBlockPos = null;
     private BlockRotation structureRotation = BlockRotation.NONE;
+    private boolean center = false;
 
     private boolean isInMajorView = false;
 
@@ -67,6 +68,14 @@ public class MayorManager {
 
     public BlockRotation getStructureRotation() {
         return this.structureRotation;
+    }
+
+    public void setStructureCentered(boolean center){
+        this.center = center;
+    }
+
+    public boolean getStructureCentered(){
+        return this.center;
     }
 
     public void setMajorView(boolean majorView) {

@@ -28,7 +28,7 @@ public class Events {
                     // TEST
                     Identifier identifier = Identifier.of("minecraft:village/plains/houses/plains_small_house_7");
                     // TEST END
-                    StructureHelper.updateMajorStructure(serverPlayerEntity, identifier, BlockRotation.NONE);
+                    StructureHelper.updateMajorStructure(serverPlayerEntity, identifier, BlockRotation.NONE,false);
 
                     BlockPos origin = StructureHelper.findCrosshairTarget(serverPlayerEntity) != null ? StructureHelper.findCrosshairTarget(serverPlayerEntity).getBlockPos() : null;
                     ServerPlayNetworking.send(serverPlayerEntity, new StructureOriginPacket(Optional.of(origin)));

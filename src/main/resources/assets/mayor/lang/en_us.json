@@ -2,6 +2,7 @@
     "key.categories.major": "Major",
     "key.major.structure_rotate_left": "Rotate Structure Left",
     "key.major.structure_rotate_right": "Rotate Structure Right",
+    "key.major.structure_rotate_center": "Rotate Structure Center",
 
     "gui.major.structures": "Structures",
     "gui.major.houses": "Houses",
