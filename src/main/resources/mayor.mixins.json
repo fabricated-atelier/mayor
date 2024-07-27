@@ -6,6 +6,7 @@
     "BlockEntityMixin",
     "EntityMixin",
     "PlayerEntityMixin",
+    "ServerWorldMixin",
     "access.StructureTemplateAccess"
   ],
   "injectors": {
