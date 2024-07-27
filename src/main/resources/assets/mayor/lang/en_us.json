@@ -1,5 +1,9 @@
 {
     "key.categories.major": "Major",
     "key.major.structure_rotate_left": "Rotate Structure Left",
-    "key.major.structure_rotate_right": "Rotate Structure Right"
+    "key.major.structure_rotate_right": "Rotate Structure Right",
+
+    "gui.major.structures": "Structures",
+    "gui.major.houses": "Houses",
+    "gui.major.streets": "Streets"
 }
