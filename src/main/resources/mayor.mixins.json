@@ -5,6 +5,7 @@
   "mixins": [
     "BlockEntityMixin",
     "EntityMixin",
+    "PlayerEntityMixin",
     "access.StructureTemplateAccess"
   ],
   "injectors": {
@@ -13,6 +14,7 @@
   "client": [
     "client.CameraMixin",
     "client.MinecraftClientMixin",
-    "client.MouseMixin"
+    "client.MouseMixin",
+    "client.KeyBindingMixin"
   ]
 }

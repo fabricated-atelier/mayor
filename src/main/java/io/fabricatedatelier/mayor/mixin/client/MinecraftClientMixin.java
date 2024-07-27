@@ -1,47 +1,50 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.access.MinecraftClientAccess;
+import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.util.KeyHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.network.ClientPlayerEntity;
+
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(MinecraftClient.class)
-public class MinecraftClientMixin implements MinecraftClientAccess {
+public class MinecraftClientMixin {
+
+    @Shadow
+    @Mutable
+    @Nullable
+    public ClientPlayerEntity player;
 
     @Unique
-    @Nullable
-    private Map<BlockPos, BlockState> blockMap = new HashMap<BlockPos, BlockState>();
-    @Unique
-    @Nullable
-    private BlockPos originBlockPos = null;
+    private int majorKeyBindTicks = 0;
 
-    @Override
-    public @Nullable Map<BlockPos, BlockState> getStructureBlockMap() {
-        return this.blockMap;
+    @Inject(method = "handleInputEvents", at = @At("HEAD"), cancellable = true)
+    private void handleInputEventsMixin(CallbackInfo info) {
+        if (this.player != null && ((MayorManagerAccess) this.player).getMayorManager().isInMajorView()) {
+            if (this.majorKeyBindTicks > 0) {
+                this.majorKeyBindTicks--;
+                info.cancel();
+            } else if (KeyBindings.majorRotateLeftKeyBind.isPressed()) {
+                KeyHelper.rotateKey((MinecraftClient) (Object) this, true);
+                this.majorKeyBindTicks = 5;
+                info.cancel();
+            } else if (KeyBindings.majorRotateRightKeyBind.isPressed()) {
+                KeyHelper.rotateKey((MinecraftClient) (Object) this, false);
+                this.majorKeyBindTicks = 5;
+                info.cancel();
+            }
+        }
     }
 
-    @Override
-    public void setStructureBlockMap(Map<BlockPos, BlockState> blockMap) {
-        this.blockMap.clear();
-        this.blockMap = blockMap;
-    }
-
-    @Override
-    public void setOriginBlockPos(@Nullable BlockPos origin) {
-        this.originBlockPos = origin;
-    }
-
-    @Override
-    public @Nullable BlockPos getOriginBlockPos() {
-        return this.originBlockPos;
-    }
 }

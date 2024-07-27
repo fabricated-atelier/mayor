@@ -3,8 +3,9 @@ package io.fabricatedatelier.mayor.init;
 import java.util.Iterator;
 import java.util.Map;
 
-import io.fabricatedatelier.mayor.access.MinecraftClientAccess;
-import org.jetbrains.annotations.Nullable;
+import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.util.MayorManager;
+import io.fabricatedatelier.mayor.util.StructureHelper;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,9 +16,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 
 @Environment(EnvType.CLIENT)
@@ -27,13 +26,13 @@ public class Renderer {
 
         WorldRenderEvents.AFTER_ENTITIES.register((context) -> {
             MinecraftClient client = MinecraftClient.getInstance();
+            MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+            if (mayorManager.isInMajorView() && mayorManager.getStructureBlockMap() != null) {
+                BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
 
-            if (((MinecraftClientAccess) client).getStructureBlockMap() != null) {
-                BlockHitResult blockHitResult = findCrosshairTarget(client.player);
-
-                BlockPos origin = ((MinecraftClientAccess) client).getOriginBlockPos();
+                BlockPos origin = mayorManager.getOriginBlockPos();
                 if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {
-                    Map<BlockPos, BlockState> blockMap = ((MinecraftClientAccess) client).getStructureBlockMap();
+                    Map<BlockPos, BlockState> blockMap = mayorManager.getStructureBlockMap();
                     Iterator<Map.Entry<BlockPos, BlockState>> iterator = blockMap.entrySet().iterator();
 
                     if (origin == null) {
@@ -44,7 +43,7 @@ public class Renderer {
 
                     while (iterator.hasNext()) {
                         Map.Entry<BlockPos, BlockState> entry = iterator.next();
-                        renderBlock(client, context.matrixStack(), context.consumers(), origin.add(entry.getKey()), entry.getValue());// .multiply(-1)
+                        renderBlock(client, context.matrixStack(), context.consumers(), origin.add(entry.getKey()), entry.getValue());
                     }
                     context.matrixStack().pop();
                 }
@@ -63,12 +62,6 @@ public class Renderer {
 
         client.getBlockRenderManager().renderBlockAsEntity(blockState, matrices, vertexConsumerProvider, LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
         matrices.pop();
-    }
-
-    @Nullable
-    public static BlockHitResult findCrosshairTarget(Entity camera) {
-        HitResult hitResult = camera.raycast(300D, 0.0f, false);
-        return hitResult instanceof BlockHitResult blockHitResult ? blockHitResult : null;
     }
 
 }

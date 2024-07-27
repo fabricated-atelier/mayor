@@ -5,9 +5,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
-import io.fabricatedatelier.mayor.access.MinecraftClientAccess;
-import io.fabricatedatelier.mayor.network.packet.OriginBlockPosPacket;
+import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
+import io.fabricatedatelier.mayor.network.packet.StructureOriginPacket;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
+import io.fabricatedatelier.mayor.util.MayorManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,6 +30,7 @@ public class CustomS2CNetworking {
         ClientPlayNetworking.registerGlobalReceiver(StructurePacket.PACKET_ID, (payload, context) -> {
             Iterator<Map.Entry<BlockPos, NbtCompound>> iterator = payload.posCompoundMap().entrySet().iterator();
             Map<BlockPos, BlockState> blockMap = new HashMap<BlockPos, BlockState>();
+
             @SuppressWarnings("resource")
             RegistryEntryLookup<Block> blockLookup = context.client().world.createCommandRegistryWrapper(RegistryKeys.BLOCK);
             while (iterator.hasNext()) {
@@ -36,18 +39,31 @@ public class CustomS2CNetworking {
             }
 
             context.client().execute(() -> {
-                ((MinecraftClientAccess) context.client()).setStructureBlockMap(blockMap);
+                MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+                mayorManager.setStructureBlockMap(blockMap);
             });
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(OriginBlockPosPacket.PACKET_ID, (payload, context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(StructureOriginPacket.PACKET_ID, (payload, context) -> {
             Optional<BlockPos> origin = payload.origin();
             context.client().execute(() -> {
-                if (((MinecraftClientAccess) context.client()).getOriginBlockPos() != null) {
-                    ((MinecraftClientAccess) context.client()).setOriginBlockPos(null);
+                MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+                if (mayorManager.getOriginBlockPos() != null) {
+                    mayorManager.setOriginBlockPos(null);
                 } else {
-                    ((MinecraftClientAccess) context.client()).setOriginBlockPos(origin.isPresent() ? origin.get() : null);
+                    mayorManager.setOriginBlockPos(origin.isPresent() ? origin.get() : null);
                 }
+            });
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(MayorViewPacket.PACKET_ID, (payload, context) -> {
+            boolean mayorView = payload.mayorView();
+            context.client().execute(() -> {
+                MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+                mayorManager.setMajorView(mayorView);
+
+                // TEST
+                System.out.println("SET MAYOR VIEW " + mayorView);
             });
         });
 

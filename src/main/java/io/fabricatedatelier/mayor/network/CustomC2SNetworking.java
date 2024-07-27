@@ -1,7 +1,12 @@
 package io.fabricatedatelier.mayor.network;
 
-import io.fabricatedatelier.mayor.network.packet.OriginBlockPosPacket;
+import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
+import io.fabricatedatelier.mayor.network.packet.StructureOriginPacket;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
+import io.fabricatedatelier.mayor.network.packet.StructureRotatePacket;
+import io.fabricatedatelier.mayor.util.MayorManager;
+import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -13,9 +18,17 @@ public class CustomC2SNetworking {
 
     public static void initialize() {
         PayloadTypeRegistry.playS2C().register(StructurePacket.PACKET_ID, StructurePacket.PACKET_CODEC);
-        PayloadTypeRegistry.playS2C().register(OriginBlockPosPacket.PACKET_ID, OriginBlockPosPacket.PACKET_CODEC);
-        // PayloadTypeRegistry.playC2S().register(OriginBlockPosPacket.PACKET_ID, OriginBlockPosPacket.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(StructureOriginPacket.PACKET_ID, StructureOriginPacket.PACKET_CODEC);
+        PayloadTypeRegistry.playC2S().register(StructureRotatePacket.PACKET_ID, StructureRotatePacket.PACKET_CODEC);
+        PayloadTypeRegistry.playS2C().register(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);
 
-        // static initialisation
+        ServerPlayNetworking.registerGlobalReceiver(StructureRotatePacket.PACKET_ID, (payload, context) -> {
+            boolean rotateLeft = payload.rotateLeft();
+
+            context.server().execute(() -> {
+                MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+                StructureHelper.updateMajorStructure(context.player(), mayorManager.getStructureId(), StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), rotateLeft));
+            });
+        });
     }
 }

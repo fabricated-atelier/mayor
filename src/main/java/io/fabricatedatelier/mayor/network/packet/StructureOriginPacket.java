@@ -8,13 +8,13 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-public record OriginBlockPosPacket(Optional<BlockPos> origin) implements CustomPayload {
+public record StructureOriginPacket(Optional<BlockPos> origin) implements CustomPayload {
 
-    public static final CustomPayload.Id<OriginBlockPosPacket> PACKET_ID = new CustomPayload.Id<>(Identifier.of("mayor", "origin_blockpos_packet"));
+    public static final CustomPayload.Id<StructureOriginPacket> PACKET_ID = new CustomPayload.Id<>(Identifier.of("mayor", "structure_origin_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, OriginBlockPosPacket> PACKET_CODEC = PacketCodec.of((value, buf) -> {
+    public static final PacketCodec<RegistryByteBuf, StructureOriginPacket> PACKET_CODEC = PacketCodec.of((value, buf) -> {
         buf.writeOptional(value.origin, (bufx, pos) -> bufx.writeBlockPos(pos));
-    }, buf -> new OriginBlockPosPacket(buf.readOptional(bufx -> bufx.readBlockPos())));
+    }, buf -> new StructureOriginPacket(buf.readOptional(bufx -> bufx.readBlockPos())));
 
     @Override
     public Id<? extends CustomPayload> getId() {
