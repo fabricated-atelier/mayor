@@ -13,20 +13,14 @@ import net.minecraft.network.packet.CustomPayload;
 
 public record StructureCenterPacket(boolean center) implements CustomPayload {
 
-    public static final CustomPayload.Id<StructureCenterPacket> PACKET_ID =
-            new CustomPayload.Id<>(Mayor.identifierOf("structure_center_packet"));
+    public static final CustomPayload.Id<StructureCenterPacket> PACKET_ID = new CustomPayload.Id<>(Mayor.identifierOf("structure_center_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, StructureCenterPacket> PACKET_CODEC =
-            PacketCodec.tuple(
-                    PacketCodecs.BOOL, StructureCenterPacket::center,
-                    StructureCenterPacket::new
-            );
+    public static final PacketCodec<RegistryByteBuf, StructureCenterPacket> PACKET_CODEC = PacketCodec.tuple(PacketCodecs.BOOL, StructureCenterPacket::center, StructureCenterPacket::new);
 
     @Override
     public Id<? extends CustomPayload> getId() {
         return PACKET_ID;
     }
-
 
     public void sendPacket() {
         ClientPlayNetworking.send(this);
@@ -35,12 +29,8 @@ public record StructureCenterPacket(boolean center) implements CustomPayload {
     public void handlePacket(ServerPlayNetworking.Context context) {
         context.server().execute(() -> {
             MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-            StructureHelper.updateMayorStructure(
-                    context.player(),
-                    mayorManager.getStructureId(),
-                    mayorManager.getStructureRotation(),
-                    this.center
-            );
+            mayorManager.setStructureCentered(center);
+            StructureHelper.updateMayorStructure(context.player(), mayorManager.getStructureId(), mayorManager.getStructureRotation(), this.center);
         });
     }
 }
