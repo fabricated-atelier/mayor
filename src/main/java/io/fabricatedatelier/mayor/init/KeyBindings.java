@@ -1,15 +1,12 @@
 package io.fabricatedatelier.mayor.init;
 
+import io.fabricatedatelier.mayor.util.KeyHelper;
 import org.lwjgl.glfw.GLFW;
 
-import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.network.packet.StructureCenterPacket;
-import io.fabricatedatelier.mayor.util.MayorManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.option.KeyBinding;
 
 @Environment(EnvType.CLIENT)
@@ -26,17 +23,7 @@ public class KeyBindings {
         KeyBindingHelper.registerKeyBinding(majorRotateRightKeyBind);
         KeyBindingHelper.registerKeyBinding(majorCenterKeyBind);
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (majorCenterKeyBind.wasPressed()) {
-                if (client.player != null) {
-                    MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                    if (client.player != null && mayorManager.isInMajorView()) {
-                        ClientPlayNetworking.send(new StructureCenterPacket(mayorManager.getStructureCentered() ? false : true));
-                        return;
-                    }
-                }
-            }
-        });
+        ClientTickEvents.END_CLIENT_TICK.register(KeyHelper::centerKey);
     }
 
 }

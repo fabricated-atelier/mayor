@@ -34,6 +34,7 @@ public class CustomC2SNetworking {
 
             context.server().execute(() -> {
                 MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+                mayorManager.setStructureCentered(center);
                 StructureHelper.updateMayorStructure(context.player(), mayorManager.getStructureId(), mayorManager.getStructureRotation(), center);
             });
         });

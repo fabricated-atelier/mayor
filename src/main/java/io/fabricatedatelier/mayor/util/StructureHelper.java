@@ -49,12 +49,10 @@ public class StructureHelper {
             int centerX = 0;
             int centerZ = 0;
             if (center) {
-
                 centerX = optional.get().getSize().getX() / 2;
                 centerZ = optional.get().getSize().getZ() / 2;
-
-                System.out.println(centerX + " : " + centerZ + " : " + optional.get().getSize());
             }
+
             for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().get(0).getAll().size(); i++) {
                 StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().get(0).getAll().get(i);
                 if (structureBlockInfo.state().isAir()) {
