@@ -3,6 +3,8 @@
     "key.major.structure_rotate_left": "Rotate Structure Left",
     "key.major.structure_rotate_right": "Rotate Structure Right",
     "key.major.structure_center": "Center Structure",
+    "key.major.structure_upward": "Upward Structure",
+    "key.major.structure_downward": "Downward Structure",
 
     "gui.major.structures": "Structures",
     "gui.major.houses": "Houses",

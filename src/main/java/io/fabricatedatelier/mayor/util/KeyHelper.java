@@ -24,4 +24,22 @@ public class KeyHelper {
         }
     }
 
+    public static void heightKey(MinecraftClient client) {
+        if (KeyBindings.majorUpwardKeyBind.wasPressed()) {
+            if (client.player != null) {
+                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
+                    mayorManager.setOriginBlockPos(mayorManager.getOriginBlockPos().up());
+                }
+            }
+        } else if (KeyBindings.majorDownwardKeyBind.wasPressed()) {
+            if (client.player != null) {
+                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
+                    mayorManager.setOriginBlockPos(mayorManager.getOriginBlockPos().down());
+                }
+            }
+        }
+    }
+
 }
