@@ -1,3 +1,5 @@
-// 1.21	2024-07-20T16:24:05.8108119	Mayor/Model Definitions
+// 1.21	2024-07-29T00:14:21.3454236	Mayor/Model Definitions
 231e5d499785932a985ae132a7e6f2e2626b74a5 assets\mayor\blockstates\camera_debug.json
 d183856983f0f13802ec356006cc10d9dfc16650 assets\mayor\models\item\camera_debug.json
+90a56395e657a2106c4b51f0e2f462b068617b92 assets\mayor\blockstates\lumber_storage.json
+961ccc25c3e88551b9a09ef53cfc7a0c11fe2400 assets\mayor\models\item\lumber_storage.json

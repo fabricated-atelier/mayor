@@ -17,7 +17,7 @@ public class CameraDebugBlockEntity extends BlockEntity {
     private int tick = -1;
 
     public CameraDebugBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.CAMERA_DEBUG_BLOCK_ENTITY, pos, state);
+        super(BlockEntities.CAMERA_DEBUG, pos, state);
     }
 
     public int getTick() {

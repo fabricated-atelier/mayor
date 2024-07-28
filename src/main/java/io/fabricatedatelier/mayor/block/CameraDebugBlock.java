@@ -59,6 +59,6 @@ public class CameraDebugBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, BlockEntities.CAMERA_DEBUG_BLOCK_ENTITY, CameraDebugBlockEntity::tick);
+        return validateTicker(type, BlockEntities.CAMERA_DEBUG, CameraDebugBlockEntity::tick);
     }
 }
