@@ -135,6 +135,10 @@ public class CameraHelper {
         this.tick = tick;
     }
 
+    public void incrementTick() {
+        this.setTick(this.getTick() + 1);
+    }
+
     public void updateCameraPos() {
         if (this.getTarget().isEmpty()) return;
         float progressAngle = MathHelper.lerp(this.getNormalizedOrbitProgress(), 0f, 360f);
