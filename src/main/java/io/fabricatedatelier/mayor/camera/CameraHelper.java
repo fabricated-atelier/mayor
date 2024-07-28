@@ -9,7 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * Singleton Helper class to register none or one specific Camera location and angle.<br><br>
+ * <h1>CameraHelper</h1>
+ * Singleton class for registering none or one specific Camera location and angle.<br><br>
  * <p>
  * This camera helper makes use of an Orbit around a specific location, which is defined by the
  * {@link CameraTarget} Interface. This interface is implemented for
@@ -19,11 +20,14 @@ import java.util.Optional;
  * {@link StaticCameraTarget StaticCameraTarget} and use this as a {@link CameraTarget}.
  * This will always stay on the specified target location.
  *
- * @implNote Use {@link CameraHelper#getInstance()} to get access to the object of the CameraHelper
+ * @implNote <ul>
+ * <li>Use {@link CameraHelper#getInstance()} to get access to the object of the CameraHelper on the client side.</li>
+ * <li>To reset or disable the {@link CameraHelper} instance, pass in <code>null</code> into {@link #setTarget(CameraTarget) setTarget()}</li>
+ * </ul>
  */
 @SuppressWarnings("UnusedReturnValue")
 public class CameraHelper {
-    public static final int FULL_ORBIT_TICK_DURATION = 10000;
+    public static final int FULL_ORBIT_TICK_DURATION = 8000;
 
     private static CameraHelper instance;
 
@@ -53,6 +57,7 @@ public class CameraHelper {
     }
 
     public CameraHelper setTarget(@Nullable CameraTarget target) {
+        if (target == null) CameraHelper.instance = null;
         this.target = target;
         return this;
     }
@@ -73,6 +78,17 @@ public class CameraHelper {
     public CameraHelper setDistance(float distance) {
         this.distance = Math.max(distance, 1);
         return this;
+    }
+
+    private double getHorizontalDistance() {
+        if (this.getTarget().isEmpty()) return 0;
+
+        Vec3d targetPos = this.getTarget().get().mayor$getTargetPosition();
+        Vec3d camPos = this.getCameraPos();
+        return Math.sqrt(MathHelper.square((camPos.x - targetPos.x))
+                + MathHelper.square((camPos.y - targetPos.y))
+                + MathHelper.square((camPos.z - targetPos.z))
+        );
     }
 
     public Vec3d getCameraPos() {
@@ -119,6 +135,10 @@ public class CameraHelper {
         this.tick = tick;
     }
 
+    public void incrementTick() {
+        this.setTick(this.getTick() + 1);
+    }
+
     public void updateCameraPos() {
         if (this.getTarget().isEmpty()) return;
         float progressAngle = MathHelper.lerp(this.getNormalizedOrbitProgress(), 0f, 360f);
@@ -132,7 +152,7 @@ public class CameraHelper {
 
     public void updateCameraRotations() {
         if (this.getTarget().isEmpty() || this.getTarget().get().mayor$getTargetPosition() == null) return;
-        double pitchInRad = Math.asin(getHeight() / getDistance());
+        double pitchInRad = Math.asin(getHeight() / getHorizontalDistance());
 
         this.setPitch(Math.toDegrees(pitchInRad));
 
@@ -141,12 +161,14 @@ public class CameraHelper {
 
         double yawInRad = MathHelper.atan2(deltaZ, deltaX);
         this.setYaw(Math.toDegrees(yawInRad) - 90);
-        // Mayor.LOGGER.info("{} | {}", getDistance(), getHeight());
     }
 
     public void handleScroll(double delta) {
-        //FIXME: is bound to height too? weird rotations are happening here...
-        this.setDistance((float) Math.max(this.getDistance() + delta, 0));
+        this.setDistance((float) Math.max(this.getDistance() + delta, 1));
         this.setHeight((float) Math.max(this.getHeight() + delta, 0));
+    }
+
+    public void handleMouseMovement(double deltaX, double deltaY) {
+
     }
 }

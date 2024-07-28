@@ -1,26 +1,19 @@
 package io.fabricatedatelier.mayor.util;
 
-import java.util.*;
-
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.util.math.Direction;
-import org.jetbrains.annotations.Nullable;
-
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.mixin.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -33,17 +26,20 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 public class StructureHelper {
 
     public static Optional<StructureTemplate> getStructureTemplate(ServerWorld serverWorld, Identifier identifier) {
         StructureTemplateManager structureTemplateManager = serverWorld.getStructureTemplateManager();
-        Optional<StructureTemplate> structure = structureTemplateManager.getTemplate(identifier);
-        return structure;
+        return structureTemplateManager.getTemplate(identifier);
     }
 
     public static Map<BlockPos, NbtCompound> getBlockMap(ServerWorld serverWorld, Identifier structureId, BlockRotation structureRotation, boolean center) {
-        Map<BlockPos, NbtCompound> blockMap = new HashMap<BlockPos, NbtCompound>();
+        Map<BlockPos, NbtCompound> blockMap = new HashMap<>();
         Optional<StructureTemplate> optional = StructureHelper.getStructureTemplate(serverWorld, structureId);
         if (optional.isPresent() && optional.get() instanceof StructureTemplateAccess structureTemplateAccess) {
             int centerX = 0;
@@ -52,15 +48,14 @@ public class StructureHelper {
                 centerX = optional.get().getSize().getX() / 2;
                 centerZ = optional.get().getSize().getZ() / 2;
             }
-
-            for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().get(0).getAll().size(); i++) {
-                StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().get(0).getAll().get(i);
+            for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().getFirst().getAll().size(); i++) {
+                StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().getFirst().getAll().get(i);
                 if (structureBlockInfo.state().isAir()) {
                     // maybe sync air too?
                     continue;
                 }
                 BlockState blockState = structureBlockInfo.state().rotate(structureRotation);
-                if (structureBlockInfo.state().isOf(Blocks.JIGSAW)) {
+                if (structureBlockInfo.state().isOf(Blocks.JIGSAW) && structureBlockInfo.nbt() != null) {
                     String string = structureBlockInfo.nbt().getString("final_state");
                     try {
                         blockState = BlockArgumentParser.block(serverWorld.createCommandRegistryWrapper(RegistryKeys.BLOCK), string, true).blockState();
@@ -82,7 +77,7 @@ public class StructureHelper {
             MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
             mayorManager.setStructureId(structureId);
             mayorManager.setStructureRotation(structureRotation);
-            ServerPlayNetworking.send(serverPlayerEntity, new StructurePacket(structureId, blockMap, structureRotation));
+            new StructurePacket(structureId, blockMap, structureRotation).sendPacket(serverPlayerEntity);
             return true;
         }
         return false;
@@ -100,7 +95,6 @@ public class StructureHelper {
 
     public static BlockRotation getStructureRotation(int structureRotation) {
         return switch (structureRotation) {
-        case 0 -> BlockRotation.NONE;
         case 1 -> BlockRotation.CLOCKWISE_90;
         case 2 -> BlockRotation.CLOCKWISE_180;
         case 3 -> BlockRotation.COUNTERCLOCKWISE_90;
@@ -153,19 +147,16 @@ public class StructureHelper {
     }
 
     public static List<ItemStack> getStructureItemRequirements(ServerWorld serverWorld, Identifier structureId) {
-        List<ItemStack> requiredItemStacks = new ArrayList<ItemStack>();
+        List<ItemStack> requiredItemStacks = new ArrayList<>();
         Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockMap(serverWorld, structureId, BlockRotation.NONE, false);
 
         RegistryEntryLookup<Block> blockLookup = serverWorld.createCommandRegistryWrapper(RegistryKeys.BLOCK);
 
-        Iterator<Map.Entry<BlockPos, NbtCompound>> iterator = blockMap.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<BlockPos, NbtCompound> entry = iterator.next();
-
+        for (var entry : blockMap.entrySet()) {
             ItemStack itemStack = new ItemStack(NbtHelper.toBlockState(blockLookup, entry.getValue()).getBlock().asItem());
-            if (requiredItemStacks.size() <= 0) {
+            if (requiredItemStacks.isEmpty())
                 requiredItemStacks.add(itemStack);
-            } else {
+            else {
                 for (int i = 0; i < requiredItemStacks.size(); i++) {
                     if (requiredItemStacks.get(i).isOf(itemStack.getItem())) {
                         if (requiredItemStacks.get(i).getCount() >= requiredItemStacks.get(i).getMaxCount()) {

@@ -8,7 +8,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,9 +20,6 @@ public abstract class CameraMixin {
 
     @Shadow
     protected abstract void setRotation(float yaw, float pitch);
-
-    @Unique
-    private int tick = 0;
 
     @Inject(method = "update", at = @At("TAIL"))
     private void test(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
@@ -39,14 +35,15 @@ public abstract class CameraMixin {
             return;
         }
         camera.getTarget().ifPresent(target -> {
-            tick++;
-            float normalizedProgress = (float) tick / CameraHelper.FULL_ORBIT_TICK_DURATION;
+            camera.incrementTick();
+
+            float normalizedProgress = (float) camera.getTick() / CameraHelper.FULL_ORBIT_TICK_DURATION;
             camera.setNormalizedOrbitProgress(normalizedProgress);
             camera.updateCameraPos();
             camera.updateCameraRotations();
             this.setPos(camera.getCameraPos());
             this.setRotation((float) camera.getYaw(), (float) camera.getPitch());
-            if (this.tick >= CameraHelper.FULL_ORBIT_TICK_DURATION) this.tick = 0;
+            if (camera.getTick() >= CameraHelper.FULL_ORBIT_TICK_DURATION) camera.setTick(0);
         });
     }
 }

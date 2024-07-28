@@ -10,10 +10,10 @@ import net.minecraft.client.MinecraftClient;
 public class KeyHelper {
 
     public static void rotateKey(MinecraftClient client, boolean rotateLeft) {
-        ClientPlayNetworking.send(new StructureRotatePacket(rotateLeft));
+        new StructureRotatePacket(rotateLeft).sendPacket();
     }
 
-    public static void centerKey(MinecraftClient client){
+    public static void centerKey(MinecraftClient client) {
         if (KeyBindings.majorCenterKeyBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
