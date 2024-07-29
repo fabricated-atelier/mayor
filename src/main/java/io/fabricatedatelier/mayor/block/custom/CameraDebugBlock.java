@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.block;
+package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.CameraDebugBlockEntity;

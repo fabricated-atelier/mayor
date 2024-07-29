@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.init;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.block.CameraDebugBlock;
+import io.fabricatedatelier.mayor.block.custom.CameraDebugBlock;
 import io.fabricatedatelier.mayor.block.custom.LumberStorageBlock;
 import io.fabricatedatelier.mayor.block.custom.StoneStorageBlock;
 import net.minecraft.block.AbstractBlock;

@@ -22,7 +22,6 @@ import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,57 +29,48 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
 
     abstract public List<ConnectedSide> connectableSides();
 
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty IS_ORIGIN = BooleanProperty.of("is_origin");
 
     protected AbstractVillageContainerBlock(Settings settings) {
         super(settings);
-        this.setConnectedSides();
-        this.setDefaultState(this.getDefaultState().with(FACING, Direction.NORTH).with(IS_ORIGIN, false));
-    }
-
-    protected static List<ConnectedSide> getConnectedSides(World world, BlockPos pos) {
-        List<ConnectedSide> connectedSides = new ArrayList<>();
-        world.getBlockState(pos).getEntries().forEach((key, value) -> {
-            if (key.getName().contains("_connected")) {
-                ConnectedSide.fromProperty(key).ifPresent(connectedSides::add);
-            }
-        });
-        return connectedSides;
-    }
-
-    protected void setConnectedSides(ConnectedSide... connectedSides) {
-        for (var possibleSide : connectableSides()) {
-            boolean isValid = false;
-            for (var connectedSide : connectedSides) {
-                if (!possibleSide.equals(connectedSide)) continue;
-                this.setDefaultState(this.getDefaultState().with(possibleSide.getProperty(), true));
-                isValid = true;
-            }
-            if (!isValid) {
-                this.setDefaultState(this.getDefaultState().with(possibleSide.getProperty(), false));
-            }
+        this.setDefaultState(this.getDefaultState().with(IS_ORIGIN, false));
+        for (ConnectedSide entry : connectableSides()) {
+            this.setDefaultState(this.getDefaultState().with(entry.getProperty(), false));
         }
+    }
+
+    protected BlockState stateWithConnectedSide(ConnectedSide side, boolean shouldConnect, BlockState state) {
+        if (connectableSides().contains(side)) {
+            state = state.with(side.getProperty(), shouldConnect);
+        }
+        return state;
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
         connectableSides().forEach(connectedSide -> builder.add(connectedSide.getProperty()));
-        builder.add(FACING);
+        builder.add(IS_ORIGIN);
     }
 
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
-        return this.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing());
+        BlockState state = this.getDefaultState().with(IS_ORIGIN, true);
+        for (var side : connectableSides()) {
+            Direction direction = side.getDirection();
+            if (ctx.getWorld().getBlockState(ctx.getBlockPos().offset(direction)).getBlock().equals(this)) {
+                state = state.with(IS_ORIGIN, false);
+                break;
+            }
+        }
+        return state;
     }
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
         state.with(IS_ORIGIN, true);    // first placed block is origin
-        //TODO: place rest of necessary structure
     }
 
     @Override

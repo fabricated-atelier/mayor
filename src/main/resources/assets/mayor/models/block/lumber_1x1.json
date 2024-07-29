@@ -2,7 +2,8 @@
 	"credit": "Made with Blockbench by ShiroJR",
 	"texture_size": [64, 64],
 	"textures": {
-		"0": "lumber_1x1"
+		"0": "mayor:block/lumber_1x2",
+		"particle": "mayor:block/lumber_1x2"
 	},
 	"elements": [
 		{

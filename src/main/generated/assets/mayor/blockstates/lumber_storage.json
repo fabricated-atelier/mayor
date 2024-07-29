@@ -1,19 +1,7 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "mayor:block/lumber_1x2",
-      "y": 90
-    },
-    "facing=north": {
-      "model": "mayor:block/lumber_1x2"
-    },
-    "facing=south": {
-      "model": "mayor:block/lumber_1x2",
-      "y": 180
-    },
-    "facing=west": {
-      "model": "mayor:block/lumber_1x2",
-      "y": 270
+    "": {
+      "model": "mayor:block/lumber_1x1"
     }
   }
 }

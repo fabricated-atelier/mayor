@@ -10,11 +10,15 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.state.property.Properties;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class LumberStorageBlock extends AbstractVillageContainerBlock {
     @Override
@@ -42,14 +46,35 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
     @Override
     public @Nullable BlockState getPlacementState(ItemPlacementContext ctx) {
-        ConnectedSide.fromDirection(ctx.getHorizontalPlayerFacing()).ifPresent(this::setConnectedSides);
-        return super.getPlacementState(ctx);
+        World world = ctx.getWorld();
+        BlockPos centerPos = ctx.getBlockPos();
+        BlockState centerState = super.getPlacementState(ctx);
+
+        for (Direction direction : Properties.HORIZONTAL_FACING.stream().map(Property.Value::value).toList()) {
+            BlockPos offsetPos = centerPos.offset(direction);
+            if (!world.getBlockState(offsetPos).getBlock().equals(this)) continue;
+            Optional<ConnectedSide> connectedSide = ConnectedSide.fromDirection(direction);
+            if (connectedSide.isEmpty()) continue;
+            centerState = stateWithConnectedSide(connectedSide.get(), true, centerState);
+
+        }
+
+        return centerState;
     }
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        if (!(placer instanceof ServerPlayerEntity player)) return;
+        for (Direction direction : Properties.HORIZONTAL_FACING.stream().map(Property.Value::value).toList()) {
+            BlockPos offsetPos = pos.offset(direction);
+            BlockState offsetState = world.getBlockState(offsetPos);
+            if (!offsetState.getBlock().equals(this)) continue;
+
+            Optional<ConnectedSide> connectedOppositeSide = ConnectedSide.fromDirection(direction.getOpposite());
+            if (connectedOppositeSide.isEmpty()) continue;
+            world.setBlockState(offsetPos, stateWithConnectedSide(connectedOppositeSide.get(), true, offsetState));
+
+        }
 
     }
 
