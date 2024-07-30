@@ -14,7 +14,8 @@ import net.minecraft.text.Text;
 import java.util.function.Supplier;
 
 public class ItemGroups {
-    public static final RegistryKey<ItemGroup> MAYOR_ITEMS = registerItemGroup("mayor", () -> Items.TEST_ITEM);
+    public static final RegistryKey<ItemGroup> MAYOR_ITEMS = registerItemGroup("items", () -> Items.TEST_ITEM);
+    public static final RegistryKey<ItemGroup> MAYOR_BLOCKS = registerItemGroup("blocks", Blocks.CAMERA_DEBUG::asItem);
 
 
     private static RegistryKey<ItemGroup> registerItemGroup(String name, Supplier<Item> icon) {
