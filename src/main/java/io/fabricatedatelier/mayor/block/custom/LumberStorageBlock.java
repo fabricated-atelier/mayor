@@ -1,15 +1,14 @@
 package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
+import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.math.BlockPos;
@@ -21,17 +20,16 @@ import java.util.List;
 import java.util.Optional;
 
 public class LumberStorageBlock extends AbstractVillageContainerBlock {
-    @Override
-    public List<ConnectedSide> connectableSides() {
-        return List.of(ConnectedSide.NORTH, ConnectedSide.EAST, ConnectedSide.SOUTH, ConnectedSide.WEST,
-                ConnectedSide.UP, ConnectedSide.DOWN);
-    }
 
     public LumberStorageBlock(Settings settings) {
         super(settings);
     }
 
-
+    @Override
+    public List<ConnectedSide> connectableSides() {
+        return List.of(ConnectedSide.NORTH, ConnectedSide.EAST, ConnectedSide.SOUTH, ConnectedSide.WEST,
+                ConnectedSide.UP, ConnectedSide.DOWN);
+    }
 
     @Override
     public MapCodec<? extends BlockWithEntity> getCodec() {
