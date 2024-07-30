@@ -14,14 +14,11 @@ public class Mayor implements ModInitializer {
     @Override
     public void onInitialize() {
         Items.initialize();
-        ItemGroups.initialize();
-
         Blocks.initialize();
+        ItemGroups.initialize();
         BlockEntities.initialize();
-
         NetworkPayloads.initialize();
         CustomC2SNetworking.initialize();
-
         Events.initialize();
         Tags.initialize();
 

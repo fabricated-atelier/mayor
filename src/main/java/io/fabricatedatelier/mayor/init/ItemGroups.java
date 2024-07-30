@@ -13,14 +13,18 @@ import net.minecraft.text.Text;
 
 import java.util.function.Supplier;
 
+@SuppressWarnings("Convert2MethodRef")  // method references instead of lambdas cause issues when lazy initialisation
 public class ItemGroups {
     public static final RegistryKey<ItemGroup> MAYOR_ITEMS = registerItemGroup("items", () -> Items.TEST_ITEM);
-    public static final RegistryKey<ItemGroup> MAYOR_BLOCKS = registerItemGroup("blocks", Blocks.CAMERA_DEBUG::asItem);
+    public static final RegistryKey<ItemGroup> MAYOR_BLOCKS = registerItemGroup("blocks", () -> Blocks.CAMERA_DEBUG.asItem());
 
 
     private static RegistryKey<ItemGroup> registerItemGroup(String name, Supplier<Item> icon) {
         Text displayName = Text.translatable("itemgroup.%s.%s".formatted(Mayor.MODID, name));
-        ItemGroup itemGroup = FabricItemGroup.builder().icon(() -> new ItemStack(icon.get())).displayName(displayName).build();
+        ItemGroup itemGroup = FabricItemGroup.builder()
+                .icon(() -> new ItemStack(icon.get()))
+                .displayName(displayName)
+                .build();
         Registry.register(Registries.ITEM_GROUP, getRegistryKey(name), itemGroup);
         return getRegistryKey(name);
     }
