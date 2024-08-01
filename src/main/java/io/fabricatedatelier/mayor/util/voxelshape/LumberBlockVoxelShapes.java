@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.util.voxelshape;
 
+import io.fabricatedatelier.mayor.block.custom.LumberStorageBlock;
 import io.fabricatedatelier.mayor.util.MayorProperties;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Properties;
@@ -13,7 +14,7 @@ public class LumberBlockVoxelShapes {
         var shape = state.get(MayorProperties.SHAPE);
         return switch (shape) {
             case ALL_WALLS -> {
-                if (state.get(Properties.FACING).equals(Direction.NORTH) || state.get(Properties.FACING).equals(Direction.SOUTH)) {
+                if (state.get(LumberStorageBlock.FACING).equals(Direction.NORTH) || state.get(Properties.FACING).equals(Direction.SOUTH)) {
                     yield VoxelShapes.union(
                             VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 0.9375),
                             VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 0.5, 1),

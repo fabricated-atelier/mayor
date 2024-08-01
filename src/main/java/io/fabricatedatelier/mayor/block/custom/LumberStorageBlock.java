@@ -33,7 +33,6 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     public LumberStorageBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getDefaultState()
-                .with(FACING, Direction.NORTH)
                 .with(MayorProperties.SHAPE, MayorProperties.Shape.ALL_WALLS)
                 .with(MayorProperties.POSITION, MayorProperties.VerticalPosition.BOTTOM)
                 .with(MayorProperties.SIDE, MayorProperties.Side.RIGHT));
@@ -42,7 +41,7 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, MayorProperties.SHAPE, MayorProperties.POSITION, MayorProperties.SIDE);
+        builder.add(MayorProperties.SHAPE, MayorProperties.POSITION, MayorProperties.SIDE);
     }
 
     @Override
