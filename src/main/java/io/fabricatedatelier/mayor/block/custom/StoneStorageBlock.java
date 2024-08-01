@@ -11,17 +11,10 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 public class StoneStorageBlock extends AbstractVillageContainerBlock {
 
     public StoneStorageBlock(Settings settings) {
         super(settings);
-    }
-
-    @Override
-    public List<ConnectedSide> connectableSides() {
-        return List.of(ConnectedSide.NORTH, ConnectedSide.EAST, ConnectedSide.SOUTH, ConnectedSide.WEST);
     }
 
     @Override

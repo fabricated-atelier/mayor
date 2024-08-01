@@ -10,5 +10,8 @@ public class LumberStorageBlockEntity extends AbstractVillageContainerBlockEntit
         super(BlockEntities.LUMBER_STORAGE, pos, state);
     }
 
-
+    @Override
+    public StructureDimensions getMaxStructureDimensions() {
+        return new StructureDimensions(2, 2, 5);
+    }
 }
