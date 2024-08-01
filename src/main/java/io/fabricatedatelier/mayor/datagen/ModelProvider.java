@@ -34,9 +34,9 @@ public class ModelProvider extends FabricModelProvider {
         return BlockStateVariantMap.create(MayorProperties.SHAPE, MayorProperties.POSITION, MayorProperties.SIDE)
                 .register((part, position, side) -> switch (part) {
                             case ALL_WALLS -> BlockStateVariant.create().put(VariantSettings.MODEL,
-                                    Mayor.identifierOf("block/lumber_1x1"));
+                                    Mayor.identifierOf("block/1x1/lumber_1x1"));
                             case TWO_WALLS_END -> {
-                                String model = "block/lumber_1xn_end_";
+                                String model = "block/1xn/lumber_1xn_end_";
                                 if (position.equals(MayorProperties.VerticalPosition.BOTTOM)) model += "bottom";
                                 else model += "top";
 
@@ -44,7 +44,7 @@ public class ModelProvider extends FabricModelProvider {
                                         Mayor.identifierOf(model));
                             }
                             case TWO_WALLS_MID -> {
-                                String model = "block/lumber_1xn_mid_";
+                                String model = "block/1xn/lumber_1xn_mid_";
 
                                 if (position.equals(MayorProperties.VerticalPosition.BOTTOM)) model += "bottom";
                                 else model += "top";
@@ -53,7 +53,7 @@ public class ModelProvider extends FabricModelProvider {
                                         Mayor.identifierOf(model));
                             }
                             case ONE_WALL_END -> {
-                                String model = "block/lumber_2xn_end";
+                                String model = "block/2xn/lumber_2xn_end";
 
                                 if (side.equals(MayorProperties.Side.RIGHT)) model += "_right";
                                 else model += "_left";
@@ -64,7 +64,7 @@ public class ModelProvider extends FabricModelProvider {
                                         Mayor.identifierOf(model));
                             }
                             case ONE_WALL_MID -> {
-                                String model = "block/lumber_2xn_mid_";
+                                String model = "block/2xn/lumber_2xn_mid";
 
                                 if (side.equals(MayorProperties.Side.RIGHT)) model += "_right";
                                 else model += "_left";

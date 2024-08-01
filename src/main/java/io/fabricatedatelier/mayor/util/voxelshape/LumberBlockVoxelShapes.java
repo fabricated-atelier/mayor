@@ -3,7 +3,6 @@ package io.fabricatedatelier.mayor.util.voxelshape;
 import io.fabricatedatelier.mayor.block.custom.LumberStorageBlock;
 import io.fabricatedatelier.mayor.util.MayorProperties;
 import net.minecraft.block.BlockState;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -14,15 +13,7 @@ public class LumberBlockVoxelShapes {
         var shape = state.get(MayorProperties.SHAPE);
         return switch (shape) {
             case ALL_WALLS -> {
-                if (state.get(LumberStorageBlock.FACING).equals(Direction.NORTH) || state.get(Properties.FACING).equals(Direction.SOUTH)) {
-                    yield VoxelShapes.union(
-                            VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 0.9375),
-                            VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 0.5, 1),
-                            VoxelShapes.cuboid(0.75, 0, 0, 0.875, 0.5, 0.125),
-                            VoxelShapes.cuboid(0.125, 0, 0, 0.25, 0.5, 0.125),
-                            VoxelShapes.cuboid(0.75, 0, 0.875, 0.875, 0.5, 1)
-                    );
-                } else {
+                if (state.get(LumberStorageBlock.FACING).equals(Direction.NORTH) || state.get(LumberStorageBlock.FACING).equals(Direction.SOUTH)) {
                     yield VoxelShapes.union(
                             VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 0.9375),
                             VoxelShapes.cuboid(0, 0, 0.125, 0.125, 0.5, 0.25),
@@ -30,9 +21,17 @@ public class LumberBlockVoxelShapes {
                             VoxelShapes.cuboid(0.875, 0, 0.125, 1, 0.5, 0.25),
                             VoxelShapes.cuboid(0, 0, 0.75, 0.125, 0.5, 0.875)
                     );
+                } else {
+                    yield VoxelShapes.union(
+                            VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 0.9375),
+                            VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 0.5, 1),
+                            VoxelShapes.cuboid(0.75, 0, 0, 0.875, 0.5, 0.125),
+                            VoxelShapes.cuboid(0.125, 0, 0, 0.25, 0.5, 0.125),
+                            VoxelShapes.cuboid(0.75, 0, 0.875, 0.875, 0.5, 1)
+                    );
                 }
             }
-            case TWO_WALLS_END -> switch (state.get(Properties.FACING)) {
+            case TWO_WALLS_END -> switch (state.get(LumberStorageBlock.FACING)) {
                 case NORTH -> VoxelShapes.union(
                         VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 1),
                         VoxelShapes.cuboid(0.84375, 0.625, 0.0625, 0.90625, 0.8125, 1),
@@ -63,7 +62,7 @@ public class LumberBlockVoxelShapes {
                 );
                 default -> VoxelShapes.empty();
             };
-            case TWO_WALLS_MID -> switch (state.get(Properties.FACING)) {
+            case TWO_WALLS_MID -> switch (state.get(LumberStorageBlock.FACING)) {
                 case NORTH, SOUTH -> VoxelShapes.union(
                         VoxelShapes.cuboid(0.0625, 0, 0, 0.9375, 0.125, 1),
                         VoxelShapes.cuboid(0.09375, 0.625, 0, 0.15625, 0.8125, 1),
@@ -81,7 +80,7 @@ public class LumberBlockVoxelShapes {
                 default -> VoxelShapes.empty();
             };
             case ONE_WALL_END -> switch (state.get(MayorProperties.SIDE)) {
-                case LEFT -> switch (state.get(Properties.FACING)) {
+                case LEFT -> switch (state.get(LumberStorageBlock.FACING)) {
                     case NORTH -> switch (state.get(MayorProperties.POSITION)) {
                         case TOP -> VoxelShapes.union(
                                 VoxelShapes.cuboid(0, 0, 0.75, 0.125, 1, 0.875),
@@ -128,7 +127,7 @@ public class LumberBlockVoxelShapes {
                     };
                     default -> VoxelShapes.empty();
                 };
-                case RIGHT -> switch (state.get(Properties.FACING)) {
+                case RIGHT -> switch (state.get(LumberStorageBlock.FACING)) {
                     case NORTH -> switch (state.get(MayorProperties.POSITION)) {
                         case TOP -> VoxelShapes.union(
                                 VoxelShapes.cuboid(0.84375, 0.25, 0, 0.90625, 0.4375, 0.9375),
@@ -177,7 +176,7 @@ public class LumberBlockVoxelShapes {
                 };
             };
             case ONE_WALL_MID -> switch (state.get(MayorProperties.SIDE)) {
-                case LEFT -> switch (state.get(Properties.FACING)) {
+                case LEFT -> switch (state.get(LumberStorageBlock.FACING)) {
                     case NORTH -> switch (state.get(MayorProperties.POSITION)) {
                         case TOP -> VoxelShapes.union(
                                 VoxelShapes.cuboid(0, 0, 0.4375, 0.125, 1, 0.5625),
@@ -224,7 +223,7 @@ public class LumberBlockVoxelShapes {
                     };
                     default -> VoxelShapes.empty();
                 };
-                case RIGHT -> switch (state.get(Properties.FACING)) {
+                case RIGHT -> switch (state.get(LumberStorageBlock.FACING)) {
                     case NORTH -> switch (state.get(MayorProperties.POSITION)) {
                         case TOP -> VoxelShapes.union(
                                 VoxelShapes.cuboid(0.875, 0, 0.4375, 1, 1, 0.5625),
