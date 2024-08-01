@@ -12,11 +12,9 @@ import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
-import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -34,9 +32,9 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     public LumberStorageBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getDefaultState()
-                .with(MayorProperties.SHAPE, Shape.ALL_WALLS)
-                .with(MayorProperties.POSITION, VerticalPosition.BOTTOM)
-                .with(MayorProperties.SIDE, Side.RIGHT));
+                .with(MayorProperties.SHAPE, MayorProperties.Shape.ALL_WALLS)
+                .with(MayorProperties.POSITION, MayorProperties.VerticalPosition.BOTTOM)
+                .with(MayorProperties.SIDE, MayorProperties.Side.RIGHT));
     }
 
     @Override
@@ -73,9 +71,9 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         }
 
         if (world.getBlockState(pos.down()).getBlock() instanceof LumberStorageBlock) {
-            state = state.with(MayorProperties.POSITION, VerticalPosition.BOTTOM);
+            state = state.with(MayorProperties.POSITION, MayorProperties.VerticalPosition.BOTTOM);
         } else if (world.getBlockState(pos.up()).getBlock() instanceof LumberStorageBlock) {
-            state = state.with(MayorProperties.POSITION, VerticalPosition.TOP);
+            state = state.with(MayorProperties.POSITION, MayorProperties.VerticalPosition.TOP);
         }
 
         return state;
@@ -138,7 +136,7 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
                 .filter(currentDirection -> currentDirection != direction.getOpposite()).anyMatch(sides::get));
     }
 
-    public Optional<Shape> getShape(BlockView world, BlockPos pos) {
+    public Optional<MayorProperties.Shape> getShape(BlockView world, BlockPos pos) {
         if (getOrigin(world, pos).isEmpty()) return Optional.empty();
         if (!(world.getBlockEntity(pos) instanceof LumberStorageBlockEntity blockEntity)) return Optional.empty();
 
@@ -157,63 +155,15 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
         int neighborCount = (int) occupiedPositions.entrySet().stream().filter(Map.Entry::getValue).count();
 
-        if (neighborCount == 0) return Optional.of(Shape.ALL_WALLS);
-        if (neighborCount == 1) return Optional.of(Shape.TWO_WALLS_END);
+        if (neighborCount == 0) return Optional.of(MayorProperties.Shape.ALL_WALLS);
+        if (neighborCount == 1) return Optional.of(MayorProperties.Shape.TWO_WALLS_END);
         if (neighborCount == 2) {
-            if (wallsAreAdjacent(occupiedPositions)) return Optional.of(Shape.ONE_WALL_END);
-            else return Optional.of(Shape.TWO_WALLS_MID);
+            if (wallsAreAdjacent(occupiedPositions)) return Optional.of(MayorProperties.Shape.ONE_WALL_END);
+            else return Optional.of(MayorProperties.Shape.TWO_WALLS_MID);
         }
-        if (neighborCount == 3) return Optional.of(Shape.ONE_WALL_MID);
+        if (neighborCount == 3) return Optional.of(MayorProperties.Shape.ONE_WALL_MID);
         return Optional.empty();
     }
 
-    public enum Shape implements StringIdentifiable {
-        ALL_WALLS("all_walls"),
-        TWO_WALLS_END("two_walls_end"),
-        TWO_WALLS_MID("two_walls_mid"),
-        ONE_WALL_END("one_wall_end"),
-        ONE_WALL_MID("one_wall_mid");
 
-
-        private final String name;
-
-        Shape(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String asString() {
-            return this.name;
-        }
-    }
-
-    public enum VerticalPosition implements StringIdentifiable {
-        BOTTOM("bottom"), TOP("top");
-
-        private final String name;
-
-        VerticalPosition(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String asString() {
-            return name;
-        }
-    }
-
-    public enum Side implements StringIdentifiable {
-        LEFT("left"), RIGHT("right");
-
-        private final String name;
-
-        Side(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String asString() {
-            return name;
-        }
-    }
 }
