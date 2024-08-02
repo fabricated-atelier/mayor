@@ -13,8 +13,8 @@ public class Mayor implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Items.initialize();
         Blocks.initialize();
+        Items.initialize();
         ItemGroups.initialize();
         BlockEntities.initialize();
         NetworkPayloads.initialize();
