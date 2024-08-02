@@ -21,10 +21,7 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
@@ -81,7 +78,7 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     @Override
     protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
         // setBlockState is still possible, use BlockItem for that
-        if (isNextToSameBlock(world, pos) || !isSupported(world, pos)) return false;
+        // if (isNextToSameBlock(world, pos) || !isSupported(world, pos)) return false;
         return super.canPlaceAt(state, world, pos);
     }
 
@@ -100,10 +97,38 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
     @Override
     protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
-        if (!isSupported(world, pos)) {
+        BlockState finalState = super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+        if (isSupported(world, pos)) {
+            Map<Direction, BlockState> surroundingStates = new HashMap<>();
+            surroundingStates.put(Direction.NORTH, world.getBlockState(pos.north()));
+            surroundingStates.put(Direction.EAST, world.getBlockState(pos.east()));
+            surroundingStates.put(Direction.SOUTH, world.getBlockState(pos.south()));
+            surroundingStates.put(Direction.WEST, world.getBlockState(pos.west()));
+
+            List<Direction> sameBlockDirections = surroundingStates.entrySet().stream()
+                    .filter(entry -> entry.getValue().getBlock() instanceof LumberStorageBlock)
+                    .map(Map.Entry::getKey).toList();
+
+            switch (sameBlockDirections.size()) {
+                case 0 -> finalState = finalState.with(MayorProperties.SHAPE, MayorProperties.Shape.ALL_WALLS);
+                case 1 -> finalState = finalState
+                        .with(MayorProperties.SHAPE, MayorProperties.Shape.TWO_WALLS_END)
+                        .with(FACING, sameBlockDirections.getFirst());
+                case 2 -> {
+                    if (wallsAreAdjacent(sameBlockDirections)) {
+                        finalState = finalState.with(MayorProperties.SHAPE, MayorProperties.Shape.ONE_WALL_MID);
+                    } else {
+                        finalState = finalState
+                                .with(MayorProperties.SHAPE, MayorProperties.Shape.TWO_WALLS_MID)
+                                .with(FACING, sameBlockDirections.getFirst());
+                    }
+                }
+                case 3 -> finalState = finalState.with(MayorProperties.SHAPE, MayorProperties.Shape.ONE_WALL_MID);
+            }
+        } else {
             world.breakBlock(pos, true);
         }
-        return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+        return finalState;
     }
 
     @Override
@@ -130,39 +155,8 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         return identicalHorizontalNeighborBlocks(world, placedPos) > 0;
     }
 
-    public boolean wallsAreAdjacent(Map<Direction, Boolean> sides) {
-        return Direction.Type.HORIZONTAL.stream().anyMatch(direction -> Arrays.stream(Direction.values())
-                .filter(currentDirection -> currentDirection != direction.getOpposite()).anyMatch(sides::get));
+    public boolean wallsAreAdjacent(List<Direction> sides) {
+        return Direction.Type.HORIZONTAL.stream()
+                .allMatch(direction -> sides.stream().noneMatch(direction.getOpposite()::equals));
     }
-
-    public Optional<MayorProperties.Shape> getShape(BlockView world, BlockPos pos) {
-        if (getOrigin(world, pos).isEmpty()) return Optional.empty();
-        if (!(world.getBlockEntity(pos) instanceof LumberStorageBlockEntity blockEntity)) return Optional.empty();
-
-        LinkedHashMap<Direction, Boolean> occupiedPositions = new LinkedHashMap<>();
-        var horizontalDirections = Direction.Type.HORIZONTAL.stream().toList();
-        for (Direction direction : horizontalDirections) {
-            boolean isValidWall;
-            BlockPos offset = pos.offset(direction);
-            if (!(world.getBlockEntity(offset) instanceof LumberStorageBlockEntity offsetBlockEntity)) {
-                isValidWall = false;
-            } else {
-                isValidWall = blockEntity.getStructureOriginPos().equals(offsetBlockEntity.getStructureOriginPos());
-            }
-            occupiedPositions.put(direction, isValidWall);
-        }
-
-        int neighborCount = (int) occupiedPositions.entrySet().stream().filter(Map.Entry::getValue).count();
-
-        if (neighborCount == 0) return Optional.of(MayorProperties.Shape.ALL_WALLS);
-        if (neighborCount == 1) return Optional.of(MayorProperties.Shape.TWO_WALLS_END);
-        if (neighborCount == 2) {
-            if (wallsAreAdjacent(occupiedPositions)) return Optional.of(MayorProperties.Shape.ONE_WALL_END);
-            else return Optional.of(MayorProperties.Shape.TWO_WALLS_MID);
-        }
-        if (neighborCount == 3) return Optional.of(MayorProperties.Shape.ONE_WALL_MID);
-        return Optional.empty();
-    }
-
-
 }

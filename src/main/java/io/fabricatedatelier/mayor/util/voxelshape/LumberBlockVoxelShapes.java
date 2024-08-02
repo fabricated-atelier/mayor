@@ -33,32 +33,32 @@ public class LumberBlockVoxelShapes {
             }
             case TWO_WALLS_END -> switch (state.get(LumberStorageBlock.FACING)) {
                 case NORTH -> VoxelShapes.union(
-                        VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 1),
-                        VoxelShapes.cuboid(0.84375, 0.625, 0.0625, 0.90625, 0.8125, 1),
-                        VoxelShapes.cuboid(0.09375, 0.625, 0.0625, 0.15625, 0.8125, 1),
-                        VoxelShapes.cuboid(0.875, 0, 0.125, 1, 1, 0.25),
-                        VoxelShapes.cuboid(0, 0, 0.125, 0.125, 1, 0.25)
-                );
-                case SOUTH -> VoxelShapes.union(
                         VoxelShapes.cuboid(0.0625, 0, 0, 0.9375, 0.125, 0.9375),
                         VoxelShapes.cuboid(0.09375, 0.625, 0, 0.15625, 0.8125, 0.9375),
                         VoxelShapes.cuboid(0.84375, 0.625, 0, 0.90625, 0.8125, 0.9375),
                         VoxelShapes.cuboid(0, 0, 0.75, 0.125, 1, 0.875),
                         VoxelShapes.cuboid(0.875, 0, 0.75, 1, 1, 0.875)
                 );
-                case WEST -> VoxelShapes.union(
-                        VoxelShapes.cuboid(0.0625, 0, 0.0625, 1, 0.125, 0.9375),
-                        VoxelShapes.cuboid(0.0625, 0.625, 0.09375, 1, 0.8125, 0.15625),
-                        VoxelShapes.cuboid(0.0625, 0.625, 0.84375, 1, 0.8125, 0.90625),
-                        VoxelShapes.cuboid(0.125, 0, 0, 0.25, 1, 0.125),
-                        VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 1, 1)
+                case SOUTH -> VoxelShapes.union(
+                        VoxelShapes.cuboid(0.0625, 0, 0.0625, 0.9375, 0.125, 1),
+                        VoxelShapes.cuboid(0.84375, 0.625, 0.0625, 0.90625, 0.8125, 1),
+                        VoxelShapes.cuboid(0.09375, 0.625, 0.0625, 0.15625, 0.8125, 1),
+                        VoxelShapes.cuboid(0.875, 0, 0.125, 1, 1, 0.25),
+                        VoxelShapes.cuboid(0, 0, 0.125, 0.125, 1, 0.25)
                 );
-                case EAST -> VoxelShapes.union(
+                case WEST -> VoxelShapes.union(
                         VoxelShapes.cuboid(0, 0, 0.0625, 0.9375, 0.125, 0.9375),
                         VoxelShapes.cuboid(0, 0.625, 0.84375, 0.9375, 0.8125, 0.90625),
                         VoxelShapes.cuboid(0, 0.625, 0.09375, 0.9375, 0.8125, 0.15625),
                         VoxelShapes.cuboid(0.75, 0, 0.875, 0.875, 1, 1),
                         VoxelShapes.cuboid(0.75, 0, 0, 0.875, 1, 0.125)
+                );
+                case EAST -> VoxelShapes.union(
+                        VoxelShapes.cuboid(0.0625, 0, 0.0625, 1, 0.125, 0.9375),
+                        VoxelShapes.cuboid(0.0625, 0.625, 0.09375, 1, 0.8125, 0.15625),
+                        VoxelShapes.cuboid(0.0625, 0.625, 0.84375, 1, 0.8125, 0.90625),
+                        VoxelShapes.cuboid(0.125, 0, 0, 0.25, 1, 0.125),
+                        VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 1, 1)
                 );
                 default -> VoxelShapes.empty();
             };
