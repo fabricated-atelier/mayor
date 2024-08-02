@@ -2,19 +2,18 @@ package io.fabricatedatelier.mayor.init;
 
 import io.fabricatedatelier.mayor.Mayor;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
-import net.minecraft.item.*;
+import net.minecraft.item.ItemConvertible;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 @SuppressWarnings("Convert2MethodRef")  // method references instead of lambdas cause issues when lazy initialisation
@@ -43,7 +42,9 @@ public class ItemGroups {
             ItemGroup itemGroup = FabricItemGroup.builder()
                     .icon(() -> new ItemStack(this.icon.get()))
                     .displayName(displayName)
-                    .entries((displayContext, entries) -> entries.addAll(items.stream().map(item -> new ItemStack(item)).toList()))
+                    .entries((displayContext, entries) -> entries.addAll(
+                            items.stream().map(item -> new ItemStack(item)).toList())
+                    )
                     .build();
             Registry.register(Registries.ITEM_GROUP, getRegistryKey(), itemGroup);
             return getRegistryKey();

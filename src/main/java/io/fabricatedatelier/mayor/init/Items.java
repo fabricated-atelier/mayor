@@ -3,14 +3,9 @@ package io.fabricatedatelier.mayor.init;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.item.LumberStorageBlockItem;
 import io.fabricatedatelier.mayor.item.StoneStorageBlockItem;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemConvertible;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
