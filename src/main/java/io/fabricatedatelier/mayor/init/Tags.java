@@ -7,6 +7,7 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.structure.pool.StructurePool;
 
 public class Tags {
     public static class Items {
@@ -56,6 +57,19 @@ public class Tags {
         private static void register() {
         }
     }
+
+    public static class StructurePools {
+         public static TagKey<StructurePool> VILLAGES = createTag("villages");
+
+        @SuppressWarnings("SameParameterValue")
+        private static TagKey<StructurePool> createTag(String name) {
+            return TagKey.of(RegistryKeys.TEMPLATE_POOL, Mayor.identifierOf(name));
+        }
+
+        private static void register() {
+        }
+    }
+
 
     public static void initialize() {
         Items.register();

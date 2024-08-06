@@ -3,7 +3,7 @@ package io.fabricatedatelier.mayor.util;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.mixin.access.StructureTemplateAccess;
+import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -17,6 +17,7 @@ import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.StructureTemplate.StructureBlockInfo;
 import net.minecraft.structure.StructureTemplateManager;
@@ -95,54 +96,55 @@ public class StructureHelper {
 
     public static BlockRotation getStructureRotation(int structureRotation) {
         return switch (structureRotation) {
-        case 1 -> BlockRotation.CLOCKWISE_90;
-        case 2 -> BlockRotation.CLOCKWISE_180;
-        case 3 -> BlockRotation.COUNTERCLOCKWISE_90;
-        default -> BlockRotation.NONE;
+            case 1 -> BlockRotation.CLOCKWISE_90;
+            case 2 -> BlockRotation.CLOCKWISE_180;
+            case 3 -> BlockRotation.COUNTERCLOCKWISE_90;
+            default -> BlockRotation.NONE;
         };
     }
 
     public static BlockRotation getRotatedStructureRotation(BlockRotation structureRotation, boolean rotateLeft) {
         return switch (structureRotation) {
-        case BlockRotation.NONE -> rotateLeft ? BlockRotation.COUNTERCLOCKWISE_90 : BlockRotation.CLOCKWISE_90;
-        case BlockRotation.CLOCKWISE_90 -> rotateLeft ? BlockRotation.NONE : BlockRotation.CLOCKWISE_180;
-        case BlockRotation.CLOCKWISE_180 -> rotateLeft ? BlockRotation.CLOCKWISE_90 : BlockRotation.COUNTERCLOCKWISE_90;
-        case BlockRotation.COUNTERCLOCKWISE_90 -> rotateLeft ? BlockRotation.CLOCKWISE_180 : BlockRotation.NONE;
-        default -> BlockRotation.NONE;
+            case BlockRotation.NONE -> rotateLeft ? BlockRotation.COUNTERCLOCKWISE_90 : BlockRotation.CLOCKWISE_90;
+            case BlockRotation.CLOCKWISE_90 -> rotateLeft ? BlockRotation.NONE : BlockRotation.CLOCKWISE_180;
+            case BlockRotation.CLOCKWISE_180 ->
+                    rotateLeft ? BlockRotation.CLOCKWISE_90 : BlockRotation.COUNTERCLOCKWISE_90;
+            case BlockRotation.COUNTERCLOCKWISE_90 -> rotateLeft ? BlockRotation.CLOCKWISE_180 : BlockRotation.NONE;
+            default -> BlockRotation.NONE;
         };
     }
 
     public static BlockPos moveOrigin(BlockPos origin, int keyCode, Direction viewDirection) {
         return switch (viewDirection.getHorizontal()) {
-        case 0 -> switch (keyCode) {
-        case 0 -> origin.west();
-        case 1 -> origin.east();
-        case 2 -> origin.north();
-        case 3 -> origin.south();
-        default -> origin;
-        };
-        case 1 -> switch (keyCode) {
-        case 0 -> origin.north();
-        case 1 -> origin.south();
-        case 2 -> origin.east();
-        case 3 -> origin.west();
-        default -> origin;
-        };
-        case 2 -> switch (keyCode) {
-        case 0 -> origin.east();
-        case 1 -> origin.west();
-        case 2 -> origin.south();
-        case 3 -> origin.north();
-        default -> origin;
-        };
-        case 3 -> switch (keyCode) {
-        case 0 -> origin.south();
-        case 1 -> origin.north();
-        case 2 -> origin.west();
-        case 3 -> origin.east();
-        default -> origin;
-        };
-        default -> origin;
+            case 0 -> switch (keyCode) {
+                case 0 -> origin.west();
+                case 1 -> origin.east();
+                case 2 -> origin.north();
+                case 3 -> origin.south();
+                default -> origin;
+            };
+            case 1 -> switch (keyCode) {
+                case 0 -> origin.north();
+                case 1 -> origin.south();
+                case 2 -> origin.east();
+                case 3 -> origin.west();
+                default -> origin;
+            };
+            case 2 -> switch (keyCode) {
+                case 0 -> origin.east();
+                case 1 -> origin.west();
+                case 2 -> origin.south();
+                case 3 -> origin.north();
+                default -> origin;
+            };
+            case 3 -> switch (keyCode) {
+                case 0 -> origin.south();
+                case 1 -> origin.north();
+                case 2 -> origin.west();
+                case 3 -> origin.east();
+                default -> origin;
+            };
+            default -> origin;
         };
     }
 
@@ -175,6 +177,10 @@ public class StructureHelper {
         }
 
         return requiredItemStacks;
+    }
+
+    public static BlockPos getBottomCenterPos(StructurePiece structurePiece) {
+        return new BlockPos(structurePiece.getCenter().getX(), structurePiece.getBoundingBox().getMinY(), structurePiece.getCenter().getZ());
     }
 
 }

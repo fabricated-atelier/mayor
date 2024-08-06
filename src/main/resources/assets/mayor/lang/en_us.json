@@ -8,5 +8,7 @@
 
     "gui.major.structures": "Structures",
     "gui.major.houses": "Houses",
-    "gui.major.streets": "Streets"
+    "gui.major.streets": "Streets",
+
+    "mayor.village": "Village"
 }
