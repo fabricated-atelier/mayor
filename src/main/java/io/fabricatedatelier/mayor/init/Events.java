@@ -1,30 +1,24 @@
 package io.fabricatedatelier.mayor.init;
 
+import io.fabricatedatelier.mayor.manager.MayorManager;
+import io.fabricatedatelier.mayor.manager.MayorStructure;
+import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
 import io.fabricatedatelier.mayor.network.packet.StructureOriginPacket;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.StructureTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.pool.SinglePoolElement;
-import net.minecraft.structure.pool.StructurePool;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -32,10 +26,8 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.gen.structure.Structure;
-import net.minecraft.world.gen.structure.Structures;
 
-import java.util.Optional;
+import java.util.*;
 
 public class Events {
 
@@ -74,35 +66,63 @@ public class Events {
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+            MayorManager.mayorStructureMap.clear();
 
-                System.out.println("XTES TETST ");
-                System.out.println("XTES TETST "); System.out.println("TES TETST ");
-                System.out.println("XTES TETST ");
+            Iterator<Identifier> iterator = server.getStructureTemplateManager().streamTemplates().iterator();
+            while (iterator.hasNext()) {
+                Identifier identifier = iterator.next();
+
+                if (StringUtil.shouldStoreStructureIdentifier(identifier)) {
+                    Identifier mayorStructureIdentifier = StringUtil.getMayorStructureIdentifier(identifier);
+                    int level = StringUtil.getStructureLevelByIdentifier(identifier);
+                    List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(server.getOverworld(), identifier);
+                    Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(server.getOverworld(), identifier, BlockRotation.NONE, false);
+                    MayorCategory.BiomeCategory biomeCategory = StructureHelper.getBiomeCategory(identifier);
+                    MayorCategory.BuildingCategory buildingCategory = StructureHelper.getBuildingCategory(identifier);
+
+                    MayorStructure mayorStructure = new MayorStructure(mayorStructureIdentifier, level, biomeCategory, buildingCategory, requiredItemStacks, blockMap);
+
+                    if (MayorManager.mayorStructureMap.containsKey(biomeCategory)) {
+                        MayorManager.mayorStructureMap.get(biomeCategory).add(mayorStructure);
+                    } else {
+                        List<MayorStructure> list = new ArrayList<>();
+                        list.add(mayorStructure);
+                        MayorManager.mayorStructureMap.put(biomeCategory, list);
+                    }
+
+                }
+            }
+
+            System.out.println(MayorManager.mayorStructureMap);
 
 //            for (RegistryEntry<Item> registryEntry : Registries.ITEM.iterateEntries(TagInit.ARMOR_ITEMS)) {
 //                addRecipe(registry, registryEntry.value());
-//                RegistryEntryLookup<StructurePool> registryEntryLookup2 = poolRegisterable.getRegistryLookup(RegistryKeys.TEMPLATE_POOL);
 //            }
-//            Optional<RegistryEntryLookup<StructurePool>> optional = server.getRegistryManager().createRegistryLookup().getOptional(RegistryKeys.TEMPLATE_POOL);
-//            if(optional.isPresent()){
-//                optional.get().getOptional(null);
+//            Registry<Biome> registry = server.getRegistryManager().get(RegistryKeys.BIOME);
+//
+//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_DESERT_HAS_STRUCTURE)) {
 //            }
-        });
+//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_PLAINS_HAS_STRUCTURE)) {
+//            }
+//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_SAVANNA_HAS_STRUCTURE)) {
+//            }
+//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_SNOWY_HAS_STRUCTURE)) {
+//            }
+//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_TAIGA_HAS_STRUCTURE)) {
+//            }
 
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, serverResourceManager, success) -> {
-            if (success) {
-                System.out.println("TES TETST ");
-                System.out.println("TES TETST "); System.out.println("TES TETST ");
-                System.out.println("TES TETST ");
 
-//                for (int i = 0; i < server.getPlayerManager().getPlayerList().size(); i++)
-//                    PlayerStatsServerPacket.writeS2CListPacket(server.getPlayerManager().getPlayerList().get(i));
-//                LOGGER.info("Finished reload on {}", Thread.currentThread());
-            } else {
-//                LOGGER.error("Failed to reload on {}", Thread.currentThread());
-            }
+//            Map<RegistryKey<Biome>, Map<Integer, MayorStructure>> map = new HashMap<>();
+
+
+            // STORE LEVEL and Biome+
+//            BiomeTags.VILLAGE_DESERT_HAS_STRUCTURE
+//          server.getPlayerManager().getPlayer("").getServerWorld().getBiome(BlockPos.ORIGIN).getIdAsString();
+//            server.getPlayerManager().getPlayer(UUID.randomUUID()).getBlockPos();
+//            System.out.println(test);
         });
 
     }
+
 
 }

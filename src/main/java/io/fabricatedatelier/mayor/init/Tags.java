@@ -11,7 +11,7 @@ import net.minecraft.structure.pool.StructurePool;
 
 public class Tags {
     public static class Items {
-        // public static TagKey<Item> EXAMPLE_ITEMS = createTag("example_items");
+        public static TagKey<Item> MAYOR_STRUCTURE_EXCLUDED = createTag("mayor_structure_excluded");
 
         @SuppressWarnings("SameParameterValue")
         private static TagKey<Item> createTag(String name) {

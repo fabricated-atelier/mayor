@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.init.KeyBindings;
-import io.fabricatedatelier.mayor.util.MayorManager;
+import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

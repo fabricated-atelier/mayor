@@ -1,6 +1,7 @@
-package io.fabricatedatelier.mayor.util;
+package io.fabricatedatelier.mayor.manager;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +13,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public class MayorManager {
+
+    public static Map<MayorCategory.BiomeCategory, List<MayorStructure>> mayorStructureMap = new HashMap<>();
 
     @Nullable
     private Identifier structureId = null;
@@ -70,11 +73,11 @@ public class MayorManager {
         return this.structureRotation;
     }
 
-    public void setStructureCentered(boolean center){
+    public void setStructureCentered(boolean center) {
         this.center = center;
     }
 
-    public boolean getStructureCentered(){
+    public boolean getStructureCentered() {
         return this.center;
     }
 
@@ -85,4 +88,5 @@ public class MayorManager {
     public boolean isInMajorView() {
         return this.isInMajorView;
     }
+
 }

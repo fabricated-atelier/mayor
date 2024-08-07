@@ -7,7 +7,6 @@
     "EntityMixin",
     "PlayerEntityMixin",
     "ServerWorldMixin",
-    "ChunkGeneratorMixin",
     "StructureStartMixin",
     "StructureTemplateMixin",
     "SinglePoolElementMixin",

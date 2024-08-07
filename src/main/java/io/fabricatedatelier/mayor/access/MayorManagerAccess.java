@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.access;
 
-import io.fabricatedatelier.mayor.util.MayorManager;
+import io.fabricatedatelier.mayor.manager.MayorManager;
 
 public interface MayorManagerAccess {
 

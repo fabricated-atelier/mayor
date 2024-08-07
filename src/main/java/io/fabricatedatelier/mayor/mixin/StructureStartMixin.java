@@ -46,7 +46,9 @@ public class StructureStartMixin {
     private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info) {
         if (structure.getType().equals(StructureType.JIGSAW) && structure instanceof JigsawStructureAccess jigsawStructureAccess
                 && jigsawStructureAccess.getStartPool().isIn(Tags.StructurePools.VILLAGES)) {
-            villageData = ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState().createVillageData(((StructureStart) (Object) this).getBoundingBox().getCenter());
+            BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
+            this.villageData = ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState().createVillageData(centerPos);
+            this.villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.toServerWorld().getBiome(centerPos)));
         }
 
     }
@@ -54,7 +56,7 @@ public class StructureStartMixin {
     @SuppressWarnings("rawtypes")
     @Inject(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructurePiece;generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockBox;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/BlockPos;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void placeMixinX(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info,
-            List list, BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11, StructurePiece structurePiece) {
+                             List list, BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11, StructurePiece structurePiece) {
         if (this.villageData != null) {
             if (structurePiece instanceof PoolStructurePiece poolStructurePiece && poolStructurePiece.getPoolElement() instanceof SinglePoolElementAccess singlePoolElementAccess
                     && singlePoolElementAccess.getLocation().left().isPresent()) {

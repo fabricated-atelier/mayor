@@ -3,7 +3,7 @@ package io.fabricatedatelier.mayor.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.util.MayorManager;
+import io.fabricatedatelier.mayor.manager.MayorManager;
 import net.minecraft.entity.player.PlayerEntity;
 
 @Mixin(PlayerEntity.class)

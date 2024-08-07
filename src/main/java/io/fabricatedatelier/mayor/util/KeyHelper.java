@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.network.packet.StructureCenterPacket;
 import io.fabricatedatelier.mayor.network.packet.StructureRotatePacket;
 import net.minecraft.client.MinecraftClient;

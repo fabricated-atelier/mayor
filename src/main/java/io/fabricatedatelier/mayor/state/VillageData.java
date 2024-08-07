@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.state;
 
+import io.fabricatedatelier.mayor.manager.MayorCategory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
@@ -12,7 +13,7 @@ import java.util.*;
 public class VillageData {
 
     private final BlockPos centerPos;
-
+    private  MayorCategory.BiomeCategory biomeCategory;
     private int level = 0;
     // private Text name = Text.translatable("mayor.village");
     private String name = "Village";
@@ -29,9 +30,11 @@ public class VillageData {
         this.centerPos = centerPos;
     }
 
-    public VillageData(BlockPos centerPos, int level, String name, long age, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
-            List<UUID> ironGolems, Map<BlockPos, StructureData> structures) {
+    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
+                       List<UUID> ironGolems, Map<BlockPos, StructureData> structures) {
+
         this.centerPos = centerPos;
+        this.biomeCategory = biomeCategory;
         this.level = level;
         this.name = name;
         this.age = age;
@@ -45,6 +48,7 @@ public class VillageData {
 
     public VillageData(NbtCompound nbt) {
         this.centerPos = NbtHelper.toBlockPos(nbt, "Center").get();
+        this.biomeCategory = MayorCategory.BiomeCategory.valueOf(nbt.getString("Biome"));
         this.level = nbt.getInt("Level");
         this.name = nbt.getString("Name");
         this.age = nbt.getLong("Age");
@@ -74,6 +78,7 @@ public class VillageData {
 
     public void writeDataToNbt(NbtCompound nbt) {
         nbt.put("Center", NbtHelper.fromBlockPos(this.centerPos));
+        nbt.putString("Biome", this.biomeCategory.name());
         nbt.putInt("Level", this.level);
         nbt.putString("Name", this.name);
         nbt.putLong("Age", this.age);
@@ -110,6 +115,15 @@ public class VillageData {
     // Center
     public BlockPos getCenterPos() {
         return centerPos;
+    }
+
+    // Biome
+    public MayorCategory.BiomeCategory getBiomeCategory() {
+        return this.biomeCategory;
+    }
+
+    public void setBiomeCategory(MayorCategory.BiomeCategory biomeCategory){
+        this.biomeCategory = biomeCategory;
     }
 
     // Level
