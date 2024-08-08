@@ -19,6 +19,8 @@
     "client.CameraMixin",
     "client.MinecraftClientMixin",
     "client.MouseMixin",
-    "client.KeyBindingMixin"
+    "client.KeyBindingMixin",
+    "client.InGameHudMixin",
+    "client.PlayerEntityRendererMixin"
   ]
 }

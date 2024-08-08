@@ -23,7 +23,7 @@ public class Tags {
     }
 
     public static class Blocks {
-        // public static TagKey<Block> EXAMPLE_BLOCKS = createTag("example_blocks");
+        public static TagKey<Block> MAYOR_STRUCTURE_EXCLUDED = createTag("mayor_structure_excluded");
 
         @SuppressWarnings("SameParameterValue")
         private static TagKey<Block> createTag(String name) {
@@ -59,7 +59,7 @@ public class Tags {
     }
 
     public static class StructurePools {
-         public static TagKey<StructurePool> VILLAGES = createTag("villages");
+        public static TagKey<StructurePool> VILLAGES = createTag("villages");
 
         @SuppressWarnings("SameParameterValue")
         private static TagKey<StructurePool> createTag(String name) {

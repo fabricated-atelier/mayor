@@ -39,6 +39,21 @@ public class StructureData {
         nbt.putInt("Level", this.level);
     }
 
+    public NbtCompound writeDataToNbt() {
+        NbtCompound nbt = new NbtCompound();
+        nbt.put("Origin", NbtHelper.fromBlockPos(this.bottomCenterPos));
+        nbt.putInt("MinX", this.blockBox.getMinX());
+        nbt.putInt("MinY", this.blockBox.getMinY());
+        nbt.putInt("MinZ", this.blockBox.getMinZ());
+        nbt.putInt("MaxX", this.blockBox.getMaxX());
+        nbt.putInt("MaxY", this.blockBox.getMaxY());
+        nbt.putInt("MaxZ", this.blockBox.getMaxZ());
+        nbt.putString("Identifier", this.identifier.toString());
+        nbt.putInt("Level", this.level);
+        return nbt;
+    }
+
+
     public BlockPos getBottomCenterPos() {
         return bottomCenterPos;
     }

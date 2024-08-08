@@ -48,6 +48,24 @@ public class MayorStateHelper {
         return null;
     }
 
+    @Nullable
+    public static VillageData getClosestVillage(ServerWorld serverWorld, BlockPos blockPos){
+        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+
+        int maxDistance = MayorVillageState.villageLevelRadius.values().stream().toList().get(MayorVillageState.villageLevelRadius.size() - 1);
+
+        for (int i = 0; i < mayorVillageState.getVillageCenterPoses().size(); i++) {
+            if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, maxDistance)) {
+                VillageData villageData = mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i));
+                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, MayorVillageState.villageLevelRadius.get(villageData.getLevel()))) {
+                   return villageData;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static void updateVillageUuids(ServerWorld serverWorld, BlockPos centerPos, LivingEntity livingEntity) {
         VillageData villageData = ((MayorVillageStateAccess) serverWorld).getMayorVillageState().getVillageData(centerPos);
         if (livingEntity instanceof VillagerEntity) {
@@ -56,12 +74,14 @@ public class MayorStateHelper {
             } else {
                 villageData.getVillagers().add(livingEntity.getUuid());
             }
+            ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
         } else if (livingEntity instanceof IronGolemEntity) {
             if (villageData.getIronGolems().contains(livingEntity.getUuid())) {
                 villageData.getIronGolems().remove(livingEntity.getUuid());
             } else {
                 villageData.getIronGolems().add(livingEntity.getUuid());
             }
+            ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
         }
     }
 

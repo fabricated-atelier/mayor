@@ -1,5 +1,7 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
+import io.fabricatedatelier.mayor.screen.MayorScreen;
+import net.minecraft.client.gui.screen.ChatScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,15 +23,14 @@ public class KeyBindingMixin {
 
     @Inject(method = "onKeyPressed", at = @At("HEAD"), cancellable = true)
     private static void onKeyPressedMixin(InputUtil.Key key, CallbackInfo info) {
+        MinecraftClient client = MinecraftClient.getInstance();
         if (key.getCode() == 81 || key.getCode() == 69) {
-            MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
-                if ((key.getCode() == 81 && KeyBindings.majorRotateLeftKeyBind.isDefault()) || (key.getCode() == 69 && KeyBindings.majorRotateRightKeyBind.isDefault())) {
+                if ((key.getCode() == 81 && KeyBindings.mayorRotateLeftKeyBind.isDefault()) || (key.getCode() == 69 && KeyBindings.mayorRotateRightKeyBind.isDefault())) {
                     info.cancel();
                 }
             }
         } else if (key.getCode() == 262 || key.getCode() == 263 || key.getCode() == 264 || key.getCode() == 265) {
-            MinecraftClient client = MinecraftClient.getInstance();
             MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
             if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
                 mayorManager.setOriginBlockPos(StructureHelper.moveOrigin(mayorManager.getOriginBlockPos(), key.getCode() - 262, client.player.getHorizontalFacing()));
@@ -37,7 +38,6 @@ public class KeyBindingMixin {
                 // Maybe sync origin to server - nope or maybe
             }
         }
-
     }
 
     @Inject(method = "setKeyPressed", at = @At("HEAD"), cancellable = true)
@@ -45,11 +45,11 @@ public class KeyBindingMixin {
         if (key.getCode() == 81 || key.getCode() == 69) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
-                if (key.getCode() == 81 && KeyBindings.majorRotateLeftKeyBind.isDefault()) {
-                    KeyBindings.majorRotateLeftKeyBind.setPressed(pressed);
+                if (key.getCode() == 81 && KeyBindings.mayorRotateLeftKeyBind.isDefault()) {
+                    KeyBindings.mayorRotateLeftKeyBind.setPressed(pressed);
                     info.cancel();
-                } else if (key.getCode() == 69 && KeyBindings.majorRotateRightKeyBind.isDefault()) {
-                    KeyBindings.majorRotateRightKeyBind.setPressed(pressed);
+                } else if (key.getCode() == 69 && KeyBindings.mayorRotateRightKeyBind.isDefault()) {
+                    KeyBindings.mayorRotateRightKeyBind.setPressed(pressed);
                     info.cancel();
                 }
             }

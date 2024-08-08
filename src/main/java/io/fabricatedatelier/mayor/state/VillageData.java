@@ -14,7 +14,7 @@ public class VillageData {
 
     private final BlockPos centerPos;
     private  MayorCategory.BiomeCategory biomeCategory;
-    private int level = 0;
+    private int level = 1;
     // private Text name = Text.translatable("mayor.village");
     private String name = "Village";
     private long age = 0;

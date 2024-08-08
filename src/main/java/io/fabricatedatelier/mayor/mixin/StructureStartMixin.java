@@ -75,6 +75,7 @@ public class StructureStartMixin {
                     this.villageData.addStructure(structureData);
                 }
             }
+            ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState().markDirty();
         }
 
     }

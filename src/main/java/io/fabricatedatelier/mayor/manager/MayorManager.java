@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.fabricatedatelier.mayor.state.VillageData;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.BlockState;
@@ -16,16 +17,18 @@ public class MayorManager {
 
     public static Map<MayorCategory.BiomeCategory, List<MayorStructure>> mayorStructureMap = new HashMap<>();
 
+    private boolean isInMajorView = false;
     @Nullable
-    private Identifier structureId = null;
+    private MayorCategory.BiomeCategory biomeCategory = null;
     @Nullable
-    private Map<BlockPos, BlockState> blockMap = new HashMap<BlockPos, BlockState>();
+    private VillageData villageData = null;
+    @Nullable
+    private MayorStructure mayorStructure;
+
     @Nullable
     private BlockPos originBlockPos = null;
     private BlockRotation structureRotation = BlockRotation.NONE;
     private boolean center = false;
-
-    private boolean isInMajorView = false;
 
     private final PlayerEntity playerEntity;
 
@@ -37,23 +40,43 @@ public class MayorManager {
         return this.playerEntity;
     }
 
-    public void setStructureId(Identifier structureId) {
-        this.structureId = structureId;
+    // Mayor View
+    public void setMajorView(boolean majorView) {
+        this.isInMajorView = majorView;
     }
 
+    public boolean isInMajorView() {
+        return this.isInMajorView;
+    }
+
+    // Biome Category
     @Nullable
-    public Identifier getStructureId() {
-        return this.structureId;
+    public MayorCategory.BiomeCategory getBiomeCategory() {
+        return biomeCategory;
     }
 
-    public void setStructureBlockMap(Map<BlockPos, BlockState> blockMap) {
-        this.blockMap.clear();
-        this.blockMap = blockMap;
+    public void setBiomeCategory(@Nullable MayorCategory.BiomeCategory biomeCategory) {
+        this.biomeCategory = biomeCategory;
     }
 
+    // VillageData
     @Nullable
-    public Map<BlockPos, BlockState> getStructureBlockMap() {
-        return this.blockMap;
+    public VillageData getVillageData() {
+        return villageData;
+    }
+
+    public void setVillageData(@Nullable VillageData villageData) {
+        this.villageData = villageData;
+    }
+
+    // Structure
+    @Nullable
+    public MayorStructure getMayorStructure() {
+        return mayorStructure;
+    }
+
+    public void setMayorStructure(@Nullable MayorStructure mayorStructure) {
+        this.mayorStructure = mayorStructure;
     }
 
     public void setOriginBlockPos(@Nullable BlockPos origin) {
@@ -79,14 +102,6 @@ public class MayorManager {
 
     public boolean getStructureCentered() {
         return this.center;
-    }
-
-    public void setMajorView(boolean majorView) {
-        this.isInMajorView = majorView;
-    }
-
-    public boolean isInMajorView() {
-        return this.isInMajorView;
     }
 
 }

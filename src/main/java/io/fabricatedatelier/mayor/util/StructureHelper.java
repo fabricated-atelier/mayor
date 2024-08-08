@@ -7,6 +7,7 @@ import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.init.Tags;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
+import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -33,6 +34,8 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,7 +60,7 @@ public class StructureHelper {
             }
             for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().getFirst().getAll().size(); i++) {
                 StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().getFirst().getAll().get(i);
-                if (structureBlockInfo.state().isAir()) {
+                if (structureBlockInfo.state().isAir() || structureBlockInfo.state().isIn(Tags.Blocks.MAYOR_STRUCTURE_EXCLUDED)) {
                     // maybe sync air too?
                     continue;
                 }
@@ -88,14 +91,47 @@ public class StructureHelper {
         return blockMap;
     }
 
+    public static Map<BlockPos, BlockState> getBlockPosBlockStateMap(World world, Map<BlockPos, NbtCompound> blockPosNbtCompoundMap) {
+        Map<BlockPos, BlockState> blockMap = new HashMap<>();
+        RegistryEntryLookup<Block> blockLookup = world.createCommandRegistryWrapper(RegistryKeys.BLOCK);
+
+        for (var entry : blockPosNbtCompoundMap.entrySet()) {
+            blockMap.put(entry.getKey(), NbtHelper.toBlockState(blockLookup, entry.getValue()));
+        }
+        return blockMap;
+    }
+
+    public static Map<BlockPos, NbtCompound> getBlockPosNbtMap(Map<BlockPos, BlockState> blockPosNbtCompoundMap) {
+        Map<BlockPos, NbtCompound> blockMap = new HashMap<>();
+
+        for (var entry : blockPosNbtCompoundMap.entrySet()) {
+            blockMap.put(entry.getKey(), NbtHelper.fromBlockState(entry.getValue()));
+        }
+        return blockMap;
+    }
+
+    public static Vec3i getStructureSize(ServerWorld serverWorld, Identifier structureId) {
+        Optional<StructureTemplate> optional = StructureHelper.getStructureTemplate(serverWorld, structureId);
+        if (optional.isPresent()) {
+            return optional.get().getSize();
+        }
+        return Vec3i.ZERO;
+    }
+
     public static boolean updateMayorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation, boolean center) {
-        Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockPosNbtMap(serverPlayerEntity.getServerWorld(), structureId, structureRotation, center);
-        if (!blockMap.isEmpty()) {
-            MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
-            mayorManager.setStructureId(structureId);
-            mayorManager.setStructureRotation(structureRotation);
-            new StructurePacket(structureId, blockMap, structureRotation).sendPacket(serverPlayerEntity);
-            return true;
+        MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
+        List<MayorStructure> list = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory());
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getIdentifier().equals(structureId)) {
+                mayorManager.setMayorStructure(list.get(i));
+                mayorManager.setStructureRotation(structureRotation);
+
+                new StructurePacket(structureId, structureRotation, center).sendPacket(serverPlayerEntity);
+                return true;
+            }
+            if (i == list.size() - 1) {
+                mayorManager.setMayorStructure(null);
+            }
         }
         return false;
     }
@@ -123,8 +159,7 @@ public class StructureHelper {
         return switch (structureRotation) {
             case BlockRotation.NONE -> rotateLeft ? BlockRotation.COUNTERCLOCKWISE_90 : BlockRotation.CLOCKWISE_90;
             case BlockRotation.CLOCKWISE_90 -> rotateLeft ? BlockRotation.NONE : BlockRotation.CLOCKWISE_180;
-            case BlockRotation.CLOCKWISE_180 ->
-                    rotateLeft ? BlockRotation.CLOCKWISE_90 : BlockRotation.COUNTERCLOCKWISE_90;
+            case BlockRotation.CLOCKWISE_180 -> rotateLeft ? BlockRotation.CLOCKWISE_90 : BlockRotation.COUNTERCLOCKWISE_90;
             case BlockRotation.COUNTERCLOCKWISE_90 -> rotateLeft ? BlockRotation.CLOCKWISE_180 : BlockRotation.NONE;
             default -> BlockRotation.NONE;
         };
@@ -201,7 +236,7 @@ public class StructureHelper {
         return new BlockPos(structurePiece.getCenter().getX(), structurePiece.getBoundingBox().getMinY(), structurePiece.getCenter().getZ());
     }
 
-    public static MayorCategory.BiomeCategory getBiomeCategory(RegistryEntry<Biome> biome){
+    public static MayorCategory.BiomeCategory getBiomeCategory(RegistryEntry<Biome> biome) {
         if (biome.isIn(BiomeTags.VILLAGE_DESERT_HAS_STRUCTURE)) {
             return MayorCategory.BiomeCategory.DESERT;
         } else if (biome.isIn(BiomeTags.VILLAGE_PLAINS_HAS_STRUCTURE)) {
@@ -236,8 +271,6 @@ public class StructureHelper {
         String string = structureIdentifier.getPath();
         if (string.contains("animal_pen") || string.contains("stable")) {
             return MayorCategory.BuildingCategory.BARN;
-        } else if (string.contains("house")) {
-            return MayorCategory.BuildingCategory.HOUSE;
         } else if (string.contains("fountain")) {
             return MayorCategory.BuildingCategory.FOUNTAIN;
         } else if (string.contains("armorer")) {
@@ -264,6 +297,8 @@ public class StructureHelper {
             return MayorCategory.BuildingCategory.TANNERY;
         } else if (string.contains("temple")) {
             return MayorCategory.BuildingCategory.TEMPLE;
+        } else if (string.contains("house")) {
+            return MayorCategory.BuildingCategory.HOUSE;
         }
         return MayorCategory.BuildingCategory.HOUSE;
     }

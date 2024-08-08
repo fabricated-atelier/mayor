@@ -54,6 +54,7 @@ public class MayorVillageState extends PersistentState {
     public VillageData createVillageData(BlockPos centerPos) {
         VillageData villageData = new VillageData(centerPos);
         this.villages.put(centerPos, villageData);
+        this.markDirty();
         return villageData;
     }
 

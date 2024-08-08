@@ -1,14 +1,34 @@
 {
-    "key.categories.major": "Major",
-    "key.major.structure_rotate_left": "Rotate Structure Left",
-    "key.major.structure_rotate_right": "Rotate Structure Right",
-    "key.major.structure_center": "Center Structure",
-    "key.major.structure_upward": "Upward Structure",
-    "key.major.structure_downward": "Downward Structure",
+    "key.categories.mayor": "Mayor",
+    "key.mayor.mayor_view": "Mayor View",
+    "key.mayor.mayor_view_selection": "Mayor View Selection",
+    "key.mayor.structure_rotate_left": "Rotate Structure Left",
+    "key.mayor.structure_rotate_right": "Rotate Structure Right",
+    "key.mayor.structure_center": "Center Structure",
+    "key.mayor.structure_upward": "Upward Structure",
+    "key.mayor.structure_downward": "Downward Structure",
 
-    "gui.major.structures": "Structures",
-    "gui.major.houses": "Houses",
-    "gui.major.streets": "Streets",
+    "gui.mayor.structures": "Structures",
+    "gui.mayor.houses": "Houses",
+    "gui.mayor.streets": "Streets",
 
-    "mayor.village": "Village"
+    "mayor.village": "Village",
+
+    "mayor_screen.title": "Mayor",
+
+    "building.category.house": "House",
+    "building.category.barn": "Barn",
+    "building.category.fountain": "Fountain",
+    "building.category.armorer": "Armorer",
+    "building.category.butcher": "Butcher",
+    "building.category.cartographer": "Cartographer",
+    "building.category.farm": "Farm",
+    "building.category.fisher": "Fisher",
+    "building.category.fletcher": "Fletcher",
+    "building.category.library": "Library",
+    "building.category.mason": "Mason",
+    "building.category.shepherd": "Shepherd",
+    "building.category.tannery": "Tannery",
+    "building.category.temple": "Temple",
+    "building.category.smith": "Smith"
 }

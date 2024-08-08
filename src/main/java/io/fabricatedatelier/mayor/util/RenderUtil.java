@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -24,32 +25,59 @@ public class RenderUtil {
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
         if (mayorManager.isInMajorView()) {
             // && mayorManager.getStructureBlockMap() != null
-            context.drawText(client.textRenderer, Text.translatable("gui.major.structures"), 10, 10, 0xFFFFFF, true);
-            context.drawText(client.textRenderer, Text.translatable("gui.major.houses"), 16, 22, 0xFFFFFF, false);
-            context.drawText(client.textRenderer, Text.translatable("gui.major.streets"), 16, 32, 0xFFFFFF, false);
+//            context.drawText(client.textRenderer, Text.translatable("gui.mayor.structures"), 10, 10, 0xFFFFFF, true);
+//            context.drawText(client.textRenderer, Text.translatable("gui.mayor.houses"), 16, 22, 0xFFFFFF, false);
+//            context.drawText(client.textRenderer, Text.translatable("gui.mayor.streets"), 16, 32, 0xFFFFFF, false);
         }
     }
 
     public static void renderVillageStructure(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-        if (mayorManager.isInMajorView() && mayorManager.getStructureBlockMap() != null) {
+//        if (mayorManager.isInMajorView() && mayorManager.getStructureBlockMap() != null) {
+//            BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
+//
+//            BlockPos origin = mayorManager.getOriginBlockPos();
+//            if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {
+//                Map<BlockPos, BlockState> blockMap = mayorManager.getStructureBlockMap();
+//                Iterator<Map.Entry<BlockPos, BlockState>> iterator = blockMap.entrySet().iterator();
+//
+//                if (origin == null) {
+//                    origin = blockHitResult.getBlockPos();
+//                }
+//                context.matrixStack().push();
+//                context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
+//
+//                while (iterator.hasNext()) {
+//                    Map.Entry<BlockPos, BlockState> entry = iterator.next();
+//                    renderBlock(client, context.matrixStack(), context.consumers(), origin.add(entry.getKey()), entry.getValue());
+//                }
+//                context.matrixStack().pop();
+//            }
+//        }
+
+        if (mayorManager.isInMajorView() && mayorManager.getMayorStructure() != null) {
             BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
 
             BlockPos origin = mayorManager.getOriginBlockPos();
             if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {
-                Map<BlockPos, BlockState> blockMap = mayorManager.getStructureBlockMap();
+                Map<BlockPos, BlockState> blockMap = mayorManager.getMayorStructure().getBlockMap();
                 Iterator<Map.Entry<BlockPos, BlockState>> iterator = blockMap.entrySet().iterator();
 
                 if (origin == null) {
                     origin = blockHitResult.getBlockPos();
+                }
+                if (mayorManager.getStructureCentered()) {
+                    origin.add(mayorManager.getMayorStructure().getSize().getX() / 2, 0, mayorManager.getMayorStructure().getSize().getZ() / 2);
                 }
                 context.matrixStack().push();
                 context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
 
                 while (iterator.hasNext()) {
                     Map.Entry<BlockPos, BlockState> entry = iterator.next();
-                    renderBlock(client, context.matrixStack(), context.consumers(), origin.add(entry.getKey()), entry.getValue());
+                    // TEST STATE IF ROTATION WORKS
+                    BlockState state = entry.getValue().rotate(mayorManager.getStructureRotation());
+                    renderBlock(client, context.matrixStack(), context.consumers(), origin.add(entry.getKey()), state);
                 }
                 context.matrixStack().pop();
             }
