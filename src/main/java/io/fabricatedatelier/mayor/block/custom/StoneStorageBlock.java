@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.StoneStorageBlockEntity;
-import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;

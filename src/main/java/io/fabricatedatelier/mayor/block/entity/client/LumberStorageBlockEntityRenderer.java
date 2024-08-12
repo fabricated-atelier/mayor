@@ -1,11 +1,10 @@
 package io.fabricatedatelier.mayor.block.entity.client;
 
 import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
-import io.fabricatedatelier.mayor.util.MayorProperties;
+import io.fabricatedatelier.mayor.block.Properties;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
@@ -16,19 +15,20 @@ import net.minecraft.util.math.RotationAxis;
 
 public class LumberStorageBlockEntityRenderer<T extends LumberStorageBlockEntity> implements BlockEntityRenderer<T> {
     private int tick = 0, rotTick = 0;
+
     @Override
     public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (!(client.world instanceof ClientWorld world)) return;
 
-        tick ++;
+        tick++;
         if (tick % 100 == 0) rotTick++;
-        if ( rotTick > 10) rotTick = 0;
+        if (rotTick > 10) rotTick = 0;
 
         BlockState state = entity.getCachedState();
-        switch (state.get(MayorProperties.SHAPE)) {
+        switch (state.get(Properties.SHAPE)) {
             case ALL_WALLS -> {
-                int blockPerLog = 4;
+                int blockPerLog = 2;
 
                 matrices.push();
                 matrices.translate(0.2, 0.125, 0);
@@ -39,7 +39,7 @@ public class LumberStorageBlockEntityRenderer<T extends LumberStorageBlockEntity
     }
 
     private void renderLog(int blockCount, MinecraftClient client, MatrixStack matrices,
-                                  int light, int overlay, VertexConsumerProvider vertexConsumers, T entity) {
+                           int light, int overlay, VertexConsumerProvider vertexConsumers, T entity) {
         float logScale = 1f / blockCount;
         for (int i = 0; i < blockCount; i++) {
             matrices.push();

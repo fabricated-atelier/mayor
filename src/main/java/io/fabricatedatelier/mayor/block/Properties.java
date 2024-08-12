@@ -1,9 +1,9 @@
-package io.fabricatedatelier.mayor.util;
+package io.fabricatedatelier.mayor.block;
 
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.StringIdentifiable;
 
-public class MayorProperties {
+public class Properties {
     public static final EnumProperty<Shape> SHAPE = EnumProperty.of("shape", Shape.class);
     public static final EnumProperty<VerticalPosition> POSITION = EnumProperty.of("position", VerticalPosition.class);
     public static final EnumProperty<Side> SIDE = EnumProperty.of("side", Side.class);

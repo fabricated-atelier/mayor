@@ -1,7 +1,6 @@
 package io.fabricatedatelier.mayor.block.entity;
 
 import io.fabricatedatelier.mayor.init.BlockEntities;
-import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 

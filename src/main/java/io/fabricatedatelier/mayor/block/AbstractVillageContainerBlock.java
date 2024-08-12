@@ -1,6 +1,7 @@
-package io.fabricatedatelier.mayor.util.boilerplate;
+package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
+import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -44,7 +45,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     public static Optional<BlockPos> getOrigin(BlockView world, BlockPos pos) {
         if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity))
             return Optional.empty();
-        return Optional.of(blockEntity.getStructureOriginPos());
+        return blockEntity.getStructureOriginPos();
     }
 
     public static boolean isOrigin(WorldAccess world, BlockPos pos) {

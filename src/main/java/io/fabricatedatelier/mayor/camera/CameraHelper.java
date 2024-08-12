@@ -2,6 +2,8 @@ package io.fabricatedatelier.mayor.camera;
 
 import io.fabricatedatelier.mayor.camera.target.CameraTarget;
 import io.fabricatedatelier.mayor.camera.target.StaticCameraTarget;
+import io.fabricatedatelier.mayor.camera.transition.FadeTransition;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
@@ -40,11 +42,14 @@ public class CameraHelper {
     private float height = 5, distance = 10;
     private int tick = 0;
 
-    private CameraHelper() {
+    private final FadeTransition startFadeTransition;   //TODO: decouple from camera handler to make usage more flexible
+
+    private CameraHelper(FadeTransition transition) {
+        this.startFadeTransition = transition;
     }
 
     public static CameraHelper getInstance() {
-        if (instance == null) instance = new CameraHelper();
+        if (instance == null) instance = new CameraHelper(new FadeTransition(MinecraftClient.getInstance(), 200));
         return instance;
     }
 
@@ -57,7 +62,9 @@ public class CameraHelper {
     }
 
     public CameraHelper setTarget(@Nullable CameraTarget target) {
-        if (target == null) CameraHelper.instance = null;
+        if (target == null) {
+            CameraHelper.instance = null;
+        }
         this.target = target;
         return this;
     }
@@ -78,6 +85,10 @@ public class CameraHelper {
     public CameraHelper setDistance(float distance) {
         this.distance = Math.max(distance, 1);
         return this;
+    }
+
+    public FadeTransition getTransition() {
+        return startFadeTransition;
     }
 
     private double getHorizontalDistance() {
@@ -137,6 +148,9 @@ public class CameraHelper {
 
     public void incrementTick() {
         this.setTick(this.getTick() + 1);
+        if (getTransition().isRunning()) {
+            getTransition().incrementTick();
+        }
     }
 
     public void updateCameraPos() {

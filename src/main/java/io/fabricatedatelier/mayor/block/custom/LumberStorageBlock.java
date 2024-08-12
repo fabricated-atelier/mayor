@@ -2,9 +2,9 @@ package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
-import io.fabricatedatelier.mayor.util.MayorProperties;
-import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlock;
-import io.fabricatedatelier.mayor.util.voxelshape.LumberBlockVoxelShapes;
+import io.fabricatedatelier.mayor.block.Properties;
+import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.block.voxelshape.LumberBlockVoxelShapes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -22,21 +22,22 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
     public LumberStorageBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getDefaultState()
-                .with(MayorProperties.SHAPE, MayorProperties.Shape.ALL_WALLS)
-                .with(MayorProperties.POSITION, MayorProperties.VerticalPosition.BOTTOM)
-                .with(MayorProperties.SIDE, MayorProperties.Side.RIGHT));
+                .with(Properties.SHAPE, Properties.Shape.ALL_WALLS)
+                .with(Properties.POSITION, Properties.VerticalPosition.BOTTOM)
+                .with(Properties.SIDE, Properties.Side.RIGHT));
     }
 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(MayorProperties.SHAPE, MayorProperties.POSITION, MayorProperties.SIDE);
+        builder.add(Properties.SHAPE, Properties.POSITION, Properties.SIDE);
     }
 
     @Override
@@ -67,11 +68,11 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         }
 
         if (world.getBlockState(pos.down()).getBlock() instanceof LumberStorageBlock) {
-            state = state.with(MayorProperties.POSITION, MayorProperties.VerticalPosition.BOTTOM);
-        } else if (world.getBlockState(pos.up()).getBlock() instanceof LumberStorageBlock) {
-            state = state.with(MayorProperties.POSITION, MayorProperties.VerticalPosition.TOP);
+            state = state.with(Properties.POSITION, Properties.VerticalPosition.TOP);
+        } else {
+            state = state.with(Properties.POSITION, Properties.VerticalPosition.BOTTOM);
         }
-
+        state = getShape(world, pos, state);
         return state;
     }
 
@@ -99,36 +100,60 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         BlockState finalState = super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
         if (isSupported(world, pos)) {
-            Map<Direction, BlockState> surroundingStates = new HashMap<>();
-            surroundingStates.put(Direction.NORTH, world.getBlockState(pos.north()));
-            surroundingStates.put(Direction.EAST, world.getBlockState(pos.east()));
-            surroundingStates.put(Direction.SOUTH, world.getBlockState(pos.south()));
-            surroundingStates.put(Direction.WEST, world.getBlockState(pos.west()));
-
-            List<Direction> sameBlockDirections = surroundingStates.entrySet().stream()
-                    .filter(entry -> entry.getValue().getBlock() instanceof LumberStorageBlock)
-                    .map(Map.Entry::getKey).toList();
-
-            switch (sameBlockDirections.size()) {
-                case 0 -> finalState = finalState.with(MayorProperties.SHAPE, MayorProperties.Shape.ALL_WALLS);
-                case 1 -> finalState = finalState
-                        .with(MayorProperties.SHAPE, MayorProperties.Shape.TWO_WALLS_END)
-                        .with(FACING, sameBlockDirections.getFirst());
-                case 2 -> {
-                    if (wallsAreAdjacent(sameBlockDirections)) {
-                        finalState = finalState.with(MayorProperties.SHAPE, MayorProperties.Shape.ONE_WALL_MID);
-                    } else {
-                        finalState = finalState
-                                .with(MayorProperties.SHAPE, MayorProperties.Shape.TWO_WALLS_MID)
-                                .with(FACING, sameBlockDirections.getFirst());
-                    }
+            finalState = getShape(world, pos, finalState);
+            if (!finalState.get(Properties.SHAPE).equals(Properties.Shape.ALL_WALLS)) {
+                BlockState stateBelow = world.getBlockState(pos.down());
+                if (stateBelow.getBlock() instanceof LumberStorageBlock) {
+                    finalState = finalState
+                            .with(Properties.POSITION, Properties.VerticalPosition.TOP)
+                            .with(Properties.SHAPE, stateBelow.get(Properties.SHAPE));
+                } else {
+                    finalState = finalState.with(Properties.POSITION, Properties.VerticalPosition.BOTTOM);
                 }
-                case 3 -> finalState = finalState.with(MayorProperties.SHAPE, MayorProperties.Shape.ONE_WALL_MID);
             }
         } else {
             world.breakBlock(pos, true);
         }
         return finalState;
+    }
+
+    private static BlockState getShape(WorldAccess world, BlockPos pos, BlockState state) {
+        Map<Direction, BlockState> surroundingStates = new HashMap<>();
+        surroundingStates.put(Direction.NORTH, world.getBlockState(pos.north()));
+        surroundingStates.put(Direction.EAST, world.getBlockState(pos.east()));
+        surroundingStates.put(Direction.SOUTH, world.getBlockState(pos.south()));
+        surroundingStates.put(Direction.WEST, world.getBlockState(pos.west()));
+
+        List<Direction> sameBlockDirections = surroundingStates.entrySet().stream()
+                .filter(entry -> entry.getValue().getBlock() instanceof LumberStorageBlock)
+                .map(Map.Entry::getKey).toList();
+
+        switch (sameBlockDirections.size()) {
+            case 0 -> state = state.with(Properties.SHAPE, Properties.Shape.ALL_WALLS);
+            case 1 -> state = state
+                    .with(Properties.SHAPE, Properties.Shape.TWO_WALLS_END)
+                    .with(FACING, sameBlockDirections.getFirst());
+            case 2 -> {
+                if (wallsAreAdjacent(sameBlockDirections)) {
+                    state = state.with(Properties.SHAPE, Properties.Shape.ONE_WALL_MID);
+                } else {
+                    state = state
+                            .with(Properties.SHAPE, Properties.Shape.TWO_WALLS_MID)
+                            .with(FACING, sameBlockDirections.getFirst());
+                }
+            }
+            case 3 -> state = state.with(Properties.SHAPE, Properties.Shape.ONE_WALL_MID);
+        }
+
+        BlockState stateBelow = world.getBlockState(pos.down());
+        if (stateBelow.getBlock() instanceof LumberStorageBlock) {
+            state = state
+                    .with(Properties.SHAPE, stateBelow.get(Properties.SHAPE))
+                    .with(FACING, stateBelow.get(FACING))
+                    .with(Properties.POSITION, Properties.VerticalPosition.TOP);
+        }
+
+        return state;
     }
 
     @Override
@@ -155,8 +180,25 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         return identicalHorizontalNeighborBlocks(world, placedPos) > 0;
     }
 
-    public boolean wallsAreAdjacent(List<Direction> sides) {
+    public static boolean wallsAreAdjacent(List<Direction> sides) {
         return Direction.Type.HORIZONTAL.stream()
                 .allMatch(direction -> sides.stream().noneMatch(direction.getOpposite()::equals));
+    }
+
+    public static int connectedBlocksCount(World world, BlockPos pos, HashSet<BlockPos> checked, List<Direction.Type> directionTypes) {
+        if (checked.contains(pos)) return 0;
+
+        int count = 1;
+        for (var type : directionTypes) {
+            Set<BlockPos> possibleDirections = type.stream()
+                    .filter(direction -> world.getBlockState(pos.offset(direction)).getBlock() instanceof LumberStorageBlock)
+                    .map(pos::offset)
+                    .collect(Collectors.toSet());
+
+            for (BlockPos newPos : possibleDirections) {
+                count += connectedBlocksCount(world, newPos, checked, directionTypes);
+            }
+        }
+        return count;
     }
 }

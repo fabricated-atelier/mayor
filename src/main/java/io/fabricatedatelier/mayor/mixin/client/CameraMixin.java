@@ -22,7 +22,7 @@ public abstract class CameraMixin {
     protected abstract void setRotation(float yaw, float pitch);
 
     @Inject(method = "update", at = @At("TAIL"))
-    private void test(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+    private void cameraOrbiting(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
         if (focusedEntity.getWorld() == null) {
             CameraHelper.getInstance().setTarget(null);
             return;
@@ -30,7 +30,7 @@ public abstract class CameraMixin {
         if (!(focusedEntity instanceof ClientPlayerEntity clientPlayer)) return;
         CameraHelper camera = CameraHelper.getInstance();
 
-        if (clientPlayer.isSneaking()) {
+        if (clientPlayer.isSneaking() && camera.hasTarget()) {
             camera.setTarget(null);
             return;
         }
