@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.camera.CameraHelper;
+import io.fabricatedatelier.mayor.camera.CameraHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -24,11 +24,11 @@ public abstract class CameraMixin {
     @Inject(method = "update", at = @At("TAIL"))
     private void cameraOrbiting(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
         if (focusedEntity.getWorld() == null) {
-            CameraHelper.getInstance().setTarget(null);
+            CameraHandler.getInstance().setTarget(null);
             return;
         }
         if (!(focusedEntity instanceof ClientPlayerEntity clientPlayer)) return;
-        CameraHelper camera = CameraHelper.getInstance();
+        CameraHandler camera = CameraHandler.getInstance();
 
         if (clientPlayer.isSneaking() && camera.hasTarget()) {
             camera.setTarget(null);
@@ -37,13 +37,13 @@ public abstract class CameraMixin {
         camera.getTarget().ifPresent(target -> {
             camera.incrementTick();
 
-            float normalizedProgress = (float) camera.getTick() / CameraHelper.FULL_ORBIT_TICK_DURATION;
+            float normalizedProgress = (float) camera.getTick() / CameraHandler.FULL_ORBIT_TICK_DURATION;
             camera.setNormalizedOrbitProgress(normalizedProgress);
             camera.updateCameraPos();
             camera.updateCameraRotations();
             this.setPos(camera.getCameraPos());
             this.setRotation((float) camera.getYaw(), (float) camera.getPitch());
-            if (camera.getTick() >= CameraHelper.FULL_ORBIT_TICK_DURATION) camera.setTick(0);
+            if (camera.getTick() >= CameraHandler.FULL_ORBIT_TICK_DURATION) camera.setTick(0);
         });
     }
 }

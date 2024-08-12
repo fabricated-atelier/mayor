@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.init;
 
-import io.fabricatedatelier.mayor.camera.CameraHelper;
+import io.fabricatedatelier.mayor.camera.CameraHandler;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
@@ -118,7 +118,7 @@ public class Events {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client == null || client.world == null) return;
 
-            CameraHelper camera = CameraHelper.getInstance();
+            CameraHandler camera = CameraHandler.getInstance();
             if (camera.hasTarget() && camera.getTransition().isRunning()) {
                 camera.getTransition().renderOverlay(drawContext);
             }

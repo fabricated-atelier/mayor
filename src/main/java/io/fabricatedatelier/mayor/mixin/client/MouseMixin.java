@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.camera.CameraHelper;
+import io.fabricatedatelier.mayor.camera.CameraHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -26,8 +26,8 @@ public class MouseMixin {
         double delta = (mouseScrolled ? Math.signum(horizontal) : vertical) * options.getMouseWheelSensitivity().getValue();
 
         if (player == null) return;
-        if (!CameraHelper.getInstance().hasTarget()) return;
-        CameraHelper.getInstance().handleScroll(delta);
+        if (!CameraHandler.getInstance().hasTarget()) return;
+        CameraHandler.getInstance().handleScroll(delta);
         ci.cancel();
     }
 }

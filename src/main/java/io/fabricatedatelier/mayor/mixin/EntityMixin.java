@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin;
 
-import io.fabricatedatelier.mayor.camera.CameraHelper;
+import io.fabricatedatelier.mayor.camera.CameraHandler;
 import io.fabricatedatelier.mayor.camera.target.CameraTarget;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -25,7 +25,7 @@ public class EntityMixin implements CameraTarget {
     @Inject(method = "interact", at = @At("TAIL"))
     private void setAsCameraTarget(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         if (!(player instanceof ClientPlayerEntity)) return;
-        CameraHelper.getInstance().setTarget(this);
+        CameraHandler.getInstance().setTarget(this);
     }
 
     //TODO: maybe at head instead with a cancel to lock rotation for entity?
@@ -33,7 +33,7 @@ public class EntityMixin implements CameraTarget {
     private void captureMouseMovement(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
         if (cursorDeltaX == 0 && cursorDeltaY == 0) return;
         if (!((Entity) (Object) this instanceof ClientPlayerEntity)) return;
-        CameraHelper camera = CameraHelper.getInstance();
+        CameraHandler camera = CameraHandler.getInstance();
         if (!camera.hasTarget()) return;
 
         camera.handleMouseMovement(cursorDeltaX, cursorDeltaY);

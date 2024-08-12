@@ -11,10 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 /**
- * <h1>CameraHelper</h1>
+ * <h1>CameraHandler</h1>
  * Singleton class for registering none or one specific Camera location and angle.<br><br>
  * <p>
- * This camera helper makes use of an Orbit around a specific location, which is defined by the
+ * This camera handler makes use of an Orbit around a specific location, which is defined by the
  * {@link CameraTarget} Interface. This interface is implemented for
  * {@link io.fabricatedatelier.mayor.mixin.EntityMixin Entities} and
  * {@link io.fabricatedatelier.mayor.mixin.BlockEntityMixin BlockEntities} by default.
@@ -23,15 +23,15 @@ import java.util.Optional;
  * This will always stay on the specified target location.
  *
  * @implNote <ul>
- * <li>Use {@link CameraHelper#getInstance()} to get access to the object of the CameraHelper on the client side.</li>
- * <li>To reset or disable the {@link CameraHelper} instance, pass in <code>null</code> into {@link #setTarget(CameraTarget) setTarget()}</li>
+ * <li>Use {@link CameraHandler#getInstance()} to get access to the object of the CameraHandler on the client side.</li>
+ * <li>To reset or disable the {@link CameraHandler} instance, pass in <code>null</code> into {@link #setTarget(CameraTarget) setTarget()}</li>
  * </ul>
  */
 @SuppressWarnings("UnusedReturnValue")
-public class CameraHelper {
+public class CameraHandler {
     public static final int FULL_ORBIT_TICK_DURATION = 8000;
 
-    private static CameraHelper instance;
+    private static CameraHandler instance;
 
     @Nullable
     private CameraTarget target;
@@ -44,12 +44,12 @@ public class CameraHelper {
 
     private final FadeTransition startFadeTransition;   //TODO: decouple from camera handler to make usage more flexible
 
-    private CameraHelper(FadeTransition transition) {
+    private CameraHandler(FadeTransition transition) {
         this.startFadeTransition = transition;
     }
 
-    public static CameraHelper getInstance() {
-        if (instance == null) instance = new CameraHelper(new FadeTransition(MinecraftClient.getInstance(), 200));
+    public static CameraHandler getInstance() {
+        if (instance == null) instance = new CameraHandler(new FadeTransition(MinecraftClient.getInstance(), 200));
         return instance;
     }
 
@@ -61,9 +61,9 @@ public class CameraHelper {
         return getTarget().isPresent();
     }
 
-    public CameraHelper setTarget(@Nullable CameraTarget target) {
+    public CameraHandler setTarget(@Nullable CameraTarget target) {
         if (target == null) {
-            CameraHelper.instance = null;
+            CameraHandler.instance = null;
         }
         this.target = target;
         return this;
@@ -73,7 +73,7 @@ public class CameraHelper {
         return height;
     }
 
-    public CameraHelper setHeight(float height) {
+    public CameraHandler setHeight(float height) {
         this.height = Math.max(height, 1);
         return this;
     }
@@ -82,7 +82,7 @@ public class CameraHelper {
         return distance;
     }
 
-    public CameraHelper setDistance(float distance) {
+    public CameraHandler setDistance(float distance) {
         this.distance = Math.max(distance, 1);
         return this;
     }
@@ -106,7 +106,7 @@ public class CameraHelper {
         return cameraPos;
     }
 
-    private CameraHelper setCameraPos(Vec3d cameraPos) {
+    private CameraHandler setCameraPos(Vec3d cameraPos) {
         this.cameraPos = cameraPos;
         return this;
     }
@@ -115,7 +115,7 @@ public class CameraHelper {
         return pitch;
     }
 
-    private CameraHelper setPitch(double pitch) {
+    private CameraHandler setPitch(double pitch) {
         this.pitch = pitch;
         return this;
     }
@@ -124,7 +124,7 @@ public class CameraHelper {
         return yaw;
     }
 
-    private CameraHelper setYaw(double yaw) {
+    private CameraHandler setYaw(double yaw) {
         this.yaw = yaw;
         return this;
     }
@@ -133,7 +133,7 @@ public class CameraHelper {
         return MathHelper.clamp(this.normalizedOrbitProgress, 0f, 1f);
     }
 
-    public CameraHelper setNormalizedOrbitProgress(float normalizedOrbitProgress) {
+    public CameraHandler setNormalizedOrbitProgress(float normalizedOrbitProgress) {
         this.normalizedOrbitProgress = MathHelper.clamp(normalizedOrbitProgress, 0f, 1f);
         return this;
     }
@@ -148,7 +148,7 @@ public class CameraHelper {
 
     public void incrementTick() {
         this.setTick(this.getTick() + 1);
-        if (getTransition().isRunning()) {
+        if (getTransition().isRunning() && hasTarget()) {
             getTransition().incrementTick();
         }
     }
