@@ -78,7 +78,7 @@ public class StructureStartMixin {
                     }
                     if (StringUtil.shouldStoreStructureIdentifier(singlePoolElementAccess.getLocation().left().get())) {
                         StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(),
-                                StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get()), 0);
+                                StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get()), 1);
                         villageData.addStructure(structureData);
                     }
                 }
