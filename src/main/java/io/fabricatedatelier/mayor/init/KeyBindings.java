@@ -32,9 +32,12 @@ public class KeyBindings {
         KeyBindingHelper.registerKeyBinding(mayorUpwardKeyBind);
         KeyBindingHelper.registerKeyBinding(mayorDownwardKeyBind);
 
-        ClientTickEvents.END_CLIENT_TICK.register(KeyHelper::viewKey);
-        ClientTickEvents.END_CLIENT_TICK.register(KeyHelper::centerKey);
-        ClientTickEvents.END_CLIENT_TICK.register(KeyHelper::heightKey);
+        ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            KeyHelper.viewKey(client);
+            KeyHelper.centerKey(client);
+            KeyHelper.heightKey(client);
+        });
+        ClientTickEvents.START_CLIENT_TICK.register(KeyHelper::useKey);
     }
 
 }

@@ -21,6 +21,7 @@ import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BiomeTags;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.structure.StructurePiece;
@@ -124,6 +125,8 @@ public class StructureHelper {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getIdentifier().equals(structureId)) {
                 mayorManager.setMayorStructure(list.get(i));
+                System.out.println("SET MAYOR STRUCTURE SERVER: " + list.get(i));
+
                 mayorManager.setStructureRotation(structureRotation);
 
                 new StructurePacket(structureId, structureRotation, center).sendPacket(serverPlayerEntity);
@@ -131,6 +134,7 @@ public class StructureHelper {
             }
             if (i == list.size() - 1) {
                 mayorManager.setMayorStructure(null);
+                System.out.println("UNSET MAYOR STRUCTURE SERVER");
             }
         }
         return false;
@@ -201,12 +205,10 @@ public class StructureHelper {
 
     public static List<ItemStack> getStructureItemRequirements(ServerWorld serverWorld, Identifier structureId) {
         List<ItemStack> requiredItemStacks = new ArrayList<>();
-        Map<BlockPos, NbtCompound> blockMap = StructureHelper.getBlockPosNbtMap(serverWorld, structureId, BlockRotation.NONE, false);
-
-        RegistryEntryLookup<Block> blockLookup = serverWorld.createCommandRegistryWrapper(RegistryKeys.BLOCK);
+        Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(serverWorld, structureId, BlockRotation.NONE, false);
 
         for (var entry : blockMap.entrySet()) {
-            ItemStack itemStack = new ItemStack(NbtHelper.toBlockState(blockLookup, entry.getValue()).getBlock().asItem());
+            ItemStack itemStack = new ItemStack(entry.getValue().getBlock().asItem());
             if (itemStack.isIn(Tags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
                 continue;
             }

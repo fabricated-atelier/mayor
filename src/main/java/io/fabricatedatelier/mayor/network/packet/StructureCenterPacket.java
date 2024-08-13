@@ -28,11 +28,17 @@ public record StructureCenterPacket(boolean center) implements CustomPayload {
 
     public void handlePacket(ServerPlayNetworking.Context context) {
         context.server().execute(() -> {
-            MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-            if (mayorManager.getMayorStructure() != null) {
-                mayorManager.setStructureCentered(center);
-                StructureHelper.updateMayorStructure(context.player(), mayorManager.getMayorStructure().getIdentifier(), mayorManager.getStructureRotation(), this.center);
-            }
+//            MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+//
+////            System.out.println(this.center()+ "???");
+//
+//            if (mayorManager.getMayorStructure() != null) {
+//                mayorManager.setStructureCentered(center);
+//
+//                System.out.println(this.center()+ "TESTXXXXXXXXXXXXXXXX");
+//
+//                StructureHelper.updateMayorStructure(context.player(), mayorManager.getMayorStructure().getIdentifier(), mayorManager.getStructureRotation(), this.center);
+//            }
         });
     }
 }

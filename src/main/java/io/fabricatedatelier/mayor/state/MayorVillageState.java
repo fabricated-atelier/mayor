@@ -66,6 +66,10 @@ public class MayorVillageState extends PersistentState {
         return this.villages.keySet().stream().toList();
     }
 
+    public boolean hasVillage(BlockPos centerPos) {
+        return this.villages.containsKey(centerPos);
+    }
+
     @Override
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         NbtList nbtList = new NbtList();

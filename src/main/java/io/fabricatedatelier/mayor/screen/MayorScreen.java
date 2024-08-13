@@ -4,52 +4,36 @@ import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
-import io.fabricatedatelier.mayor.network.packet.StructurePacket;
+import io.fabricatedatelier.mayor.state.StructureData;
+import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlockEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.gui.hud.MessageIndicator;
-import net.minecraft.client.gui.screen.ChatInputSuggestor;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.screen.narration.NarrationPart;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
+import net.minecraft.item.BundleItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Colors;
-import net.minecraft.util.StringHelper;
-import net.minecraft.util.math.MathHelper;
-import org.apache.commons.lang3.StringUtils;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Environment(EnvType.CLIENT)
 public class MayorScreen extends Screen {
-    //    public static final double SHIFT_SCROLL_AMOUNT = 7.0;
-//    private static final Text USAGE_TEXT = Text.translatable("chat_screen.usage");
-//    private static final int MAX_INDICATOR_TOOLTIP_WIDTH = 210;
-//    private String chatLastMessage = "";
-//    private int messageHistoryIndex = -1;
-//    protected TextFieldWidget chatField;
-//    private String originalChatText;
-//    ChatInputSuggestor chatInputSuggestor;
+
     private final MayorManager mayorManager;
 
     private Map<MayorCategory.BuildingCategory, List<MayorStructure>> structureMap = new HashMap<>();
+    private List<ItemStack> availableStacks = new ArrayList<>();
+
+    @Nullable
+    private MayorCategory.BuildingCategory selectedCategory = null;
 
     public MayorScreen(MayorManager mayorManager) {
-        super(Text.translatable("mayor_screen.title"));
+        super(Text.translatable("mayor.screen.title"));
         this.mayorManager = mayorManager;
     }
 
@@ -57,11 +41,40 @@ public class MayorScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
+        int xTest = 0;
+        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
+            Text text = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
+            if (this.textRenderer.getWidth(text) > xTest) {
+                xTest = this.textRenderer.getWidth(text);
+            }
+        }
+
         int x = 10;
         int y = this.height / 2 - 10 * MayorCategory.BuildingCategory.values().length / 2;
         for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
             Text text = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
-            if (isMouseWithinBounds(x, y, this.textRenderer.getWidth(text), 8, mouseX, mouseY)) {
+            if (MayorCategory.BuildingCategory.values()[i].equals(this.selectedCategory)) {
+                context.drawText(this.textRenderer, text, x, y, Colors.WHITE, false);
+
+                if (this.selectedCategory != null) {
+                    int buildingY = 0;
+                    for (int u = 0; u < this.structureMap.get(this.selectedCategory).size(); u++) {
+                        Text building = Text.translatable("building_" + this.structureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
+
+                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.structureMap.get(this.selectedCategory).get(u))) {
+                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.WHITE, false);
+
+//                            if(isMouseWithinBounds(x + 5 + xTest, y + buildingY,this.textRenderer.getWidth(building),8,mouseX,mouseY)){
+////                                context.it
+//                            }
+
+                        } else {
+                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.LIGHT_GRAY, false);
+                        }
+                        buildingY += 10;
+                    }
+                }
+            } else if (isMouseWithinBounds(x, y, this.textRenderer.getWidth(text), 8, mouseX, mouseY)) {
                 context.drawText(this.textRenderer, text, x, y, Colors.WHITE, false);
             } else {
                 context.drawText(this.textRenderer, text, x, y, Colors.LIGHT_GRAY, false);
@@ -70,26 +83,103 @@ public class MayorScreen extends Screen {
         }
 
         if (mayorManager.getVillageData() != null) {
+            int villageX = this.width - 10;
+            int villageY = this.height / 2;
+            String name = mayorManager.getVillageData().getName();
+            Text level = Text.translatable("mayor.screen.level", mayorManager.getVillageData().getLevel());
+
+            context.drawText(this.textRenderer, name, villageX - this.textRenderer.getWidth(name) - 5 - this.textRenderer.getWidth(level), villageY, Colors.WHITE, false);
+            context.drawText(this.textRenderer, level, villageX - this.textRenderer.getWidth(level), villageY, Colors.WHITE, false);
+
+            Text villagers = Text.translatable("mayor.screen.villagers", mayorManager.getVillageData().getVillagers().size());
+            context.drawText(this.textRenderer, villagers, villageX - this.textRenderer.getWidth(villagers), villageY + 10, Colors.LIGHT_GRAY, false);
+            Text ironGolems = Text.translatable("mayor.screen.iron_golems", mayorManager.getVillageData().getIronGolems().size());
+            context.drawText(this.textRenderer, ironGolems, villageX - this.textRenderer.getWidth(ironGolems), villageY + 20, Colors.LIGHT_GRAY, false);
+
+            Text structures = Text.translatable("mayor.screen.structures", mayorManager.getVillageData().getStructures().size());
+            context.drawText(this.textRenderer, structures, villageX - this.textRenderer.getWidth(structures), villageY + 30, Colors.LIGHT_GRAY, false);
+
+            if (isMouseWithinBounds(villageX - this.textRenderer.getWidth(structures), villageY + 30, this.textRenderer.getWidth(structures), 8, mouseX, mouseY)) {
+                List<Text> structuresTooltip = new ArrayList<>();
+                for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
+                    StructureData structureData = entry.getValue();
+//                    String structure = "building_" + structureData.getIdentifier().getPath();
+
+                    Text structure = Text.translatable("building_" + structureData.getIdentifier().getPath());
+
+
+                    structuresTooltip.add(structure);
+//                    context.drawText(this.textRenderer, structure, villageX - this.textRenderer.getWidth(structure), villageY + 40, Colors.LIGHT_GRAY, false);
+//                    villageY += 10;
+                }
+                if (!structuresTooltip.isEmpty()) {
+                    context.drawTooltip(this.textRenderer, structuresTooltip, mouseX, mouseY);
+                }
+
+            }
+        }
+        if (this.mayorManager.getMayorStructure() != null) {
+            Text requiredItems = Text.translatable("mayor.screen.required_items");
+            context.drawText(this.textRenderer, requiredItems, this.width / 2 - this.textRenderer.getWidth(requiredItems) / 2, this.height - 70, Colors.WHITE, false);
+
+            int xItem = 0;
+            int stackCount = this.mayorManager.getMayorStructure().getRequiredItemStacks().size();
+            for (int i = 0; i < this.mayorManager.getMayorStructure().getRequiredItemStacks().size(); i++) {
+                context.drawItemWithoutEntity(this.mayorManager.getMayorStructure().getRequiredItemStacks().get(i), this.width / 2 - stackCount * 18 / 2 + xItem, this.height - 50);
+                context.drawItemInSlot(this.textRenderer, this.mayorManager.getMayorStructure().getRequiredItemStacks().get(i), this.width / 2 - stackCount * 18 / 2 + xItem, this.height - 50);
+                xItem += 18;
+            }
+        }
+        if (!this.availableStacks.isEmpty()) {
 
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int xTest = 0;
+        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
+            Text text = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
+            if (this.textRenderer.getWidth(text) > xTest) {
+                xTest = this.textRenderer.getWidth(text);
+            }
+        }
         int x = 10;
         int y = this.height / 2 - 10 * MayorCategory.BuildingCategory.values().length / 2;
         for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
             if (isMouseWithinBounds(x, y, this.textRenderer.getWidth(Text.translatable(MayorCategory.BuildingCategory.values()[i].name())), 8, mouseX, mouseY)) {
 //                System.out.println("WITHIN " + i + " : "+structureMap.get(MayorCategory.BuildingCategory.values()[i]));
                 if (structureMap.containsKey(MayorCategory.BuildingCategory.values()[i]) && structureMap.get(MayorCategory.BuildingCategory.values()[i]).size() > 0) {
-                    mayorManager.setMayorStructure(structureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0));
+                    this.selectedCategory = MayorCategory.BuildingCategory.values()[i];
+                    // TEST
+//                    mayorManager.setMayorStructure(structureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0));
                     //  new StructurePacket(structureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0), BlockRotation.NONE, false).sendClientPacket();
 //                    System.out.println("SET STRUCTURE");
                     return true;
                 }
+
+
+            }
+            if (this.selectedCategory != null) {
+                int buildingY = 0;
+                for (int u = 0; u < this.structureMap.get(this.selectedCategory).size(); u++) {
+                    Text building = Text.translatable("building_" + this.structureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
+                    if (isMouseWithinBounds(x + xTest, y + buildingY, this.textRenderer.getWidth(building), 8, mouseX, mouseY)) {
+                        mayorManager.setMayorStructure(structureMap.get(this.selectedCategory).get(u));
+                        return true;
+                    }
+//                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.structureMap.get(this.selectedCategory).get(u))) {
+//                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.WHITE, false);
+//                        } else {
+//                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.LIGHT_GRAY, false);
+//                        }
+                    buildingY += 10;
+                }
             }
             y += 10;
         }
+        // TEST
+        this.selectedCategory = null;
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
@@ -106,11 +196,24 @@ public class MayorScreen extends Screen {
                     List<MayorStructure> list = new ArrayList<>();
                     list.add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
                     structureMap.put(buildingCategory, list);
-
-
                 }
             }
         }
+        this.availableStacks.clear();
+        if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
+            for (int i = 0; i < this.mayorManager.getVillageData().getStorageOriginBlockPosList().size(); i++) {
+                if (this.client.world.getBlockState(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)).getBlock() instanceof AbstractVillageContainerBlock && this.client.world.getBlockEntity(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
+
+//                    for (int u = 0; u < this.availableStacks.size(); u++) {
+//                        if (this.availableStacks.get(u).isOf() && this.availableStacks.get(u).getCount() < this.availableStacks.get(u).getMaxCount()) {
+//
+//                        }
+//                    }
+//                    this.availableStacks.add();
+                }
+            }
+        }
+
 //        System.out.println(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size());
 //        System.out.println(MayorManager.mayorStructureMap);
 //        System.out.println(this.structureMap);
@@ -340,9 +443,7 @@ public class MayorScreen extends Screen {
     }
 
     private boolean isMouseWithinBounds(int x, int y, int width, int height, double mouseX, double mouseY) {
-        int i = 0;//this.width / 2;
-        int j = 0;//this.height / 2;
-        return (mouseX -= (double) i) >= (double) (x - 1) && mouseX < (double) (x + width + 1) && (mouseY -= (double) j) >= (double) (y - 1) && mouseY < (double) (y + height + 1);
+        return mouseX >= (double) (x - 1) && mouseX < (double) (x + width + 1) && mouseY >= (double) (y - 1) && mouseY < (double) (y + height + 1);
     }
 }
 

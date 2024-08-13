@@ -27,10 +27,10 @@ public record StructureRotatePacket(boolean rotateLeft) implements CustomPayload
     }
 
     public void handlePacket(ServerPlayNetworking.Context context) {
-        MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-        if (mayorManager.getMayorStructure() != null) {
-            StructureHelper.updateMayorStructure(context.player(), mayorManager.getMayorStructure().getIdentifier(), StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), this.rotateLeft()),
-                    mayorManager.getStructureCentered());
-        }
+//        MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+//        if (mayorManager.getMayorStructure() != null) {
+//            StructureHelper.updateMayorStructure(context.player(), mayorManager.getMayorStructure().getIdentifier(), StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), this.rotateLeft()),
+//                    mayorManager.getStructureCentered());
+//        }
     }
 }
