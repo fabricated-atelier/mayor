@@ -34,7 +34,7 @@ public class MayorScreen extends Screen {
     private MayorCategory.BuildingCategory selectedCategory = null;
 
     public MayorScreen(MayorManager mayorManager) {
-        super(Text.translatable("mayor.screen.title"));
+        super(Text.translatable("screen.mayor.title"));
         this.mayorManager = mayorManager;
     }
 
@@ -88,17 +88,17 @@ public class MayorScreen extends Screen {
             int villageX = this.width - 10;
             int villageY = 10;
             String name = mayorManager.getVillageData().getName();
-            Text level = Text.translatable("mayor.screen.level", mayorManager.getVillageData().getLevel());
+            Text level = Text.translatable("screen.mayor.level", mayorManager.getVillageData().getLevel());
 
             context.drawText(this.textRenderer, name, villageX - this.textRenderer.getWidth(name) - 5 - this.textRenderer.getWidth(level), villageY, Colors.WHITE, false);
             context.drawText(this.textRenderer, level, villageX - this.textRenderer.getWidth(level), villageY, Colors.WHITE, false);
 
-            Text villagers = Text.translatable("mayor.screen.villagers", mayorManager.getVillageData().getVillagers().size());
+            Text villagers = Text.translatable("screen.mayor.villagers", mayorManager.getVillageData().getVillagers().size());
             context.drawText(this.textRenderer, villagers, villageX - this.textRenderer.getWidth(villagers), villageY + 10, Colors.LIGHT_GRAY, false);
-            Text ironGolems = Text.translatable("mayor.screen.iron_golems", mayorManager.getVillageData().getIronGolems().size());
+            Text ironGolems = Text.translatable("screen.mayor.iron_golems", mayorManager.getVillageData().getIronGolems().size());
             context.drawText(this.textRenderer, ironGolems, villageX - this.textRenderer.getWidth(ironGolems), villageY + 20, Colors.LIGHT_GRAY, false);
 
-            Text structures = Text.translatable("mayor.screen.structures", mayorManager.getVillageData().getStructures().size());
+            Text structures = Text.translatable("screen.mayor.structures", mayorManager.getVillageData().getStructures().size());
             context.drawText(this.textRenderer, structures, villageX - this.textRenderer.getWidth(structures), villageY + 30, Colors.LIGHT_GRAY, false);
 
             if (isMouseWithinBounds(villageX - this.textRenderer.getWidth(structures), villageY + 30, this.textRenderer.getWidth(structures), 8, mouseX, mouseY)) {
@@ -134,7 +134,7 @@ public class MayorScreen extends Screen {
         }
         // Structure requirements
         if (this.mayorManager.getMayorStructure() != null) {
-            Text requiredItems = Text.translatable("mayor.screen.required_items");
+            Text requiredItems = Text.translatable("screen.mayor.required_items");
             context.drawText(this.textRenderer, requiredItems, this.width / 2 - this.textRenderer.getWidth(requiredItems) / 2, this.height - 70, Colors.WHITE, false);
 
             int xItem = 0;

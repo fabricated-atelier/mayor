@@ -14,12 +14,12 @@
 
     "mayor.village": "Village",
 
-    "mayor.screen.title": "Mayor",
-    "mayor.screen.level": "Lv. %s",
-    "mayor.screen.villagers": "Villagers: %s",
-    "mayor.screen.iron_golems": "Iron Golems: %s",
-    "mayor.screen.structures": "Structures: %s",
-    "mayor.screen.required_items": "Required Items",
+    "screen.mayor.title": "Mayor",
+    "screen.mayor.level": "Lv. %s",
+    "screen.mayor.villagers": "Villagers: %s",
+    "screen.mayor.iron_golems": "Iron Golems: %s",
+    "screen.mayor.structures": "Structures: %s",
+    "screen.mayor.required_items": "Required Items",
 
     "building.category.house": "House",
     "building.category.barn": "Barn",
