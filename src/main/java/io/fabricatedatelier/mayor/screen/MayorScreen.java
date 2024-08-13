@@ -27,7 +27,7 @@ public class MayorScreen extends Screen {
     private final MayorManager mayorManager;
 
     private Map<MayorCategory.BuildingCategory, List<MayorStructure>> availableStructureMap = new HashMap<>();
-    private Map<Integer, List<MayorStructure>> villageStructureMap = new HashMap<>();
+    private Map<Integer, List<StructureData>> villageStructureMap = new HashMap<>();
     private List<ItemStack> availableStacks = new ArrayList<>();
 
     @Nullable
@@ -36,6 +36,51 @@ public class MayorScreen extends Screen {
     public MayorScreen(MayorManager mayorManager) {
         super(Text.translatable("screen.mayor.title"));
         this.mayorManager = mayorManager;
+    }
+
+    @Override
+    protected void init() {
+        this.availableStructureMap.clear();
+        if (MayorManager.mayorStructureMap.containsKey(mayorManager.getBiomeCategory())) {
+            for (int i = 0; i < MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size(); i++) {
+                MayorCategory.BuildingCategory buildingCategory = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i).getBuildingCategory();
+                if (availableStructureMap.containsKey(buildingCategory)) {
+                    availableStructureMap.get(buildingCategory).add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
+                } else {
+                    List<MayorStructure> list = new ArrayList<>();
+                    list.add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
+                    availableStructureMap.put(buildingCategory, list);
+                }
+            }
+        }
+
+        this.availableStacks.clear();
+        if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
+            for (int i = 0; i < this.mayorManager.getVillageData().getStorageOriginBlockPosList().size(); i++) {
+                if (this.client.world.getBlockState(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)).getBlock() instanceof AbstractVillageContainerBlock && this.client.world.getBlockEntity(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
+
+//                    for (int u = 0; u < this.availableStacks.size(); u++) {
+//                        if (this.availableStacks.get(u).isOf() && this.availableStacks.get(u).getCount() < this.availableStacks.get(u).getMaxCount()) {
+//
+//                        }
+//                    }
+//                    this.availableStacks.add();
+                }
+            }
+        }
+
+        // Send a packet to the server to sync again to the client with a second method to call before
+        if (this.mayorManager.getVillageData() != null) {
+            for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
+                if (!this.villageStructureMap.containsKey(entry.getValue().getLevel())) {
+                    List<StructureData> list = new ArrayList<>();
+                    list.add(entry.getValue());
+                    this.villageStructureMap.put(entry.getValue().getLevel(), list);
+                } else {
+                    this.villageStructureMap.get(entry.getValue().getLevel()).add(entry.getValue());
+                }
+            }
+        }
     }
 
     @Override
@@ -105,24 +150,50 @@ public class MayorScreen extends Screen {
                 List<Text> structuresTooltip = new ArrayList<>();
 
 //                Map<String, AbstractMap.SimpleEntry<Integer, Integer>> structure = new HashMap<>();
-                Map<String, List<Integer>> structureTooltip = new HashMap<>();
-                for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
-                    StructureData structureData = entry.getValue();
-//                    String structure = "building_" + structureData.getIdentifier().getPath();
 
-                    String structureName = StringUtil.getStructureName(structureData.getIdentifier());
-//                    Text structure = Text.translatable("building_" + structureData.getIdentifier().getPath());
-//                    if (structure.containsKey(structureName)) {
-//                        int structureLevel = StringUtil.getStructureLevelByIdentifier(structureData.getIdentifier());
-//
-//                    } else {
+//                this.villageStructureMap.entrySet();
+
+//                List<String> structureTooltip = new ArrayList<>();
+
+                for (Map.Entry<Integer, List<StructureData>> entry : this.villageStructureMap.entrySet()) {
+                    structuresTooltip.add(Text.translatable("mayor.screen.structures_level", entry.getKey()));
+                    Map<String, Integer> structureTooltip = new HashMap<>();
+                    for (int i = 0; i < entry.getValue().size(); i++) {
+                        String structureName = StringUtil.getStructureName(entry.getValue().get(i).getIdentifier());
+                        if (!structureTooltip.containsKey(structureName)) {
+                            structureTooltip.put(structureName, 1);
+                        } else {
+                            structureTooltip.put(structureName, structureTooltip.get(structureName) + 1);
+                        }
+                    }
+                    for (Map.Entry<String, Integer> structureNames : structureTooltip.entrySet()) {
+                        structuresTooltip.add(Text.of(" - "+structureNames.getKey() +  structureNames.getValue() + "x"));
+                    }
+//                    structureTooltip.entrySet().iterator();
+//                    for (int i = 0; i < entry.getValue().size(); i++) {
 //
 //                    }
-//                    StringUtil.getStructureName( structureData.getIdentifier());
-//                    structuresTooltip.add(StringUtil.getStructureName(structureData.getIdentifier()));
-//                    context.drawText(this.textRenderer, structure, villageX - this.textRenderer.getWidth(structure), villageY + 40, Colors.LIGHT_GRAY, false);
-//                    villageY += 10;
+
                 }
+//                Map<String, List<Integer>> structureTooltip = new HashMap<>();
+//                for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
+//                    StructureData structureData = entry.getValue();
+////                    String structure = "building_" + structureData.getIdentifier().getPath();
+//
+//
+//                    String structureName = StringUtil.getStructureName(structureData.getIdentifier());
+////                    Text structure = Text.translatable("building_" + structureData.getIdentifier().getPath());
+////                    if (structure.containsKey(structureName)) {
+////                        int structureLevel = StringUtil.getStructureLevelByIdentifier(structureData.getIdentifier());
+////
+////                    } else {
+////
+////                    }
+////                    StringUtil.getStructureName( structureData.getIdentifier());
+////                    structuresTooltip.add(StringUtil.getStructureName(structureData.getIdentifier()));
+////                    context.drawText(this.textRenderer, structure, villageX - this.textRenderer.getWidth(structure), villageY + 40, Colors.LIGHT_GRAY, false);
+////                    villageY += 10;
+//                }
                 if (!structuresTooltip.isEmpty()) {
                     context.drawTooltip(this.textRenderer, structuresTooltip, mouseX, mouseY);
                 }
@@ -199,90 +270,7 @@ public class MayorScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    @Override
-    protected void init() {
-        this.availableStructureMap.clear();
 
-        if (MayorManager.mayorStructureMap.containsKey(mayorManager.getBiomeCategory())) {
-            for (int i = 0; i < MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size(); i++) {
-                MayorCategory.BuildingCategory buildingCategory = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i).getBuildingCategory();
-                if (availableStructureMap.containsKey(buildingCategory)) {
-                    availableStructureMap.get(buildingCategory).add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
-                } else {
-                    List<MayorStructure> list = new ArrayList<>();
-                    list.add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
-                    availableStructureMap.put(buildingCategory, list);
-                }
-            }
-        }
-        this.availableStacks.clear();
-        if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
-            for (int i = 0; i < this.mayorManager.getVillageData().getStorageOriginBlockPosList().size(); i++) {
-                if (this.client.world.getBlockState(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)).getBlock() instanceof AbstractVillageContainerBlock && this.client.world.getBlockEntity(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
-
-//                    for (int u = 0; u < this.availableStacks.size(); u++) {
-//                        if (this.availableStacks.get(u).isOf() && this.availableStacks.get(u).getCount() < this.availableStacks.get(u).getMaxCount()) {
-//
-//                        }
-//                    }
-//                    this.availableStacks.add();
-                }
-            }
-        }
-
-//        System.out.println(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size());
-//        System.out.println(MayorManager.mayorStructureMap);
-//        System.out.println(this.availableStructureMap);
-//        this.messageHistoryIndex = this.client.inGameHud.getChatHud().getMessageHistory().size();
-//        this.chatField = new TextFieldWidget(this.client.advanceValidatingTextRenderer, 4, this.height - 12, this.width - 4, 12, Text.translatable("chat.editBox")) {
-//            @Override
-//            protected MutableText getNarrationMessage() {
-//                return super.getNarrationMessage().append(net.minecraft.client.gui.screen.MayorScreen.this.chatInputSuggestor.getNarration());
-//            }
-//        };
-//        this.chatField.setMaxLength(256);
-//        this.chatField.setDrawsBackground(false);
-//        this.chatField.setText(this.originalChatText);
-//        this.chatField.setChangedListener(this::onChatFieldUpdate);
-//        this.chatField.setFocusUnlocked(false);
-//        this.addSelectableChild(this.chatField);
-//        this.chatInputSuggestor = new ChatInputSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, 10, true, -805306368);
-//        this.chatInputSuggestor.setCanLeave(false);
-//        this.chatInputSuggestor.refresh();
-    }
-
-    private void updateVillageStructures(){
-//        this.villageStructureMap
-        if(this.mayorManager.getVillageData() != null){
-            for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
-
-            }
-        }
-    }
-
-//    @Override
-//    protected void setInitialFocus() {
-//        this.setInitialFocus(this.chatField);
-//    }
-
-//    @Override
-//    public void resize(MinecraftClient client, int width, int height) {
-//        String string = this.chatField.getText();
-//        this.init(client, width, height);
-//        this.setText(string);
-//        this.chatInputSuggestor.refresh();
-//    }
-
-//    @Override
-//    public void removed() {
-//        this.client.inGameHud.getChatHud().resetScroll();
-//    }
-
-//    private void onChatFieldUpdate(String chatText) {
-//        String string = this.chatField.getText();
-//        this.chatInputSuggestor.setWindowActive(!string.equals(this.originalChatText));
-//        this.chatInputSuggestor.refresh();
-//    }
 //
 //    @Override
 //    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {

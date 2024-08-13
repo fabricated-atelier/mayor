@@ -45,6 +45,7 @@ public class StringUtil {
     public static String getStructureName(Identifier structureIdentifier) {
         Text structure = Text.translatable("building_" + structureIdentifier.getPath());
         String string = structure.getString().replaceAll("[0-9]", "");
-        return string;}
+        return string;
+    }
 
 }

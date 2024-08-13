@@ -28,7 +28,6 @@ public class RenderUtil {
                     if (entry.getValue().getBlockBox().contains(blockHitResult.getBlockPos())) {
                         String structureName = StringUtil.getStructureName(entry.getValue().getIdentifier())+ Text.translatable("mayor.screen.level",entry.getValue().getLevel()).getString();
                         context.drawText(client.textRenderer, structureName, 10, 10, 0xFFFFFF, false);
-
                         break;
                     }
                 }
