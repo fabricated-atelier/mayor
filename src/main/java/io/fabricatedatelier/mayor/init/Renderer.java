@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.init;
 
+import io.fabricatedatelier.mayor.camera.CameraHandler;
 import io.fabricatedatelier.mayor.util.RenderUtil;
 
 import net.fabricmc.api.EnvType;
