@@ -9,25 +9,18 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 
 public class LumberBlockVoxelShapes {
-    private static final VoxelShape ground_1x1 = Block.createCuboidShape(1, 0, 1, 15, 2, 15);
-
-    private static final VoxelShape ground_n = Block.createCuboidShape(1, 0, 0, 15, 2, 15);
-    private static final VoxelShape ground_s = Block.createCuboidShape(1, 0, 1, 15, 2, 16);
-    private static final VoxelShape ground_e = Block.createCuboidShape(1, 0, 1, 16, 2, 15);
-    private static final VoxelShape ground_w = Block.createCuboidShape(0, 0, 1, 15, 2, 15);
-    // private static final VoxelShape ground_ns = Block.createCuboidShape(1, 0, 0, 15, 2, 15);
-    // private static final VoxelShape ground_ew = Block.createCuboidShape(1, 0, 1, 16, 2, 15);
-
-
-    private static final VoxelShape wall_end_west = Block.createCuboidShape(1.5, 0, 0, 2.5, 13, 15);
-    private static final VoxelShape wall_end_east = Block.createCuboidShape(13.5, 0, 0, 14.5, 13, 15);
-    private static final VoxelShape wall_end_south = Block.createCuboidShape(0, 10, 13.5, 15, 13, 14.5);
-    private static final VoxelShape wall_end_north = Block.createCuboidShape(12, 0, 14, 14, 16, 16);
-
 
     public static VoxelShape get(BlockState state) {
         var shape = state.get(Properties.SHAPE);
         boolean needsGroundPlate = state.get(Properties.POSITION).equals(Properties.VerticalPosition.BOTTOM);
+        VoxelShape shape_north = Block.createCuboidShape(0, 0, 0, 16, 16, 2.5);
+        VoxelShape shape_east = Block.createCuboidShape(13.5, 0, 0, 16, 16, 16);
+        VoxelShape shape_south = Block.createCuboidShape(0, 0, 13.5, 16, 16, 16);
+        VoxelShape shape_west = Block.createCuboidShape(0, 0, 0, 2.5, 16, 16);
+
+        VoxelShape ground_1x1 = Block.createCuboidShape(1, 0, 1, 15, 2, 15);
+        VoxelShape ground_ns = Block.createCuboidShape(0, 0, 0, 15, 2, 16);
+        VoxelShape ground_ew = Block.createCuboidShape(0, 0, 0, 16, 2, 15);
 
         return switch (shape) {
             case ALL_WALLS -> {
@@ -49,54 +42,15 @@ public class LumberBlockVoxelShapes {
                     );
                 }
             }
-            case TWO_WALLS_END -> switch (state.get(LumberStorageBlock.FACING)) {
-                case NORTH -> {
-                    VoxelShape voxelShape = VoxelShapes.union(wall_end_west, wall_end_east);
-                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, ground_n) : voxelShape;
-                }
-                case SOUTH -> {
-                    VoxelShape voxelShape = VoxelShapes.union(
-                            VoxelShapes.cuboid(0.84375, 0.625, 0.0625, 0.90625, 0.8125, 1),
-                            VoxelShapes.cuboid(0.09375, 0.625, 0.0625, 0.15625, 0.8125, 1),
-                            VoxelShapes.cuboid(0.875, 0, 0.125, 1, 1, 0.25),
-                            VoxelShapes.cuboid(0, 0, 0.125, 0.125, 1, 0.25)
-                    );
-                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, ground_s) : voxelShape;
-                }
-                case WEST -> {
-                    VoxelShape voxelShape = VoxelShapes.union(wall_end_south, wall_end_north);
-                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, ground_w) : voxelShape;
-                }
-                case EAST -> {
-                    VoxelShape voxelShape = VoxelShapes.union(
-                            VoxelShapes.cuboid(0.0625, 0.625, 0.09375, 1, 0.8125, 0.15625),
-                            VoxelShapes.cuboid(0.0625, 0.625, 0.84375, 1, 0.8125, 0.90625),
-                            VoxelShapes.cuboid(0.125, 0, 0, 0.25, 1, 0.125),
-                            VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 1, 1)
-                    );
-                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, ground_e) : voxelShape;
-                }
-                default -> VoxelShapes.empty();
-            };
-            case TWO_WALLS_MID -> switch (state.get(LumberStorageBlock.FACING)) {
+            case TWO_WALLS_END, TWO_WALLS_MID -> switch (state.get(LumberStorageBlock.FACING)) {
                 case NORTH, SOUTH -> {
-                    VoxelShape voxelShape = VoxelShapes.union(
-                            VoxelShapes.cuboid(0.09375, 0.625, 0, 0.15625, 0.8125, 1),
-                            VoxelShapes.cuboid(0.84375, 0.625, 0, 0.90625, 0.8125, 1),
-                            VoxelShapes.cuboid(0, 0, 0.4375, 0.125, 1, 0.5625),
-                            VoxelShapes.cuboid(0.875, 0, 0.4375, 1, 1, 0.5625));
-
-                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, Block.createCuboidShape(1, 0, 0, 15, 2, 15)) : voxelShape;
+                    VoxelShape voxelShape = VoxelShapes.union(shape_east, shape_west);
+                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, ground_ns) : voxelShape;
                 }
-                case EAST, WEST -> VoxelShapes.union(
-                        // Block.createCuboidShape(1, 0, 0, 15, 2, 15),
-
-                        VoxelShapes.cuboid(0, 0.625, 0.84375, 1, 0.8125, 0.90625),
-                        VoxelShapes.cuboid(0, 0.625, 0.09375, 1, 0.8125, 0.15625),
-                        VoxelShapes.cuboid(0.4375, 0, 0.875, 0.5625, 1, 1),
-                        VoxelShapes.cuboid(0.4375, 0, 0, 0.5625, 1, 0.125)
-                        // VoxelShapes.cuboid(0, 0, 0.0625, 1, 0.125, 0.9375)
-                );
+                case WEST, EAST -> {
+                    VoxelShape voxelShape = VoxelShapes.union(shape_north, shape_south);
+                    yield needsGroundPlate ? VoxelShapes.union(voxelShape, ground_ew) : voxelShape;
+                }
                 default -> VoxelShapes.empty();
             };
             case ONE_WALL_END -> switch (state.get(Properties.SIDE)) {
