@@ -23,20 +23,16 @@ public class RenderUtil {
         MinecraftClient client = MinecraftClient.getInstance();
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
         if (mayorManager.isInMajorView()) {
-
             if (mayorManager.getVillageData() != null && StructureHelper.findCrosshairTarget(client.player) instanceof BlockHitResult blockHitResult) {
                 for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
-                    System.out.println(entry.getValue().getBlockBox().offset(entry.getKey().getX(),entry.getKey().getY(),entry.getKey().getZ()).contains(blockHitResult.getBlockPos())+ "  : "+entry.getValue().getBlockBox().offset(entry.getKey().getX(),entry.getKey().getY(),entry.getKey().getZ()));
-                    if (entry.getValue().getBlockBox().offset(entry.getKey().getX(),entry.getKey().getY(),entry.getKey().getZ()).contains(blockHitResult.getBlockPos())) {
-                        context.drawText(client.textRenderer, StringUtil.getStructureName(entry.getValue().getIdentifier()), 10, 10, 0xFFFFFF, false);
+                    if (entry.getValue().getBlockBox().contains(blockHitResult.getBlockPos())) {
+                        String structureName = StringUtil.getStructureName(entry.getValue().getIdentifier())+ Text.translatable("mayor.screen.level",entry.getValue().getLevel()).getString();
+                        context.drawText(client.textRenderer, structureName, 10, 10, 0xFFFFFF, false);
+
                         break;
                     }
                 }
             }
-            // && mayorManager.getStructureBlockMap() != null
-//            context.drawText(client.textRenderer, Text.translatable("gui.mayor.structures"), 10, 10, 0xFFFFFF, true);
-//            context.drawText(client.textRenderer, Text.translatable("gui.mayor.houses"), 16, 22, 0xFFFFFF, false);
-//            context.drawText(client.textRenderer, Text.translatable("gui.mayor.streets"), 16, 32, 0xFFFFFF, false);
         }
     }
 
