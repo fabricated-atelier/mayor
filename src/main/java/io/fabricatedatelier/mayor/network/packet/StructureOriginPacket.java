@@ -37,10 +37,10 @@ public record StructureOriginPacket(Optional<BlockPos> origin) implements Custom
 
     public void handlePacket(ClientPlayNetworking.Context context) {
         MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-        if (mayorManager.getOriginBlockPos() != null) {
-            mayorManager.setOriginBlockPos(null);
+        if (mayorManager.getStructureOriginBlockPos() != null) {
+            mayorManager.setStructureOriginBlockPos(null);
         } else {
-            mayorManager.setOriginBlockPos(this.origin.orElse(null));
+            mayorManager.setStructureOriginBlockPos(this.origin.orElse(null));
         }
     }
 }

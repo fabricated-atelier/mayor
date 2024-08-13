@@ -3,33 +3,19 @@ package io.fabricatedatelier.mayor.util;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.manager.MayorManager;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRendering;
+import io.fabricatedatelier.mayor.state.StructureData;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
-import net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderingImpl;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.FluidRenderer;
-import net.minecraft.client.render.chunk.BlockBufferAllocatorStorage;
-import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.predicate.block.BlockStatePredicate;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.text.Text;
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockRenderView;
 
 public class RenderUtil {
 
@@ -37,6 +23,16 @@ public class RenderUtil {
         MinecraftClient client = MinecraftClient.getInstance();
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
         if (mayorManager.isInMajorView()) {
+
+            if (mayorManager.getVillageData() != null && StructureHelper.findCrosshairTarget(client.player) instanceof BlockHitResult blockHitResult) {
+                for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
+                    System.out.println(entry.getValue().getBlockBox().offset(entry.getKey().getX(),entry.getKey().getY(),entry.getKey().getZ()).contains(blockHitResult.getBlockPos())+ "  : "+entry.getValue().getBlockBox().offset(entry.getKey().getX(),entry.getKey().getY(),entry.getKey().getZ()));
+                    if (entry.getValue().getBlockBox().offset(entry.getKey().getX(),entry.getKey().getY(),entry.getKey().getZ()).contains(blockHitResult.getBlockPos())) {
+                        context.drawText(client.textRenderer, StringUtil.getStructureName(entry.getValue().getIdentifier()), 10, 10, 0xFFFFFF, false);
+                        break;
+                    }
+                }
+            }
             // && mayorManager.getStructureBlockMap() != null
 //            context.drawText(client.textRenderer, Text.translatable("gui.mayor.structures"), 10, 10, 0xFFFFFF, true);
 //            context.drawText(client.textRenderer, Text.translatable("gui.mayor.houses"), 16, 22, 0xFFFFFF, false);
@@ -51,7 +47,7 @@ public class RenderUtil {
         if (mayorManager.isInMajorView() && mayorManager.getMayorStructure() != null) {
             BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
 
-            BlockPos origin = mayorManager.getOriginBlockPos();
+            BlockPos origin = mayorManager.getStructureOriginBlockPos();
             if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {
                 Map<BlockPos, BlockState> blockMap = mayorManager.getMayorStructure().getBlockMap();
 

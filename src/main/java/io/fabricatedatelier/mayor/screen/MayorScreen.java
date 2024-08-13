@@ -1,17 +1,17 @@
 package io.fabricatedatelier.mayor.screen;
 
+import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.state.StructureData;
-import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlock;
-import io.fabricatedatelier.mayor.util.boilerplate.AbstractVillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.util.StringUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.item.BundleItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
@@ -26,7 +26,8 @@ public class MayorScreen extends Screen {
 
     private final MayorManager mayorManager;
 
-    private Map<MayorCategory.BuildingCategory, List<MayorStructure>> structureMap = new HashMap<>();
+    private Map<MayorCategory.BuildingCategory, List<MayorStructure>> availableStructureMap = new HashMap<>();
+    private Map<Integer, List<MayorStructure>> villageStructureMap = new HashMap<>();
     private List<ItemStack> availableStacks = new ArrayList<>();
 
     @Nullable
@@ -58,10 +59,10 @@ public class MayorScreen extends Screen {
 
                 if (this.selectedCategory != null) {
                     int buildingY = 0;
-                    for (int u = 0; u < this.structureMap.get(this.selectedCategory).size(); u++) {
-                        Text building = Text.translatable("building_" + this.structureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
+                    for (int u = 0; u < this.availableStructureMap.get(this.selectedCategory).size(); u++) {
+                        Text building = Text.translatable("building_" + this.availableStructureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
 
-                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.structureMap.get(this.selectedCategory).get(u))) {
+                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.availableStructureMap.get(this.selectedCategory).get(u))) {
                             context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.WHITE, false);
 
 //                            if(isMouseWithinBounds(x + 5 + xTest, y + buildingY,this.textRenderer.getWidth(building),8,mouseX,mouseY)){
@@ -82,9 +83,10 @@ public class MayorScreen extends Screen {
             y += 10;
         }
 
+        // VillageData
         if (mayorManager.getVillageData() != null) {
             int villageX = this.width - 10;
-            int villageY = this.height / 2;
+            int villageY = 10;
             String name = mayorManager.getVillageData().getName();
             Text level = Text.translatable("mayor.screen.level", mayorManager.getVillageData().getLevel());
 
@@ -101,14 +103,23 @@ public class MayorScreen extends Screen {
 
             if (isMouseWithinBounds(villageX - this.textRenderer.getWidth(structures), villageY + 30, this.textRenderer.getWidth(structures), 8, mouseX, mouseY)) {
                 List<Text> structuresTooltip = new ArrayList<>();
+
+//                Map<String, AbstractMap.SimpleEntry<Integer, Integer>> structure = new HashMap<>();
+                Map<String, List<Integer>> structureTooltip = new HashMap<>();
                 for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
                     StructureData structureData = entry.getValue();
 //                    String structure = "building_" + structureData.getIdentifier().getPath();
 
-                    Text structure = Text.translatable("building_" + structureData.getIdentifier().getPath());
-
-
-                    structuresTooltip.add(structure);
+                    String structureName = StringUtil.getStructureName(structureData.getIdentifier());
+//                    Text structure = Text.translatable("building_" + structureData.getIdentifier().getPath());
+//                    if (structure.containsKey(structureName)) {
+//                        int structureLevel = StringUtil.getStructureLevelByIdentifier(structureData.getIdentifier());
+//
+//                    } else {
+//
+//                    }
+//                    StringUtil.getStructureName( structureData.getIdentifier());
+//                    structuresTooltip.add(StringUtil.getStructureName(structureData.getIdentifier()));
 //                    context.drawText(this.textRenderer, structure, villageX - this.textRenderer.getWidth(structure), villageY + 40, Colors.LIGHT_GRAY, false);
 //                    villageY += 10;
                 }
@@ -117,7 +128,11 @@ public class MayorScreen extends Screen {
                 }
 
             }
+
+            // CHeck what needs to a higher level village
+
         }
+        // Structure requirements
         if (this.mayorManager.getMayorStructure() != null) {
             Text requiredItems = Text.translatable("mayor.screen.required_items");
             context.drawText(this.textRenderer, requiredItems, this.width / 2 - this.textRenderer.getWidth(requiredItems) / 2, this.height - 70, Colors.WHITE, false);
@@ -130,6 +145,7 @@ public class MayorScreen extends Screen {
                 xItem += 18;
             }
         }
+        // Available items
         if (!this.availableStacks.isEmpty()) {
 
         }
@@ -148,12 +164,12 @@ public class MayorScreen extends Screen {
         int y = this.height / 2 - 10 * MayorCategory.BuildingCategory.values().length / 2;
         for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
             if (isMouseWithinBounds(x, y, this.textRenderer.getWidth(Text.translatable(MayorCategory.BuildingCategory.values()[i].name())), 8, mouseX, mouseY)) {
-//                System.out.println("WITHIN " + i + " : "+structureMap.get(MayorCategory.BuildingCategory.values()[i]));
-                if (structureMap.containsKey(MayorCategory.BuildingCategory.values()[i]) && structureMap.get(MayorCategory.BuildingCategory.values()[i]).size() > 0) {
+//                System.out.println("WITHIN " + i + " : "+availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]));
+                if (availableStructureMap.containsKey(MayorCategory.BuildingCategory.values()[i]) && availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]).size() > 0) {
                     this.selectedCategory = MayorCategory.BuildingCategory.values()[i];
                     // TEST
-//                    mayorManager.setMayorStructure(structureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0));
-                    //  new StructurePacket(structureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0), BlockRotation.NONE, false).sendClientPacket();
+//                    mayorManager.setMayorStructure(availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0));
+                    //  new StructurePacket(availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0), BlockRotation.NONE, false).sendClientPacket();
 //                    System.out.println("SET STRUCTURE");
                     return true;
                 }
@@ -162,13 +178,13 @@ public class MayorScreen extends Screen {
             }
             if (this.selectedCategory != null) {
                 int buildingY = 0;
-                for (int u = 0; u < this.structureMap.get(this.selectedCategory).size(); u++) {
-                    Text building = Text.translatable("building_" + this.structureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
+                for (int u = 0; u < this.availableStructureMap.get(this.selectedCategory).size(); u++) {
+                    Text building = Text.translatable("building_" + this.availableStructureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
                     if (isMouseWithinBounds(x + xTest, y + buildingY, this.textRenderer.getWidth(building), 8, mouseX, mouseY)) {
-                        mayorManager.setMayorStructure(structureMap.get(this.selectedCategory).get(u));
+                        mayorManager.setMayorStructure(availableStructureMap.get(this.selectedCategory).get(u));
                         return true;
                     }
-//                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.structureMap.get(this.selectedCategory).get(u))) {
+//                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.availableStructureMap.get(this.selectedCategory).get(u))) {
 //                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.WHITE, false);
 //                        } else {
 //                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.LIGHT_GRAY, false);
@@ -185,17 +201,17 @@ public class MayorScreen extends Screen {
 
     @Override
     protected void init() {
-        this.structureMap.clear();
+        this.availableStructureMap.clear();
 
         if (MayorManager.mayorStructureMap.containsKey(mayorManager.getBiomeCategory())) {
             for (int i = 0; i < MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size(); i++) {
                 MayorCategory.BuildingCategory buildingCategory = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i).getBuildingCategory();
-                if (structureMap.containsKey(buildingCategory)) {
-                    structureMap.get(buildingCategory).add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
+                if (availableStructureMap.containsKey(buildingCategory)) {
+                    availableStructureMap.get(buildingCategory).add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
                 } else {
                     List<MayorStructure> list = new ArrayList<>();
                     list.add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
-                    structureMap.put(buildingCategory, list);
+                    availableStructureMap.put(buildingCategory, list);
                 }
             }
         }
@@ -216,7 +232,7 @@ public class MayorScreen extends Screen {
 
 //        System.out.println(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size());
 //        System.out.println(MayorManager.mayorStructureMap);
-//        System.out.println(this.structureMap);
+//        System.out.println(this.availableStructureMap);
 //        this.messageHistoryIndex = this.client.inGameHud.getChatHud().getMessageHistory().size();
 //        this.chatField = new TextFieldWidget(this.client.advanceValidatingTextRenderer, 4, this.height - 12, this.width - 4, 12, Text.translatable("chat.editBox")) {
 //            @Override
@@ -233,6 +249,15 @@ public class MayorScreen extends Screen {
 //        this.chatInputSuggestor = new ChatInputSuggestor(this.client, this, this.chatField, this.textRenderer, false, false, 1, 10, true, -805306368);
 //        this.chatInputSuggestor.setCanLeave(false);
 //        this.chatInputSuggestor.refresh();
+    }
+
+    private void updateVillageStructures(){
+//        this.villageStructureMap
+        if(this.mayorManager.getVillageData() != null){
+            for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
+
+            }
+        }
     }
 
 //    @Override

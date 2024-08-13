@@ -2,6 +2,8 @@ package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.camera.CameraHandler;
+import io.fabricatedatelier.mayor.camera.target.StaticCameraTarget;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.state.VillageData;
@@ -9,6 +11,7 @@ import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.option.Perspective;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
@@ -53,6 +56,17 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
     public void handlePacket(ClientPlayNetworking.Context context) {
         MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
         mayorManager.setMajorView(this.mayorView);
+
+//        if (this.mayorView) {
+//            mayorManager.setOldPerspective(context.client().options.getPerspective());
+//            context.client().options.setPerspective(Perspective.THIRD_PERSON_BACK);
+//        } else if (mayorManager.getOldPerspective() != null) {
+//            context.client().options.setPerspective(mayorManager.getOldPerspective());
+//        }
+
+//        if (mayorManager.getVillageData() != null) {
+//            CameraHandler.getInstance().setTarget(this.mayorView ? new StaticCameraTarget(mayorManager.getVillageData().getCenterPos()) : null);
+//        }
     }
 
     public void handleClientPacket(ServerPlayNetworking.Context context) {

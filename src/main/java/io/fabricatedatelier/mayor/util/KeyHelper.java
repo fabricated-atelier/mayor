@@ -4,8 +4,6 @@ import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
-import io.fabricatedatelier.mayor.network.packet.StructureCenterPacket;
-import io.fabricatedatelier.mayor.network.packet.StructureRotatePacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.hit.BlockHitResult;
@@ -43,15 +41,15 @@ public class KeyHelper {
         if (KeyBindings.mayorUpwardKeyBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
-                    mayorManager.setOriginBlockPos(mayorManager.getOriginBlockPos().up());
+                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
+                    mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().up());
                 }
             }
         } else if (KeyBindings.mayorDownwardKeyBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
-                    mayorManager.setOriginBlockPos(mayorManager.getOriginBlockPos().down());
+                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
+                    mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().down());
                 }
             }
         }
@@ -82,16 +80,16 @@ public class KeyHelper {
         if (client.options.useKey.wasPressed() && client.player != null) {
             MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
             if (mayorManager.isInMajorView() && !(client.currentScreen instanceof MayorScreen)) {
-                if (mayorManager.getOriginBlockPos() == null) {
+                if (mayorManager.getStructureOriginBlockPos() == null) {
                     Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(client.player));
                     if (hitResult.isPresent()) {
                         Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
                         if (origin.isPresent()) {
-                            mayorManager.setOriginBlockPos(origin.get());
+                            mayorManager.setStructureOriginBlockPos(origin.get());
                         }
                     }
                 } else {
-                    mayorManager.setOriginBlockPos(null);
+                    mayorManager.setStructureOriginBlockPos(null);
                 }
             }
         }

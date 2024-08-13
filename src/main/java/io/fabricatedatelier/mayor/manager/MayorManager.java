@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Map;
 
 import io.fabricatedatelier.mayor.state.VillageData;
+import net.minecraft.client.option.Perspective;
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.BlockRotation;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
 public class MayorManager {
@@ -29,6 +28,8 @@ public class MayorManager {
     private BlockPos originBlockPos = null;
     private BlockRotation structureRotation = BlockRotation.NONE;
     private boolean center = false;
+    @Nullable
+    private Perspective oldPerspective = null;
 
     private final PlayerEntity playerEntity;
 
@@ -79,12 +80,12 @@ public class MayorManager {
         this.mayorStructure = mayorStructure;
     }
 
-    public void setOriginBlockPos(@Nullable BlockPos origin) {
+    public void setStructureOriginBlockPos(@Nullable BlockPos origin) {
         this.originBlockPos = origin;
     }
 
     @Nullable
-    public BlockPos getOriginBlockPos() {
+    public BlockPos getStructureOriginBlockPos() {
         return this.originBlockPos;
     }
 
@@ -104,4 +105,12 @@ public class MayorManager {
         return this.center;
     }
 
+    @Nullable
+    public Perspective getOldPerspective() {
+        return oldPerspective;
+    }
+
+    public void setOldPerspective(@Nullable Perspective oldPerspective) {
+        this.oldPerspective = oldPerspective;
+    }
 }

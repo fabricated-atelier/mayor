@@ -9,6 +9,7 @@ import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -37,28 +38,28 @@ public class Events {
 
     public static void initialize() {
 
-//        UseItemCallback.EVENT.register((PlayerEntity player, World world, Hand hand) -> {
-//            if (player instanceof ServerPlayerEntity serverPlayerEntity) {
-//
-//                MayorViewPacket viewPacket;
-//                if (player.getStackInHand(hand).isOf(Items.STICK)) {
-//                    // TEST
-//                    Identifier identifier = Identifier.ofVanilla("village/plains/houses/plains_small_house_7");
-//                    // TEST END
-//                    StructureHelper.updateMayorStructure(serverPlayerEntity, identifier, BlockRotation.NONE, false);
-//
-//                    Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(serverPlayerEntity));
-//                    Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
-//
-//                    new StructureOriginPacket(origin).sendPacket(serverPlayerEntity);
-//                    viewPacket = new MayorViewPacket(true);
-//                } else {
-//                    viewPacket = new MayorViewPacket(false);
-//                }
-//                viewPacket.sendPacket(serverPlayerEntity);
-//            }
-//            return TypedActionResult.pass(ItemStack.EMPTY);
-//        });
+        // UseItemCallback.EVENT.register((PlayerEntity player, World world, Hand hand) -> {
+        // if (player instanceof ServerPlayerEntity serverPlayerEntity) {
+        //
+        // MayorViewPacket viewPacket;
+        // if (player.getStackInHand(hand).isOf(Items.STICK)) {
+        // // TEST
+        // Identifier identifier = Identifier.ofVanilla("village/plains/houses/plains_small_house_7");
+        // // TEST END
+        // StructureHelper.updateMayorStructure(serverPlayerEntity, identifier, BlockRotation.NONE, false);
+        //
+        // Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(serverPlayerEntity));
+        // Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
+        //
+        // new StructureOriginPacket(origin).sendPacket(serverPlayerEntity);
+        // viewPacket = new MayorViewPacket(true);
+        // } else {
+        // viewPacket = new MayorViewPacket(false);
+        // }
+        // viewPacket.sendPacket(serverPlayerEntity);
+        // }
+        // return TypedActionResult.pass(ItemStack.EMPTY);
+        // });
 
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof VillagerEntity || entity instanceof IronGolemEntity) {
@@ -97,23 +98,22 @@ public class Events {
 
                 }
             }
-//
-//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_DESERT_HAS_STRUCTURE)) {
-//            }
-//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_PLAINS_HAS_STRUCTURE)) {
-//            }
-//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_SAVANNA_HAS_STRUCTURE)) {
-//            }
-//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_SNOWY_HAS_STRUCTURE)) {
-//            }
-//            for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_TAIGA_HAS_STRUCTURE)) {
-//            }
-
+            //
+            // for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_DESERT_HAS_STRUCTURE)) {
+            // }
+            // for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_PLAINS_HAS_STRUCTURE)) {
+            // }
+            // for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_SAVANNA_HAS_STRUCTURE)) {
+            // }
+            // for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_SNOWY_HAS_STRUCTURE)) {
+            // }
+            // for (RegistryEntry<Biome> registryEntry : registry.iterateEntries(BiomeTags.VILLAGE_TAIGA_HAS_STRUCTURE)) {
+            // }
 
         });
 
-//        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-//        });
+        // ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+        // });
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             if (!client.isInSingleplayer()) {
                 MayorManager.mayorStructureMap.clear();
@@ -121,6 +121,5 @@ public class Events {
         });
 
     }
-
 
 }

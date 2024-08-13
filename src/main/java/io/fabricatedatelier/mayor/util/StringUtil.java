@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.util;
 
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,4 +41,10 @@ public class StringUtil {
         }
         return 1;
     }
+
+    public static String getStructureName(Identifier structureIdentifier) {
+        Text structure = Text.translatable("building_" + structureIdentifier.getPath());
+        String string = structure.getString().replaceAll("[0-9]", "");
+        return string;}
+
 }

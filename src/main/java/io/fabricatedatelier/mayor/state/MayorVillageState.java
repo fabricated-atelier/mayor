@@ -15,6 +15,7 @@ public class MayorVillageState extends PersistentState {
     // public static final DSL.TypeReference MAYOR_VILLAGES = TypeReferences.create("mayor_village");
 
     public static final Map<Integer, Integer> villageLevelRadius = Map.of(1, 50, 2, 100, 3, 150, 4, 200, 5, 300);
+    public static final Map<Integer, Integer> villageLevelStructures = Map.of(1, 20, 2, 10, 3, 10, 4, 5, 5, 2);
 
     private final ServerWorld world;
 

@@ -1,7 +1,5 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.screen.MayorScreen;
-import net.minecraft.client.gui.screen.ChatScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,8 +30,8 @@ public class KeyBindingMixin {
             }
         } else if (key.getCode() == 262 || key.getCode() == 263 || key.getCode() == 264 || key.getCode() == 265) {
             MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-            if (client.player != null && mayorManager.isInMajorView() && mayorManager.getOriginBlockPos() != null) {
-                mayorManager.setOriginBlockPos(StructureHelper.moveOrigin(mayorManager.getOriginBlockPos(), key.getCode() - 262, client.player.getHorizontalFacing()));
+            if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
+                mayorManager.setStructureOriginBlockPos(StructureHelper.moveOrigin(mayorManager.getStructureOriginBlockPos(), key.getCode() - 262, client.player.getHorizontalFacing()));
                 // ClientPlayNetworking.send(new StructureOriginPacket(Optional.of(StructureHelper.moveOrigin(mayorManager.getOriginBlockPos(), key.getCode() - 263))));
                 // Maybe sync origin to server - nope or maybe
             }
