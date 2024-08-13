@@ -16,6 +16,10 @@ public class Renderer {
         });
         HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
             RenderUtil.renderMayorHud(drawContext);
+            CameraHandler camera = CameraHandler.getInstance();
+            if (camera.hasTarget() && camera.getTransition().isRunning()) {
+                camera.getTransition().renderOverlay(drawContext);
+            }
         });
     }
 
