@@ -1,9 +1,11 @@
 package io.fabricatedatelier.mayor.block.entity;
 
+import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -16,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Optional;
 
-public abstract class AbstractVillageContainerBlockEntity extends BlockEntity {
+public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
     private BlockPos structureOriginPos;
     private HashSet<BlockPos> connectedBlocks = new HashSet<>();
 
@@ -38,6 +40,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity {
     @Override
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
+        Inventories.readNbt(nbt, this.getItems(), registryLookup);
         if (nbt.contains(NbtKeys.BLOCK_ENTITY_ORIGIN_POS)) {
             this.setStructureOriginPos(BlockPos.fromLong(nbt.getLong(NbtKeys.BLOCK_ENTITY_ORIGIN_POS)));
         }
@@ -48,6 +51,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity {
     @Override
     protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.writeNbt(nbt, registryLookup);
+        Inventories.writeNbt(nbt, this.getItems(), registryLookup);
         this.getStructureOriginPos().ifPresent(originPos -> nbt.putLong(NbtKeys.BLOCK_ENTITY_ORIGIN_POS, originPos.asLong()));
 
         //TODO: connectedBlockList
