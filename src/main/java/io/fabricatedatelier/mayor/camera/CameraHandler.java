@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.camera;
 import io.fabricatedatelier.mayor.camera.target.CameraTarget;
 import io.fabricatedatelier.mayor.camera.target.StaticCameraTarget;
 import io.fabricatedatelier.mayor.camera.transition.FadeTransition;
+import io.fabricatedatelier.mayor.util.TransitionState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -42,14 +43,20 @@ public class CameraHandler {
     private float height = 5, distance = 10;
     private int tick = 0;
 
-    private final FadeTransition startFadeTransition;   //TODO: decouple from camera handler to make usage more flexible
+    private final FadeTransition startFadeTransition, endFadeTransition;
 
-    private CameraHandler(FadeTransition transition) {
-        this.startFadeTransition = transition;
+    private CameraHandler(FadeTransition startFadeTransition, FadeTransition endFadeTransition) {
+        this.startFadeTransition = startFadeTransition;
+        this.endFadeTransition = endFadeTransition;
+
+        this.startFadeTransition.startTicking();
     }
 
     public static CameraHandler getInstance() {
-        if (instance == null) instance = new CameraHandler(new FadeTransition(MinecraftClient.getInstance(), 200));
+        if (instance == null) instance = new CameraHandler(
+                new FadeTransition(MinecraftClient.getInstance(), 200, TransitionState.STARTING),
+                new FadeTransition(MinecraftClient.getInstance(), 100, TransitionState.ENDING)
+        );
         return instance;
     }
 
@@ -57,16 +64,22 @@ public class CameraHandler {
         return Optional.ofNullable(target);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasTarget() {
         return getTarget().isPresent();
     }
 
     public CameraHandler setTarget(@Nullable CameraTarget target) {
         if (target == null) {
-            CameraHandler.instance = null;
+            this.getEndTransition().startTicking();
+            return this;
         }
         this.target = target;
         return this;
+    }
+
+    public void end() {
+        setTarget(null);
     }
 
     public double getHeight() {
@@ -87,8 +100,16 @@ public class CameraHandler {
         return this;
     }
 
-    public FadeTransition getTransition() {
+    public FadeTransition getStartTransition() {
         return startFadeTransition;
+    }
+
+    public FadeTransition getEndTransition() {
+        return endFadeTransition;
+    }
+
+    public boolean isFinished() {
+        return getEndTransition().isFinished();
     }
 
     private double getHorizontalDistance() {
@@ -146,10 +167,22 @@ public class CameraHandler {
         this.tick = tick;
     }
 
-    public void incrementTick() {
+    public void tick() {
+        if (isFinished()) {
+            instance = null;
+            return;
+        }
         this.setTick(this.getTick() + 1);
-        if (getTransition().isRunning() && hasTarget()) {
-            getTransition().incrementTick();
+        if (!hasTarget()) return;
+        if (getStartTransition().isRunning()) {
+            getStartTransition().tick();
+        }
+        if (getEndTransition().isRunning()) {
+            getEndTransition().tick();
+        }
+
+        if (getEndTransition().isFinished()) {
+            CameraHandler.instance = null;
         }
     }
 

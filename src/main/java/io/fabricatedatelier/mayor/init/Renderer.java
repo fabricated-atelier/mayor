@@ -12,14 +12,16 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 public class Renderer {
 
     public static void initialize() {
-        WorldRenderEvents.AFTER_ENTITIES.register((context) -> {
-            RenderUtil.renderVillageStructure(context);
-        });
+        WorldRenderEvents.AFTER_ENTITIES.register(RenderUtil::renderVillageStructure);
         HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
             RenderUtil.renderMayorHud(drawContext);
             CameraHandler camera = CameraHandler.getInstance();
-            if (camera.hasTarget() && camera.getTransition().isRunning()) {
-                camera.getTransition().renderOverlay(drawContext);
+            if (!camera.hasTarget()) return;
+            if (camera.getStartTransition().isRunning()) {
+                camera.getStartTransition().renderOverlay(drawContext);
+            }
+            if (camera.getEndTransition().isRunning()) {
+                camera.getEndTransition().renderOverlay(drawContext);
             }
         });
     }

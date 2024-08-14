@@ -36,7 +36,7 @@ public class CameraDebugBlock extends BlockWithEntity {
 
     @Override
     public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (world.isClient()) CameraHandler.getInstance().setTarget(null);
+        if (world.isClient()) CameraHandler.getInstance().end();
         return super.onBreak(world, pos, state, player);
     }
 

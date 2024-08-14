@@ -24,18 +24,21 @@ public abstract class CameraMixin {
     @Inject(method = "update", at = @At("TAIL"))
     private void cameraOrbiting(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
         if (focusedEntity.getWorld() == null) {
-            CameraHandler.getInstance().setTarget(null);
+            CameraHandler.getInstance().end();
             return;
         }
         if (!(focusedEntity instanceof ClientPlayerEntity clientPlayer)) return;
         CameraHandler camera = CameraHandler.getInstance();
 
-        if (clientPlayer.isSneaking() && camera.hasTarget()) {
-            camera.setTarget(null);
+        if (!camera.hasTarget()) {
             return;
         }
+        if (clientPlayer.isSneaking()) {
+            camera.end();
+        }
+
         camera.getTarget().ifPresent(target -> {
-            camera.incrementTick();
+            camera.tick();
 
             float normalizedProgress = (float) camera.getTick() / CameraHandler.FULL_ORBIT_TICK_DURATION;
             camera.setNormalizedOrbitProgress(normalizedProgress);
