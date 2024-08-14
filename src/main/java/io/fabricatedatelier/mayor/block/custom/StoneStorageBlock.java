@@ -18,7 +18,7 @@ public class StoneStorageBlock extends AbstractVillageContainerBlock {
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         if (!state.isSolidBlock(world, pos.down())) {
             world.breakBlock(pos, true);
         }

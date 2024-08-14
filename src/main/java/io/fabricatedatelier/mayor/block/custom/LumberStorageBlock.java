@@ -97,7 +97,7 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
+    public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         BlockState finalState = super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
         if (isSupported(world, pos)) {
             finalState = getShape(world, pos, finalState);
