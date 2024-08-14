@@ -70,31 +70,30 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
     }
 
     public void handleClientPacket(ServerPlayNetworking.Context context) {
-        VillageData villageData = MayorStateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());
-        if (villageData != null) { // && villageData.getMayorPlayerUuid().equals(context.player().getUuid())
-            if (MayorManager.mayorStructureMap.isEmpty()) {
-                List<MayorStructuresPacket.MayorStructureData> list = new ArrayList<>();
+        if (this.mayorView) {
+            VillageData villageData = MayorStateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());
+            if (villageData != null) { // && villageData.getMayorPlayerUuid().equals(context.player().getUuid())
+                if (!MayorManager.mayorStructureMap.isEmpty()) {
+                    List<MayorStructuresPacket.MayorStructureData> list = new ArrayList<>();
+                    for (var entries : MayorManager.mayorStructureMap.entrySet()) {
+                        for (var entry : entries.getValue()) {
+                            Identifier structureId = entry.getIdentifier();
+                            int level = entry.getLevel();
+                            String biomeCategory = entry.getBiomeCategory().name();
+                            String buildingCategory = entry.getBuildingCategory().name();
+                            List<ItemStack> requiredItemStacks = entry.getRequiredItemStacks();
+                            Map<BlockPos, NbtCompound> posCompoundMap = StructureHelper.getBlockPosNbtMap(entry.getBlockMap());
+                            Vec3i size = entry.getSize();
 
-                for (int i = 0; i < MayorManager.mayorStructureMap.size(); i++) {
-                    for (int u = 0; u < MayorManager.mayorStructureMap.get(i).size(); u++) {
-                        MayorStructure mayorStructure = MayorManager.mayorStructureMap.get(i).get(u);
-                        Identifier structureId = mayorStructure.getIdentifier();
-                        int level = mayorStructure.getLevel();
-                        String biomeCategory = mayorStructure.getBiomeCategory().name();
-                        String buildingCategory = mayorStructure.getBuildingCategory().name();
-                        List<ItemStack> requiredItemStacks = mayorStructure.getRequiredItemStacks();
-                        Map<BlockPos, NbtCompound> posCompoundMap = StructureHelper.getBlockPosNbtMap(mayorStructure.getBlockMap());
-                        Vec3i size = mayorStructure.getSize();
-
-                        MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
-                        list.add(mayorStructureData);
+                            MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
+                            list.add(mayorStructureData);
+                        }
                     }
+                    new MayorStructuresPacket(new MayorStructuresPacket.MayorStructureDatas(list.size(), list)).sendPacket(context.player());
                 }
-                new MayorStructuresPacket(new MayorStructuresPacket.MayorStructureDatas(list.size(), list)).sendPacket(context.player());
+                new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures()).sendPacket(context.player());
             }
-            new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures()).sendPacket(context.player());
-
-            sendPacket(context.player());
         }
+        sendPacket(context.player());
     }
 }

@@ -9,9 +9,9 @@ import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
+import net.minecraft.block.enums.BedPart;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -21,9 +21,9 @@ import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BiomeTags;
-import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.StructureTemplate.StructureBlockInfo;
@@ -125,7 +125,6 @@ public class StructureHelper {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getIdentifier().equals(structureId)) {
                 mayorManager.setMayorStructure(list.get(i));
-                System.out.println("SET MAYOR STRUCTURE SERVER: " + list.get(i));
 
                 mayorManager.setStructureRotation(structureRotation);
 
@@ -134,7 +133,6 @@ public class StructureHelper {
             }
             if (i == list.size() - 1) {
                 mayorManager.setMayorStructure(null);
-                System.out.println("UNSET MAYOR STRUCTURE SERVER");
             }
         }
         return false;
@@ -208,24 +206,30 @@ public class StructureHelper {
         Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(serverWorld, structureId, BlockRotation.NONE, false);
 
         for (var entry : blockMap.entrySet()) {
+            if(entry.getValue().contains(Properties.DOUBLE_BLOCK_HALF) && entry.getValue().get(Properties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER){
+                continue;
+            }
+            if(entry.getValue().contains(Properties.BED_PART) && entry.getValue().get(Properties.BED_PART) == BedPart.FOOT){
+                continue;
+            }
             ItemStack itemStack = new ItemStack(entry.getValue().getBlock().asItem());
             if (itemStack.isIn(Tags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
                 continue;
             }
-            if (requiredItemStacks.isEmpty()) requiredItemStacks.add(itemStack);
-            else {
+            if (requiredItemStacks.isEmpty()) {
+                requiredItemStacks.add(itemStack);
+            } else {
                 for (int i = 0; i < requiredItemStacks.size(); i++) {
                     if (requiredItemStacks.get(i).isOf(itemStack.getItem())) {
                         if (requiredItemStacks.get(i).getCount() >= requiredItemStacks.get(i).getMaxCount()) {
                             continue;
                         }
-                        itemStack.setCount(requiredItemStacks.get(i).getCount() + 1);
-                        requiredItemStacks.remove(i);
-                        requiredItemStacks.add(itemStack);
+                        requiredItemStacks.get(i).setCount(requiredItemStacks.get(i).getCount() + 1);
                         break;
                     }
                     if (i == requiredItemStacks.size() - 1) {
                         requiredItemStacks.add(itemStack);
+                        break;
                     }
                 }
             }

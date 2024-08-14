@@ -21,6 +21,8 @@
     "client.MouseMixin",
     "client.KeyBindingMixin",
     "client.InGameHudMixin",
-    "client.PlayerEntityRendererMixin"
+    "client.PlayerEntityRendererMixin",
+    "client.BuiltinModelItemRendererMixin",
+    "access.BlockRenderManagerAccess"
   ]
 }
