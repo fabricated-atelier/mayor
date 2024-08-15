@@ -1,20 +1,29 @@
 package io.fabricatedatelier.mayor.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
+import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
+import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
+import io.fabricatedatelier.mayor.util.InventoryUtil;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.texture.Scaling;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,17 +33,27 @@ import java.util.*;
 @Environment(EnvType.CLIENT)
 public class MayorScreen extends Screen {
 
+    public static final Identifier VILLAGE = Identifier.of("mayor", "textures/gui/sprites/hud/mayor_village.png");
     private final MayorManager mayorManager;
 
     private Map<MayorCategory.BuildingCategory, List<MayorStructure>> availableStructureMap = new HashMap<>();
     private Map<Integer, List<StructureData>> villageStructureMap = new HashMap<>();
+
+    private ObjectScrollableWidget buildingCategoryScrollableWidget;
+    private ObjectScrollableWidget buildingScrollableWidget;
+
     private List<ItemStack> availableStacks = new ArrayList<>();
+    private ItemScrollableWidget availableItemScrollableWidget;
+    private ItemScrollableWidget requiredItemScrollableWidget;
+
+    private int levelX = 0;
+    private int levelY = 0;
 
     @Nullable
     private MayorCategory.BuildingCategory selectedCategory = null;
 
     public MayorScreen(MayorManager mayorManager) {
-        super(Text.translatable("screen.mayor.title"));
+        super(Text.translatable("mayor.screen.title"));
         this.mayorManager = mayorManager;
     }
 
@@ -54,6 +73,17 @@ public class MayorScreen extends Screen {
             }
         }
 
+        this.buildingCategoryScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(16, 16, 56, 170, Text.translatable("building.category"), this.textRenderer, this));
+        List<Object> objects = new ArrayList<>();
+        List<Text> texts = new ArrayList<>();
+        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
+            objects.add(MayorCategory.BuildingCategory.values()[i]);
+            texts.add(Text.translatable(MayorCategory.BuildingCategory.values()[i].name()));
+        }
+        this.buildingCategoryScrollableWidget.setObjects(objects, texts);
+
+        this.buildingScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(80, 16, 70, 170, Text.translatable("building.buildings"), this.textRenderer, this));
+
         this.availableStacks.clear();
         if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
             for (int i = 0; i < this.mayorManager.getVillageData().getStorageOriginBlockPosList().size(); i++) {
@@ -67,7 +97,22 @@ public class MayorScreen extends Screen {
 //                    this.availableStacks.add();
                 }
             }
+            // TEST
+//            for (int i = 0; i < 60; i++) {
+//                Item item = Registries.ITEM.get(this.client.world.getRandom().nextInt(300));
+//                this.availableStacks.add(new ItemStack(item).copyWithCount(item.getMaxCount()));
+//            }
+            // TEST END
+
+            this.availableItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 11, 118, 28, Text.translatable("mayor.screen.available_items"), this.textRenderer));
+            if (this.availableStacks.isEmpty()) {
+                this.availableStacks.add(ItemStack.EMPTY);
+            }
+            this.availableItemScrollableWidget.setItemStacks(this.availableStacks);
         }
+        int availableItemRows = Math.min(this.availableStacks.size() / 6 + 1, ItemScrollableWidget.getMaxRows());
+
+        this.requiredItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 9 - availableItemRows * 18 - 25, 118, 28, Text.translatable("mayor.screen.required_items"), this.textRenderer));
 
         // Send a packet to the server to sync again to the client with a second method to call before
         if (this.mayorManager.getVillageData() != null) {
@@ -81,80 +126,69 @@ public class MayorScreen extends Screen {
                 }
             }
         }
+
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        int xTest = 0;
-        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
-            Text text = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
-            if (this.textRenderer.getWidth(text) > xTest) {
-                xTest = this.textRenderer.getWidth(text);
-            }
-        }
-
-        int x = 10;
-        int y = this.height / 2 - 10 * MayorCategory.BuildingCategory.values().length / 2;
-        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
-            Text text = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
-            if (MayorCategory.BuildingCategory.values()[i].equals(this.selectedCategory)) {
-                context.drawText(this.textRenderer, text, x, y, Colors.WHITE, false);
-
-                if (this.selectedCategory != null) {
-                    int buildingY = 0;
-                    for (int u = 0; u < this.availableStructureMap.get(this.selectedCategory).size(); u++) {
-                        Text building = Text.translatable("building_" + this.availableStructureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
-
-                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.availableStructureMap.get(this.selectedCategory).get(u))) {
-                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.WHITE, false);
-
-//                            if(isMouseWithinBounds(x + 5 + xTest, y + buildingY,this.textRenderer.getWidth(building),8,mouseX,mouseY)){
-////                                context.it
-//                            }
-
-                        } else {
-                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.LIGHT_GRAY, false);
-                        }
-                        buildingY += 10;
-                    }
-                }
-            } else if (isMouseWithinBounds(x, y, this.textRenderer.getWidth(text), 8, mouseX, mouseY)) {
-                context.drawText(this.textRenderer, text, x, y, Colors.WHITE, false);
-            } else {
-                context.drawText(this.textRenderer, text, x, y, Colors.LIGHT_GRAY, false);
-            }
-            y += 10;
-        }
-
         // VillageData
         if (mayorManager.getVillageData() != null) {
-            int villageX = this.width - 10;
-            int villageY = 10;
+            int villageMiddleX = this.width - 10 - 59;
+            int villageY = 5;
+
+            Text villagers = Text.translatable("mayor.screen.villagers", mayorManager.getVillageData().getVillagers().size());
+            Text ironGolems = Text.translatable("mayor.screen.iron_golems", mayorManager.getVillageData().getIronGolems().size());
+            Text storages = Text.translatable("mayor.screen.storages", mayorManager.getVillageData().getStorageOriginBlockPosList().size());
+            Text structures = Text.translatable("mayor.screen.structures", mayorManager.getVillageData().getStructures().size());
+
+            int maxWidth = StringUtil.getMaxWidth(this.textRenderer, villagers, ironGolems, storages, structures);
+            int villageBackgroundX = villageMiddleX - maxWidth / 2;
+            int villageBackgroundY = villageY + 16;
+
+            // top left
+            context.drawTexture(VILLAGE, villageBackgroundX - 4, villageBackgroundY, 25, 0, 7, 7, 128, 128);
+            // top middle
+            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY, maxWidth - 7, 7, 32, 0, 7, 7, 128, 128);
+            // top right
+            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY, 39, 0, 7, 7, 128, 128);
+            // middle left
+            context.drawTexture(VILLAGE, villageBackgroundX - 4, villageBackgroundY + 7, 7, 40, 25, 7, 7, 7, 128, 128);
+            // middle middle
+            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + 7, maxWidth - 7, 40, 32, 7, 7, 7, 128, 128);
+            // middle right
+            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + 7, 7, 40, 39, 7, 7, 7, 128, 128);
+            // bottom left
+            context.drawTexture(VILLAGE, villageBackgroundX - 4, villageBackgroundY + 47, 25, 14, 7, 7, 128, 128);
+            // bottom middle
+            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + 47, maxWidth - 7, 7, 32, 14, 7, 7, 128, 128);
+            // bottom right
+            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + 47, 39, 14, 7, 7, 128, 128);
+
             String name = mayorManager.getVillageData().getName();
-            Text level = Text.translatable("screen.mayor.level", mayorManager.getVillageData().getLevel());
+            int villageLeft = villageMiddleX - this.textRenderer.getWidth(name) / 2;
 
-            context.drawText(this.textRenderer, name, villageX - this.textRenderer.getWidth(name) - 5 - this.textRenderer.getWidth(level), villageY, Colors.WHITE, false);
-            context.drawText(this.textRenderer, level, villageX - this.textRenderer.getWidth(level), villageY, Colors.WHITE, false);
+            context.drawTexture(VILLAGE, villageLeft - 6, villageY, 0, 0, 10, 23, 128, 128);
+            context.drawTexture(VILLAGE, villageLeft - 6 + 10, villageY, this.textRenderer.getWidth(name) - 9, 23, 10, 0, 5, 23, 128, 128);
+            context.drawTexture(VILLAGE, villageLeft - 6 + 10 + this.textRenderer.getWidth(name) - 9, villageY, 15, 0, 10, 23, 128, 128);
+            context.drawText(this.textRenderer, name, villageLeft, villageY + 8, Colors.WHITE, false);
 
-            Text villagers = Text.translatable("screen.mayor.villagers", mayorManager.getVillageData().getVillagers().size());
-            context.drawText(this.textRenderer, villagers, villageX - this.textRenderer.getWidth(villagers), villageY + 10, Colors.LIGHT_GRAY, false);
-            Text ironGolems = Text.translatable("screen.mayor.iron_golems", mayorManager.getVillageData().getIronGolems().size());
-            context.drawText(this.textRenderer, ironGolems, villageX - this.textRenderer.getWidth(ironGolems), villageY + 20, Colors.LIGHT_GRAY, false);
+            // Text level = Text.translatable("mayor.screen.level", mayorManager.getVillageData().getLevel());
+            boolean longVillageName = this.textRenderer.getWidth(name) > 50;
+            this.levelX = villageBackgroundX + (longVillageName ? -13 : maxWidth - 7);
+            this.levelY = villageY + 6 + (longVillageName ? 57 : 0);
+            context.drawTexture(VILLAGE, this.levelX, this.levelY, 0, 23, 19, 19, 128, 128);
+            context.drawText(this.textRenderer, Text.of(String.valueOf(mayorManager.getVillageData().getLevel())), this.levelX + 7, this.levelY + 6, Colors.WHITE, false);
 
-            Text structures = Text.translatable("screen.mayor.structures", mayorManager.getVillageData().getStructures().size());
-            context.drawText(this.textRenderer, structures, villageX - this.textRenderer.getWidth(structures), villageY + 30, Colors.LIGHT_GRAY, false);
 
-            if (isMouseWithinBounds(villageX - this.textRenderer.getWidth(structures), villageY + 30, this.textRenderer.getWidth(structures), 8, mouseX, mouseY)) {
+            context.drawText(this.textRenderer, villagers, villageMiddleX - this.textRenderer.getWidth(villagers) / 2, villageY + 25, Colors.GRAY, false);
+            context.drawText(this.textRenderer, ironGolems, villageMiddleX - this.textRenderer.getWidth(ironGolems) / 2, villageY + 35, Colors.GRAY, false);
+            context.drawText(this.textRenderer, storages, villageMiddleX - this.textRenderer.getWidth(storages) / 2, villageY + 45, Colors.GRAY, false);
+            context.drawText(this.textRenderer, structures, villageMiddleX - this.textRenderer.getWidth(structures) / 2, villageY + 55, Colors.GRAY, false);
+
+            if (isMouseWithinBounds(villageMiddleX - this.textRenderer.getWidth(structures) / 2, villageY + 55, this.textRenderer.getWidth(structures), 8, mouseX, mouseY)) {
                 List<Text> structuresTooltip = new ArrayList<>();
-
-//                Map<String, AbstractMap.SimpleEntry<Integer, Integer>> structure = new HashMap<>();
-
-//                this.villageStructureMap.entrySet();
-
-//                List<String> structureTooltip = new ArrayList<>();
-
                 for (Map.Entry<Integer, List<StructureData>> entry : this.villageStructureMap.entrySet()) {
                     structuresTooltip.add(Text.translatable("mayor.screen.structures_level", entry.getKey()));
                     Map<String, Integer> structureTooltip = new HashMap<>();
@@ -167,277 +201,44 @@ public class MayorScreen extends Screen {
                         }
                     }
                     for (Map.Entry<String, Integer> structureNames : structureTooltip.entrySet()) {
-                        structuresTooltip.add(Text.of(" - "+structureNames.getKey() +  structureNames.getValue() + "x"));
+                        structuresTooltip.add(Text.of(" - " + structureNames.getKey() + structureNames.getValue() + "x"));
                     }
-//                    structureTooltip.entrySet().iterator();
-//                    for (int i = 0; i < entry.getValue().size(); i++) {
-//
-//                    }
 
                 }
-//                Map<String, List<Integer>> structureTooltip = new HashMap<>();
-//                for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
-//                    StructureData structureData = entry.getValue();
-////                    String structure = "building_" + structureData.getIdentifier().getPath();
-//
-//
-//                    String structureName = StringUtil.getStructureName(structureData.getIdentifier());
-////                    Text structure = Text.translatable("building_" + structureData.getIdentifier().getPath());
-////                    if (structure.containsKey(structureName)) {
-////                        int structureLevel = StringUtil.getStructureLevelByIdentifier(structureData.getIdentifier());
-////
-////                    } else {
-////
-////                    }
-////                    StringUtil.getStructureName( structureData.getIdentifier());
-////                    structuresTooltip.add(StringUtil.getStructureName(structureData.getIdentifier()));
-////                    context.drawText(this.textRenderer, structure, villageX - this.textRenderer.getWidth(structure), villageY + 40, Colors.LIGHT_GRAY, false);
-////                    villageY += 10;
-//                }
                 if (!structuresTooltip.isEmpty()) {
                     context.drawTooltip(this.textRenderer, structuresTooltip, mouseX, mouseY);
                 }
-
+            } else if (isMouseWithinBounds(levelX, levelY, 19, 19, mouseX, mouseY)) {
+                context.drawTexture(VILLAGE, levelX, levelY, 19, 23, 19, 19, 128, 128);
             }
-
-            // CHeck what needs to a higher level village
 
         }
         // Structure requirements
         if (this.mayorManager.getMayorStructure() != null) {
-            Text requiredItems = Text.translatable("screen.mayor.required_items");
-            context.drawText(this.textRenderer, requiredItems, this.width / 2 - this.textRenderer.getWidth(requiredItems) / 2, this.height - 70, Colors.WHITE, false);
-
-            int xItem = 0;
-            int stackCount = this.mayorManager.getMayorStructure().getRequiredItemStacks().size();
-            for (int i = 0; i < this.mayorManager.getMayorStructure().getRequiredItemStacks().size(); i++) {
-                context.drawItemWithoutEntity(this.mayorManager.getMayorStructure().getRequiredItemStacks().get(i), this.width / 2 - stackCount * 18 / 2 + xItem, this.height - 50);
-                context.drawItemInSlot(this.textRenderer, this.mayorManager.getMayorStructure().getRequiredItemStacks().get(i), this.width / 2 - stackCount * 18 / 2 + xItem, this.height - 50);
-                xItem += 18;
+            if (this.requiredItemScrollableWidget.visible && this.requiredItemScrollableWidget.getItemStacks() != null) {
+                List<ItemStack> missingItems = InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks());
+                if (!missingItems.isEmpty()) {
+                    context.drawTexture(ItemScrollableWidget.SLOTS, this.requiredItemScrollableWidget.getX() + this.requiredItemScrollableWidget.getWidth() + 2, this.requiredItemScrollableWidget.getY() - this.requiredItemScrollableWidget.getHeight() - 18, 27, 28, 3, 11, 128, 128);
+                    if (isMouseWithinBounds(this.requiredItemScrollableWidget.getX() + this.requiredItemScrollableWidget.getWidth() + 2, this.requiredItemScrollableWidget.getY() - this.requiredItemScrollableWidget.getHeight() - 18, 3, 11, mouseX, mouseY)) {
+                        List<Text> missingTooltip = new ArrayList<>();
+                        for (int i = 0; i < missingItems.size(); i++) {
+                            missingTooltip.add(Text.of(missingItems.get(i).getName().getString() + " " + missingItems.get(i).getCount() + "x"));
+                        }
+                        context.drawTooltip(this.textRenderer, missingTooltip, mouseX, mouseY);
+                    }
+                }
             }
-        }
-        // Available items
-        if (!this.availableStacks.isEmpty()) {
-
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int xTest = 0;
-        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
-            Text text = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
-            if (this.textRenderer.getWidth(text) > xTest) {
-                xTest = this.textRenderer.getWidth(text);
-            }
+        if (isMouseWithinBounds(this.levelX, this.levelY, 19, 19, mouseX, mouseY)) {
+            this.client.setScreen(new MayorVillageScreen(this.mayorManager));
+            return true;
         }
-        int x = 10;
-        int y = this.height / 2 - 10 * MayorCategory.BuildingCategory.values().length / 2;
-        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
-            if (isMouseWithinBounds(x, y, this.textRenderer.getWidth(Text.translatable(MayorCategory.BuildingCategory.values()[i].name())), 8, mouseX, mouseY)) {
-//                System.out.println("WITHIN " + i + " : "+availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]));
-                if (availableStructureMap.containsKey(MayorCategory.BuildingCategory.values()[i]) && availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]).size() > 0) {
-                    this.selectedCategory = MayorCategory.BuildingCategory.values()[i];
-                    // TEST
-//                    mayorManager.setMayorStructure(availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0));
-                    //  new StructurePacket(availableStructureMap.get(MayorCategory.BuildingCategory.values()[i]).get(0), BlockRotation.NONE, false).sendClientPacket();
-//                    System.out.println("SET STRUCTURE");
-                    return true;
-                }
-
-
-            }
-            if (this.selectedCategory != null) {
-                int buildingY = 0;
-                for (int u = 0; u < this.availableStructureMap.get(this.selectedCategory).size(); u++) {
-                    Text building = Text.translatable("building_" + this.availableStructureMap.get(this.selectedCategory).get(u).getIdentifier().getPath());
-                    if (isMouseWithinBounds(x + xTest, y + buildingY, this.textRenderer.getWidth(building), 8, mouseX, mouseY)) {
-                        mayorManager.setMayorStructure(availableStructureMap.get(this.selectedCategory).get(u));
-                        return true;
-                    }
-//                        if (mayorManager.getMayorStructure() != null && mayorManager.getMayorStructure().equals(this.availableStructureMap.get(this.selectedCategory).get(u))) {
-//                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.WHITE, false);
-//                        } else {
-//                            context.drawText(this.textRenderer, building, x + 5 + xTest, y + buildingY, Colors.LIGHT_GRAY, false);
-//                        }
-                    buildingY += 10;
-                }
-            }
-            y += 10;
-        }
-        // TEST
-        this.selectedCategory = null;
         return super.mouseClicked(mouseX, mouseY, button);
     }
-
-
-//
-//    @Override
-//    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-//        if (this.chatInputSuggestor.keyPressed(keyCode, scanCode, modifiers)) {
-//            return true;
-//        } else if (super.keyPressed(keyCode, scanCode, modifiers)) {
-//            return true;
-//        } else if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-//            this.client.setScreen(null);
-//            return true;
-//        } else if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
-//            this.sendMessage(this.chatField.getText(), true);
-//            this.client.setScreen(null);
-//            return true;
-//        } else if (keyCode == GLFW.GLFW_KEY_UP) {
-//            this.setChatFromHistory(-1);
-//            return true;
-//        } else if (keyCode == GLFW.GLFW_KEY_DOWN) {
-//            this.setChatFromHistory(1);
-//            return true;
-//        } else if (keyCode == GLFW.GLFW_KEY_PAGE_UP) {
-//            this.client.inGameHud.getChatHud().scroll(this.client.inGameHud.getChatHud().getVisibleLineCount() - 1);
-//            return true;
-//        } else if (keyCode == GLFW.GLFW_KEY_PAGE_DOWN) {
-//            this.client.inGameHud.getChatHud().scroll(-this.client.inGameHud.getChatHud().getVisibleLineCount() + 1);
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-
-//    @Override
-//    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-//        verticalAmount = MathHelper.clamp(verticalAmount, -1.0, 1.0);
-//        if (this.chatInputSuggestor.mouseScrolled(verticalAmount)) {
-//            return true;
-//        } else {
-//            if (!hasShiftDown()) {
-//                verticalAmount *= 7.0;
-//            }
-//
-//            this.client.inGameHud.getChatHud().scroll((int)verticalAmount);
-//            return true;
-//        }
-//    }
-
-//    @Override
-//    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-//        if (this.chatInputSuggestor.mouseClicked((double)((int)mouseX), (double)((int)mouseY), button)) {
-//            return true;
-//        } else {
-//            if (button == 0) {
-//                ChatHud chatHud = this.client.inGameHud.getChatHud();
-//                if (chatHud.mouseClicked(mouseX, mouseY)) {
-//                    return true;
-//                }
-//
-//                Style style = this.getTextStyleAt(mouseX, mouseY);
-//                if (style != null && this.handleTextClick(style)) {
-//                    this.originalChatText = this.chatField.getText();
-//                    return true;
-//                }
-//            }
-//
-//            return this.chatField.mouseClicked(mouseX, mouseY, button) ? true : super.mouseClicked(mouseX, mouseY, button);
-//        }
-//    }
-
-//    @Override
-//    protected void insertText(String text, boolean override) {
-//        if (override) {
-//            this.chatField.setText(text);
-//        } else {
-//            this.chatField.write(text);
-//        }
-//    }
-//
-//    public void setChatFromHistory(int offset) {
-//        int i = this.messageHistoryIndex + offset;
-//        int j = this.client.inGameHud.getChatHud().getMessageHistory().size();
-//        i = MathHelper.clamp(i, 0, j);
-//        if (i != this.messageHistoryIndex) {
-//            if (i == j) {
-//                this.messageHistoryIndex = j;
-//                this.chatField.setText(this.chatLastMessage);
-//            } else {
-//                if (this.messageHistoryIndex == j) {
-//                    this.chatLastMessage = this.chatField.getText();
-//                }
-//
-//                this.chatField.setText(this.client.inGameHud.getChatHud().getMessageHistory().get(i));
-//                this.chatInputSuggestor.setWindowActive(false);
-//                this.messageHistoryIndex = i;
-//            }
-//        }
-//    }
-
-//    @Override
-//    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-//        this.client.inGameHud.getChatHud().render(context, this.client.inGameHud.getTicks(), mouseX, mouseY, true);
-//        context.fill(2, this.height - 14, this.width - 2, this.height - 2, this.client.options.getTextBackgroundColor(Integer.MIN_VALUE));
-//        this.chatField.render(context, mouseX, mouseY, delta);
-//        super.render(context, mouseX, mouseY, delta);
-//        context.getMatrices().push();
-//        context.getMatrices().translate(0.0F, 0.0F, 200.0F);
-//        this.chatInputSuggestor.render(context, mouseX, mouseY);
-//        context.getMatrices().pop();
-//        MessageIndicator messageIndicator = this.client.inGameHud.getChatHud().getIndicatorAt((double)mouseX, (double)mouseY);
-//        if (messageIndicator != null && messageIndicator.text() != null) {
-//            context.drawOrderedTooltip(this.textRenderer, this.textRenderer.wrapLines(messageIndicator.text(), 210), mouseX, mouseY);
-//        } else {
-//            Style style = this.getTextStyleAt((double)mouseX, (double)mouseY);
-//            if (style != null && style.getHoverEvent() != null) {
-//                context.drawHoverEvent(this.textRenderer, style, mouseX, mouseY);
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-//    }
-//
-//    @Override
-//    public boolean shouldPause() {
-//        return false;
-//    }
-//
-//    private void setText(String text) {
-//        this.chatField.setText(text);
-//    }
-//
-//    @Override
-//    protected void addScreenNarrations(NarrationMessageBuilder messageBuilder) {
-//        messageBuilder.put(NarrationPart.TITLE, this.getTitle());
-//        messageBuilder.put(NarrationPart.USAGE, USAGE_TEXT);
-//        String string = this.chatField.getText();
-//        if (!string.isEmpty()) {
-//            messageBuilder.nextMessage().put(NarrationPart.TITLE, Text.translatable("chat_screen.message", string));
-//        }
-//    }
-//
-//    @Nullable
-//    private Style getTextStyleAt(double x, double y) {
-//        return this.client.inGameHud.getChatHud().getTextStyleAt(x, y);
-//    }
-//
-//    public void sendMessage(String chatText, boolean addToHistory) {
-//        chatText = this.normalize(chatText);
-//        if (!chatText.isEmpty()) {
-//            if (addToHistory) {
-//                this.client.inGameHud.getChatHud().addToMessageHistory(chatText);
-//            }
-//
-//            if (chatText.startsWith("/")) {
-//                this.client.player.networkHandler.sendChatCommand(chatText.substring(1));
-//            } else {
-//                this.client.player.networkHandler.sendChatMessage(chatText);
-//            }
-//        }
-//    }
-//
-//    /**
-//     * {@return the {@code message} normalized by trimming it and then normalizing spaces}
-//     */
-//    public String normalize(String chatText) {
-//        return StringHelper.truncateChat(StringUtils.normalizeSpace(chatText.trim()));
-//    }
 
 
     @Override
@@ -454,6 +255,36 @@ public class MayorScreen extends Screen {
     public boolean shouldPause() {
         return false;
     }
+
+    public MayorManager getMayorManager() {
+        return mayorManager;
+    }
+
+    public void setSelectedCategory(@Nullable MayorCategory.BuildingCategory buildingCategory) {
+        this.selectedCategory = buildingCategory;
+    }
+
+    @Nullable
+    public MayorCategory.BuildingCategory getSelectedCategory() {
+        return this.selectedCategory;
+    }
+
+    public Map<MayorCategory.BuildingCategory, List<MayorStructure>> getAvailableStructureMap() {
+        return this.availableStructureMap;
+    }
+
+    public ItemScrollableWidget getRequiredItemScrollableWidget() {
+        return this.requiredItemScrollableWidget;
+    }
+
+    public ObjectScrollableWidget getBuildingCategoryScrollableWidget() {
+        return this.buildingCategoryScrollableWidget;
+    }
+
+    public ObjectScrollableWidget getBuildingScrollableWidget() {
+        return this.buildingScrollableWidget;
+    }
+
 
     private boolean isMouseWithinBounds(int x, int y, int width, int height, double mouseX, double mouseY) {
         return mouseX >= (double) (x - 1) && mouseX < (double) (x + width + 1) && mouseY >= (double) (y - 1) && mouseY < (double) (y + height + 1);

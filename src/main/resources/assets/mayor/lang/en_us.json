@@ -8,10 +8,6 @@
     "key.mayor.structure_upward": "Upward Structure",
     "key.mayor.structure_downward": "Downward Structure",
 
-    "gui.mayor.structures": "Structures",
-    "gui.mayor.houses": "Houses",
-    "gui.mayor.streets": "Streets",
-
     "mayor.village": "Village",
 
     "mayor.screen.title": "Mayor",
@@ -24,6 +20,7 @@
     "mayor.screen.available_items": "Available Items",
     "mayor.screen.structures_level": "Structures Lv. %s",
 
+    "building.category": "Categories",
     "building.category.house": "House",
     "building.category.barn": "Barn",
     "building.category.fountain": "Fountain",
@@ -40,6 +37,7 @@
     "building.category.temple": "Temple",
     "building.category.smith": "Smith",
 
+    "building.buildings": "Buildings",
     "building_desert_animal_pen_1": "Animal Pen 1",
     "building_desert_animal_pen_2": "Animal Pen 2",
     "building_desert_armorer_1": "Armorer 1",

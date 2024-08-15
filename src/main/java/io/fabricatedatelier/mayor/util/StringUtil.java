@@ -24,6 +24,9 @@ public class StringUtil {
 
     public static boolean shouldStoreStructureIdentifier(Identifier structureIdentifier) {
         String structureId = structureIdentifier.getPath();
+        if (structureId.contains("/zombie/")) {
+            return false;
+        }
         for (String id : structureIds) {
             if (structureId.contains("village/") && structureId.contains(id)) {
                 return true;
