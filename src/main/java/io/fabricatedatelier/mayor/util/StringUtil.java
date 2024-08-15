@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.util;
 
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +47,16 @@ public class StringUtil {
         Text structure = Text.translatable("building_" + structureIdentifier.getPath());
         String string = structure.getString().replaceAll("[0-9]", "");
         return string;
+    }
+
+    public static int getMaxWidth(TextRenderer textRenderer, Text... texts) {
+        int width = 0;
+        for (int i = 0; i < texts.length; i++) {
+            if (textRenderer.getWidth(texts[i]) > width) {
+                width = textRenderer.getWidth(texts[i]);
+            }
+        }
+        return width;
     }
 
 }
