@@ -3,7 +3,6 @@ package io.fabricatedatelier.mayor.util;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.regex.Matcher;

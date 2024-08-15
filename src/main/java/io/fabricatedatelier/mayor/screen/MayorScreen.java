@@ -290,4 +290,3 @@ public class MayorScreen extends Screen {
         return mouseX >= (double) (x - 1) && mouseX < (double) (x + width + 1) && mouseY >= (double) (y - 1) && mouseY < (double) (y + height + 1);
     }
 }
-
