@@ -10,6 +10,7 @@ public class CustomS2CNetworking {
         ClientPlayNetworking.registerGlobalReceiver(StructurePacket.PACKET_ID, StructurePacket::handlePacket);
         ClientPlayNetworking.registerGlobalReceiver(StructureOriginPacket.PACKET_ID, StructureOriginPacket::handlePacket);
         ClientPlayNetworking.registerGlobalReceiver(VillageDataPacket.PACKET_ID, VillageDataPacket::handlePacket);
+        ClientPlayNetworking.registerGlobalReceiver(EntityListS2CPacket.PACKET_ID, EntityListS2CPacket::handlePacket);
     }
 
     public static void initialize() {

@@ -19,6 +19,7 @@
     "mayor.screen.required_items": "Required Items",
     "mayor.screen.available_items": "Available Items",
     "mayor.screen.structures_level": "Structures Lv. %s",
+    "mayor.screen.villager_profession": "Profession: %s",
 
     "building.category": "Categories",
     "building.category.house": "House",

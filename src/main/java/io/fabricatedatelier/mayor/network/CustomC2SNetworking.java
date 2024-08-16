@@ -1,8 +1,6 @@
 package io.fabricatedatelier.mayor.network;
 
-import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
-import io.fabricatedatelier.mayor.network.packet.StructureCenterPacket;
-import io.fabricatedatelier.mayor.network.packet.StructureRotatePacket;
+import io.fabricatedatelier.mayor.network.packet.*;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 public class CustomC2SNetworking {
@@ -10,6 +8,8 @@ public class CustomC2SNetworking {
         ServerPlayNetworking.registerGlobalReceiver(StructureRotatePacket.PACKET_ID, StructureRotatePacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(StructureCenterPacket.PACKET_ID, StructureCenterPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(MayorViewPacket.PACKET_ID, MayorViewPacket::handleClientPacket);
+        ServerPlayNetworking.registerGlobalReceiver(EntityListC2SPacket.PACKET_ID, EntityListC2SPacket::handlePacket);
+        ServerPlayNetworking.registerGlobalReceiver(EntityViewPacket.PACKET_ID, EntityViewPacket::handlePacket);
     }
 
     public static void initialize() {

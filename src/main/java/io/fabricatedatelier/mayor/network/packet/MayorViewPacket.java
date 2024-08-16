@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.access.ServerPlayerAccess;
 import io.fabricatedatelier.mayor.camera.CameraHandler;
 import io.fabricatedatelier.mayor.camera.target.StaticCameraTarget;
 import io.fabricatedatelier.mayor.manager.MayorManager;
@@ -93,6 +94,8 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
                 }
                 new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures()).sendPacket(context.player());
             }
+        } else {
+            context.player().setCameraEntity(null);
         }
         sendPacket(context.player());
     }

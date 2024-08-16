@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
+import io.fabricatedatelier.mayor.network.packet.EntityViewPacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -13,6 +14,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ScrollableWidget;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
@@ -33,10 +35,8 @@ public class ObjectScrollableWidget extends ScrollableWidget {
     private List<Text> texts;
     private int rows = 0;
     private int maxRows = 0;
-    @Nullable
-    private Text selectedText = null;
-    @Nullable
-    private Object selectedObject = null;
+
+    private int selectedIndex = -1;
 
     public ObjectScrollableWidget(int x, int y, int width, int height, Text title, TextRenderer textRenderer) {
         super(x, y, width, height, title);
@@ -83,17 +83,17 @@ public class ObjectScrollableWidget extends ScrollableWidget {
 
     @Override
     protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (this.texts != null && !this.texts.isEmpty()) {
+        if (this.texts != null && !this.texts.isEmpty() && this.objects != null) {
             int xSpace = this.getX();
             int ySpace = this.getY();
 
             int row = (int) this.getScrollY() / 13;
             int rowCount = 0;
             for (int i = row; i < (this.maxRows + row); i++) {
-                if (i >= this.texts.size()) {
+                if (i >= this.texts.size() || i >= this.objects.size()) {
                     break;
                 }
-                if (this.selectedText != null && this.selectedText.equals(this.texts.get(i))) {
+                if (this.selectedIndex == i) {
                     // left start
                     context.drawTexture(OBJECTS, xSpace, ySpace + rowCount * 13, 17, 36, 2, 13, 128, 128);
                     // middle
@@ -123,8 +123,17 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                 }
                 context.drawText(this.textRenderer, text, xSpace + this.width / 2 - this.textRenderer.getWidth(text) / 2 + 3, ySpace + 3 + rowCount * 13, Colors.WHITE, false);
 
-                if (isTextToLong && this.isPointWithinBounds(1, rowCount * 13 + 2, this.width + 4, 11, mouseX, mouseY)) {
-                    context.drawTooltip(this.textRenderer, this.texts.get(i), mouseX, mouseY);
+                if (this.isPointWithinBounds(1, rowCount * 13 + 2, this.width + 4, 11, mouseX, mouseY)) {
+                    if (this.objects.size() > i && this.objects.get(i) instanceof VillagerEntity villagerEntity) {
+                        List<Text> villagerTooltip = new ArrayList<>();
+                        villagerTooltip.add(villagerEntity.getName());
+                        String profession = villagerEntity.getVillagerData().getProfession().id();
+                        villagerTooltip.add(Text.translatable("mayor.screen.villager_profession", (profession.substring(0, 1).toUpperCase() + profession.substring(1))));
+                        villagerTooltip.add(Text.translatable("mayor.screen.level", villagerEntity.getVillagerData().getLevel()));
+                        context.drawTooltip(this.textRenderer, villagerTooltip, mouseX, mouseY);
+                    } else if (isTextToLong) {
+                        context.drawTooltip(this.textRenderer, this.texts.get(i), mouseX, mouseY);
+                    }
                 }
                 rowCount += 1;
             }
@@ -193,7 +202,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
             return false;
         }
         if (isWithinBounds(mouseX, mouseY)) {
-            if (this.texts != null && !this.texts.isEmpty()) {
+            if (this.texts != null && !this.texts.isEmpty() && this.objects != null) {
                 if (isPointWithinBounds(this.width / 2 - 8, -15, 17, 12, mouseX, mouseY)) {
                     this.setScrollY(this.getScrollY() - this.getDeltaYPerScroll());
                     return true;
@@ -209,8 +218,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                         break;
                     }
                     if (isPointWithinBounds(0, rowCount * 13, this.width + 4, 13, mouseX, mouseY)) {
-                        this.selectedText = this.texts.get(i);
-                        this.selectedObject = this.objects.get(i);
+                        this.selectedIndex = i;
                         clicked();
                         return true;
                     }
@@ -236,27 +244,34 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         return this.active && this.visible && isWithinBounds(mouseX, mouseY);
     }
 
+    public void setSelectedIndex(int selectedIndex){
+        this.selectedIndex = selectedIndex;
+    }
+
     private void clicked() {
         if (this.objects != null && !this.objects.isEmpty()) {
             if (this.objects.getFirst() instanceof MayorCategory.BuildingCategory) {
-                if (this.selectedObject == null) {
+                if (this.selectedIndex < 0) {
                     this.mayorScreen.setSelectedCategory(null);
                 } else {
-                    this.mayorScreen.setSelectedCategory((MayorCategory.BuildingCategory) this.selectedObject);
+                    this.mayorScreen.setSelectedCategory((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex));
                     List<Object> objects = new ArrayList<>();
                     List<Text> texts = new ArrayList<>();
-                    for (MayorStructure entry : this.mayorScreen.getAvailableStructureMap().get((MayorCategory.BuildingCategory) this.selectedObject)) {
+                    for (MayorStructure entry : this.mayorScreen.getAvailableStructureMap().get((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex))) {
                         objects.add(entry);
                         texts.add(Text.translatable("building_" + entry.getIdentifier().getPath()));
                     }
                     this.mayorScreen.getBuildingScrollableWidget().setObjects(objects, texts);
                     this.mayorScreen.getBuildingScrollableWidget().setScrollY(0);
-
-
+                    this.mayorScreen.getBuildingScrollableWidget().setSelectedIndex(-1);
+                    this.mayorScreen.getMayorManager().setMayorStructure(null);
+                    this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(null);
                 }
             } else if (this.objects.getFirst() instanceof MayorStructure) {
-                this.mayorScreen.getMayorManager().setMayorStructure((MayorStructure) this.selectedObject);
-                this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.selectedObject).getRequiredItemStacks());
+                this.mayorScreen.getMayorManager().setMayorStructure((MayorStructure) this.objects.get(this.selectedIndex));
+                this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
+            } else if (this.objects.getFirst() instanceof VillagerEntity) {
+                new EntityViewPacket(((VillagerEntity) this.objects.get(this.selectedIndex)).getId()).sendPacket();
             }
         }
     }

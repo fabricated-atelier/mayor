@@ -12,6 +12,8 @@ public class NetworkPayloads {
         registerC2S(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);
         registerC2S(StructureRotatePacket.PACKET_ID, StructureRotatePacket.PACKET_CODEC);
         registerC2S(StructureCenterPacket.PACKET_ID, StructureCenterPacket.PACKET_CODEC);
+        registerC2S(EntityListC2SPacket.PACKET_ID, EntityListC2SPacket.PACKET_CODEC);
+        registerC2S(EntityViewPacket.PACKET_ID, EntityViewPacket.PACKET_CODEC);
 
         // S2C
         registerS2C(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);
@@ -19,7 +21,7 @@ public class NetworkPayloads {
         registerS2C(MayorStructuresPacket.PACKET_ID, MayorStructuresPacket.PACKET_CODEC);
         registerS2C(StructurePacket.PACKET_ID, StructurePacket.PACKET_CODEC);
         registerS2C(StructureOriginPacket.PACKET_ID, StructureOriginPacket.PACKET_CODEC);
-
+        registerS2C(EntityListS2CPacket.PACKET_ID, EntityListS2CPacket.PACKET_CODEC);
     }
 
     private static <T extends CustomPayload> void registerS2C(CustomPayload.Id<T> packetIdentifier, PacketCodec<RegistryByteBuf, T> codec) {

@@ -1,6 +1,5 @@
 package io.fabricatedatelier.mayor.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.init.KeyBindings;
@@ -16,18 +15,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.texture.Scaling;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Environment(EnvType.CLIENT)
@@ -90,7 +88,6 @@ public class MayorScreen extends Screen {
         if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
             for (int i = 0; i < this.mayorManager.getVillageData().getStorageOriginBlockPosList().size(); i++) {
                 if (this.client.world.getBlockState(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)).getBlock() instanceof AbstractVillageContainerBlock && this.client.world.getBlockEntity(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
-
 //                    for (int u = 0; u < this.availableStacks.size(); u++) {
 //                        if (this.availableStacks.get(u).isOf() && this.availableStacks.get(u).getCount() < this.availableStacks.get(u).getMaxCount()) {
 //
@@ -99,12 +96,6 @@ public class MayorScreen extends Screen {
 //                    this.availableStacks.add();
                 }
             }
-            // TEST
-//            for (int i = 0; i < 60; i++) {
-//                Item item = Registries.ITEM.get(this.client.world.getRandom().nextInt(300));
-//                this.availableStacks.add(new ItemStack(item).copyWithCount(item.getMaxCount()));
-//            }
-            // TEST END
 
             this.availableItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 11, 118, 28, Text.translatable("mayor.screen.available_items"), this.textRenderer));
             if (this.availableStacks.isEmpty()) {

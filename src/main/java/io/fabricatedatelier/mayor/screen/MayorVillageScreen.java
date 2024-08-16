@@ -2,15 +2,12 @@ package io.fabricatedatelier.mayor.screen;
 
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorManager;
+import io.fabricatedatelier.mayor.network.packet.EntityListC2SPacket;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.SpectatorHud;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 
@@ -30,12 +27,15 @@ public class MayorVillageScreen extends Screen {
     protected void init() {
         super.init();
         if (mayorManager.getVillageData() != null) {
+            if (!mayorManager.getVillageData().getVillagers().isEmpty()) {
+                new EntityListC2SPacket(mayorManager.getVillageData().getVillagers()).sendPacket();
+            }
             this.villagerScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(16, 16, 70, 170, Text.translatable("mayor.screen.villagers", mayorManager.getVillageData().getVillagers().size()), this.textRenderer));
-//           this.mayorManager.getVillageData().getVillagers()
-//            this.villagerScrollableWidget.setObjects();
-//            this.client.player.getWorld().getent
-//            MinecraftClient
         }
+    }
+
+    public ObjectScrollableWidget getVillagerScrollableWidget() {
+        return villagerScrollableWidget;
     }
 
     @Override

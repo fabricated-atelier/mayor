@@ -10,6 +10,8 @@
     "StructureStartMixin",
     "StructureTemplateMixin",
     "SinglePoolElementMixin",
+    "ServerPlayerEntityMixin",
+    "VillagerEntityMixin",
     "access.JigsawStructureAccess"
   ],
   "injectors": {
