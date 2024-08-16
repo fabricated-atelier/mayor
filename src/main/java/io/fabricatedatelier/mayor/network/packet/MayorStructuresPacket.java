@@ -8,11 +8,9 @@ import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.BedBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -22,7 +20,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,27 +51,28 @@ public record MayorStructuresPacket(MayorStructureDatas mayorStructures) impleme
 
         public void write(RegistryByteBuf buf) {
             buf.writeInt(this.mayorStructureCount);
-            for (int i = 0; i < this.mayorStructureDatas.size(); i++) {
-                this.mayorStructureDatas.get(i).write(buf);
+            for (MayorStructureData mayorStructureData : this.mayorStructureDatas) {
+                mayorStructureData.write(buf);
             }
         }
     }
 
-    public record MayorStructureData(Identifier structureId, int level, String biomeCategory, String buildingCategory, List<ItemStack> requiredItemStacks,
+    public record MayorStructureData(Identifier structureId, int level, int experience, String biomeCategory, String buildingCategory, List<ItemStack> requiredItemStacks,
                                      Map<BlockPos, NbtCompound> posCompoundMap, Vec3i size) {
 
         private MayorStructureData(RegistryByteBuf buf) {
-            this(buf.readIdentifier(), buf.readInt(), buf.readString(), buf.readString(), ItemStack.LIST_PACKET_CODEC.decode(buf), buf.readMap(BlockPos.PACKET_CODEC::decode, (bufx) -> PacketByteBuf.readNbt(bufx)), readVec3i(buf));
+            this(buf.readIdentifier(), buf.readInt(), buf.readInt(), buf.readString(), buf.readString(), ItemStack.LIST_PACKET_CODEC.decode(buf), buf.readMap(BlockPos.PACKET_CODEC::decode, (bufx) -> PacketByteBuf.readNbt(bufx)), readVec3i(buf));
         }
 
         public void write(RegistryByteBuf buf) {
-            buf.writeIdentifier(this.structureId);
-            buf.writeInt(this.level);
-            buf.writeString(this.biomeCategory);
-            buf.writeString(this.buildingCategory);
-            ItemStack.LIST_PACKET_CODEC.encode(buf, this.requiredItemStacks);
-            buf.writeMap(this.posCompoundMap, (buffer, pos) -> buffer.writeBlockPos(pos), (buffer, nbt) -> buffer.writeNbt(nbt));
-            writeVec3i(buf, this.size);
+            buf.writeIdentifier(this.structureId());
+            buf.writeInt(this.level());
+            buf.writeInt(this.experience());
+            buf.writeString(this.biomeCategory());
+            buf.writeString(this.buildingCategory());
+            ItemStack.LIST_PACKET_CODEC.encode(buf, this.requiredItemStacks());
+            buf.writeMap(this.posCompoundMap(), (buffer, pos) -> buffer.writeBlockPos(pos), (buffer, nbt) -> buffer.writeNbt(nbt));
+            writeVec3i(buf, this.size());
         }
     }
 
@@ -99,13 +97,14 @@ public record MayorStructuresPacket(MayorStructureDatas mayorStructures) impleme
 
             Identifier identifier = mayorStructureData.structureId();
             int level = mayorStructureData.level();
+            int experience = mayorStructureData.experience();
             MayorCategory.BiomeCategory biomeCategory = MayorCategory.BiomeCategory.valueOf(mayorStructureData.biomeCategory());
             MayorCategory.BuildingCategory buildingCategory = MayorCategory.BuildingCategory.valueOf(mayorStructureData.buildingCategory());
             List<ItemStack> requiredItemStacks = mayorStructureData.requiredItemStacks();
             Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(world, mayorStructureData.posCompoundMap());
             Vec3i size = mayorStructureData.size();
 
-            MayorStructure mayorStructure = new MayorStructure(identifier, level, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
+            MayorStructure mayorStructure = new MayorStructure(identifier, level, experience, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
 
             if (MayorManager.mayorStructureMap.containsKey(biomeCategory)) {
                 MayorManager.mayorStructureMap.get(biomeCategory).add(mayorStructure);

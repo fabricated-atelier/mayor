@@ -206,10 +206,10 @@ public class StructureHelper {
         Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(serverWorld, structureId, BlockRotation.NONE, false);
 
         for (var entry : blockMap.entrySet()) {
-            if(entry.getValue().contains(Properties.DOUBLE_BLOCK_HALF) && entry.getValue().get(Properties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER){
+            if (entry.getValue().contains(Properties.DOUBLE_BLOCK_HALF) && entry.getValue().get(Properties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
                 continue;
             }
-            if(entry.getValue().contains(Properties.BED_PART) && entry.getValue().get(Properties.BED_PART) == BedPart.FOOT){
+            if (entry.getValue().contains(Properties.BED_PART) && entry.getValue().get(Properties.BED_PART) == BedPart.FOOT) {
                 continue;
             }
             ItemStack itemStack = new ItemStack(entry.getValue().getBlock().asItem());
@@ -236,6 +236,16 @@ public class StructureHelper {
         }
 
         return requiredItemStacks;
+    }
+
+    public static int getStructureExperience(List<ItemStack> requiredStacks) {
+        int experience = 0;
+        for (ItemStack requiredStack : requiredStacks) {
+            if (!requiredStack.isEmpty()) {
+                experience += requiredStack.getCount();
+            }
+        }
+        return experience;
     }
 
     public static BlockPos getBottomCenterPos(StructurePiece structurePiece) {

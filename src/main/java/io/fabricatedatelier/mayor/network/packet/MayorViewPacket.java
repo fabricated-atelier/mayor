@@ -80,13 +80,14 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
                         for (var entry : entries.getValue()) {
                             Identifier structureId = entry.getIdentifier();
                             int level = entry.getLevel();
+                            int experience = entry.getExperience();
                             String biomeCategory = entry.getBiomeCategory().name();
                             String buildingCategory = entry.getBuildingCategory().name();
                             List<ItemStack> requiredItemStacks = entry.getRequiredItemStacks();
                             Map<BlockPos, NbtCompound> posCompoundMap = StructureHelper.getBlockPosNbtMap(entry.getBlockMap());
                             Vec3i size = entry.getSize();
 
-                            MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
+                            MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, experience, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
                             list.add(mayorStructureData);
                         }
                     }

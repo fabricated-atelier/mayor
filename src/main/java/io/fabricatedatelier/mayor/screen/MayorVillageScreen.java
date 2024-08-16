@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.screen;
 
+import io.fabricatedatelier.mayor.data.StructureXpLoader;
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.network.packet.EntityListC2SPacket;
@@ -46,10 +47,11 @@ public class MayorVillageScreen extends Screen {
             this.structureScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(96, 16, 70, 170, Text.translatable("mayor.screen.structures", mayorManager.getVillageData().getStructures().size()), this.textRenderer));
             List<Object> objects = new ArrayList<>();
             List<Text> texts = new ArrayList<>();
-
             for (StructureData structureData : mayorManager.getVillageData().getStructures().values()) {
                 objects.add(structureData);
                 texts.add(Text.of(StringUtil.getStructureName(structureData.getIdentifier())));
+
+//                System.out.println(StructureXpLoader.structureExperienceMap.get(structureData.getIdentifier().getPath())+ " : "+structureData.getIdentifier());
             }
             this.structureScrollableWidget.setObjects(objects, texts);
         }

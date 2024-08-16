@@ -20,6 +20,7 @@ public class Mayor implements ModInitializer {
         NetworkPayloads.initialize();
         CustomC2SNetworking.initialize();
         Events.initialize();
+        Loaders.initialize();
         Tags.initialize();
 
         LOGGER.info("No sir, we only take Emeralds as payment...");

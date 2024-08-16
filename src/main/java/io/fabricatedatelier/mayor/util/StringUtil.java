@@ -15,10 +15,13 @@ public class StringUtil {
     private static List<String> structureIds = List.of("houses", "town_centers");
 
     public static Identifier getMayorStructureIdentifier(Identifier structureIdentifier) {
+        return Identifier.of(structureIdentifier.getNamespace(), getMayorStructureString(structureIdentifier));
+    }
+
+    public static String getMayorStructureString(Identifier structureIdentifier) {
         String[] strings = structureIdentifier.getPath().split("/");
-        String structureId = strings[strings.length - 1];
         // structureId = structureId.replaceAll("_[0-9_]+$", "");
-        return Identifier.of(structureIdentifier.getNamespace(), structureId);
+        return strings[strings.length - 1];
     }
 
     public static boolean shouldStoreStructureIdentifier(Identifier structureIdentifier) {

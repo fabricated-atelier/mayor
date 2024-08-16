@@ -10,10 +10,6 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 public record EntityViewPacket(int entityId) implements CustomPayload {
 
     public static final CustomPayload.Id<EntityViewPacket> PACKET_ID =
