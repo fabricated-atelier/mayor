@@ -15,7 +15,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.item.ItemStack;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
@@ -174,7 +176,6 @@ public class MayorScreen extends Screen {
             context.drawTexture(VILLAGE, this.levelX, this.levelY, 0, 23, 19, 19, 128, 128);
             context.drawText(this.textRenderer, Text.of(String.valueOf(mayorManager.getVillageData().getLevel())), this.levelX + 7, this.levelY + 6, Colors.WHITE, false);
 
-
             context.drawText(this.textRenderer, villagers, villageMiddleX - this.textRenderer.getWidth(villagers) / 2, villageY + 25, Colors.GRAY, false);
             context.drawText(this.textRenderer, ironGolems, villageMiddleX - this.textRenderer.getWidth(ironGolems) / 2, villageY + 35, Colors.GRAY, false);
             context.drawText(this.textRenderer, storages, villageMiddleX - this.textRenderer.getWidth(storages) / 2, villageY + 45, Colors.GRAY, false);
@@ -204,7 +205,6 @@ public class MayorScreen extends Screen {
             } else if (isMouseWithinBounds(levelX, levelY, 19, 19, mouseX, mouseY)) {
                 context.drawTexture(VILLAGE, levelX, levelY, 19, 23, 19, 19, 128, 128);
             }
-
         }
         // Structure requirements
         if (this.mayorManager.getMayorStructure() != null) {
@@ -227,6 +227,7 @@ public class MayorScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (isMouseWithinBounds(this.levelX, this.levelY, 19, 19, mouseX, mouseY)) {
+            this.client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.client.setScreen(new MayorVillageScreen(this.mayorManager));
             return true;
         }

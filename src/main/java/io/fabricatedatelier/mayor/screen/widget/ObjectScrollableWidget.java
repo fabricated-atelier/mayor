@@ -7,14 +7,18 @@ import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.EntityViewPacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
+import io.fabricatedatelier.mayor.state.StructureData;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ScrollableWidget;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
@@ -244,12 +248,12 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         return this.active && this.visible && isWithinBounds(mouseX, mouseY);
     }
 
-    public void setSelectedIndex(int selectedIndex){
+    public void setSelectedIndex(int selectedIndex) {
         this.selectedIndex = selectedIndex;
     }
 
     private void clicked() {
-        if (this.objects != null && !this.objects.isEmpty()) {
+        if (this.objects != null && !this.objects.isEmpty() && this.objects.size() > this.selectedIndex) {
             if (this.objects.getFirst() instanceof MayorCategory.BuildingCategory) {
                 if (this.selectedIndex < 0) {
                     this.mayorScreen.setSelectedCategory(null);
@@ -267,12 +271,15 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     this.mayorScreen.getMayorManager().setMayorStructure(null);
                     this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(null);
                 }
-            } else if (this.objects.getFirst() instanceof MayorStructure) {
-                this.mayorScreen.getMayorManager().setMayorStructure((MayorStructure) this.objects.get(this.selectedIndex));
+            } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {
+                this.mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
                 this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
-            } else if (this.objects.getFirst() instanceof VillagerEntity) {
-                new EntityViewPacket(((VillagerEntity) this.objects.get(this.selectedIndex)).getId()).sendPacket();
+            } else if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity) {
+                new EntityViewPacket(villagerEntity.getId()).sendPacket();
+            } else if (this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
+
             }
+            MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }
     }
 

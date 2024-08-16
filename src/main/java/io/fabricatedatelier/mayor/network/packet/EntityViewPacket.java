@@ -34,8 +34,12 @@ public record EntityViewPacket(int entityId) implements CustomPayload {
 
     public void handlePacket(ServerPlayNetworking.Context context) {
         if (context.player().getServerWorld().getEntityById(entityId) instanceof LivingEntity livingEntity) {
-            ((ServerPlayerAccess) context.player()).setWasInMayorView(true);
-            context.player().setCameraEntity(livingEntity);
+            if (context.player().getCameraEntity() == livingEntity) {
+                context.player().setCameraEntity(null);
+            } else {
+                ((ServerPlayerAccess) context.player()).setWasInMayorView(true);
+                context.player().setCameraEntity(livingEntity);
+            }
         }
     }
 }
