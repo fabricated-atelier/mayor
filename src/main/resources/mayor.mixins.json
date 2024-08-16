@@ -12,6 +12,7 @@
     "SinglePoolElementMixin",
     "ServerPlayerEntityMixin",
     "VillagerEntityMixin",
+    "CarvedPumpkinBlockMixin",
     "access.JigsawStructureAccess"
   ],
   "injectors": {
