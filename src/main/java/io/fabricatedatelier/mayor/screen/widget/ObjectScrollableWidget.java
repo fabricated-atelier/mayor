@@ -25,7 +25,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
 
     private final Text title;
     private final TextRenderer textRenderer;
-    private final MayorScreen mayorScreen;
+    private MayorScreen mayorScreen;
 
     @Nullable
     private List<Object> objects;
@@ -38,10 +38,13 @@ public class ObjectScrollableWidget extends ScrollableWidget {
     @Nullable
     private Object selectedObject = null;
 
-    public ObjectScrollableWidget(int x, int y, int width, int height, Text title, TextRenderer textRenderer, MayorScreen mayorScreen) {
+    public ObjectScrollableWidget(int x, int y, int width, int height, Text title, TextRenderer textRenderer) {
         super(x, y, width, height, title);
         this.title = title;
         this.textRenderer = textRenderer;
+    }
+
+    public void setMayorScreen(MayorScreen mayorScreen) {
         this.mayorScreen = mayorScreen;
     }
 

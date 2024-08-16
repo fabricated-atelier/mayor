@@ -2,10 +2,15 @@ package io.fabricatedatelier.mayor.screen;
 
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorManager;
+import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.hud.SpectatorHud;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 
@@ -14,9 +19,23 @@ public class MayorVillageScreen extends Screen {
 
     private final MayorManager mayorManager;
 
+    private ObjectScrollableWidget villagerScrollableWidget;
+
     public MayorVillageScreen(MayorManager mayorManager) {
         super(Text.translatable("mayor.screen.title"));
         this.mayorManager = mayorManager;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        if (mayorManager.getVillageData() != null) {
+            this.villagerScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(16, 16, 70, 170, Text.translatable("mayor.screen.villagers", mayorManager.getVillageData().getVillagers().size()), this.textRenderer));
+//           this.mayorManager.getVillageData().getVillagers()
+//            this.villagerScrollableWidget.setObjects();
+//            this.client.player.getWorld().getent
+//            MinecraftClient
+        }
     }
 
     @Override
@@ -24,7 +43,7 @@ public class MayorVillageScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         Text wip = Text.of("WIP");
-        context.drawText(this.textRenderer, wip, this.width / 2, this.height / 2 - this.textRenderer.getWidth(wip) / 2, Colors.GRAY, false);
+        context.drawText(this.textRenderer, wip, this.width / 2 - this.textRenderer.getWidth(wip), this.height / 2 / 2, Colors.GRAY, false);
 
         if (mayorManager.getVillageData() != null) {
             int villageMiddleX = this.width / 2;

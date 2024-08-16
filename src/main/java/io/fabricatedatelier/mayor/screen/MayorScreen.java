@@ -73,7 +73,7 @@ public class MayorScreen extends Screen {
             }
         }
 
-        this.buildingCategoryScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(16, 16, 56, 170, Text.translatable("building.category"), this.textRenderer, this));
+        this.buildingCategoryScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(16, 16, 56, 170, Text.translatable("building.category"), this.textRenderer));
         List<Object> objects = new ArrayList<>();
         List<Text> texts = new ArrayList<>();
         for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
@@ -81,8 +81,10 @@ public class MayorScreen extends Screen {
             texts.add(Text.translatable(MayorCategory.BuildingCategory.values()[i].name()));
         }
         this.buildingCategoryScrollableWidget.setObjects(objects, texts);
+        this.buildingCategoryScrollableWidget.setMayorScreen(this);
 
-        this.buildingScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(80, 16, 70, 170, Text.translatable("building.buildings"), this.textRenderer, this));
+        this.buildingScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(80, 16, 70, 170, Text.translatable("building.buildings"), this.textRenderer));
+        this.buildingScrollableWidget.setMayorScreen(this);
 
         this.availableStacks.clear();
         if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {

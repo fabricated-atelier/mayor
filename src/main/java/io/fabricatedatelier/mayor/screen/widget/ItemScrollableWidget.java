@@ -44,7 +44,7 @@ public class ItemScrollableWidget extends ScrollableWidget {
     }
 
     @Nullable
-    public  List<ItemStack> getItemStacks(){
+    public List<ItemStack> getItemStacks() {
         return this.itemStacks;
     }
 
@@ -79,6 +79,9 @@ public class ItemScrollableWidget extends ScrollableWidget {
 
             int row = (int) this.getScrollY() / 18;
             for (int u = row * 6; u < this.itemStacks.size() && u < ((this.maxRows * 6) + row * 6); u++) {
+                if (this.itemStacks.get(u).isEmpty()) {
+                    continue;
+                }
                 context.drawItemWithoutEntity(this.itemStacks.get(u), xSpace, ySpace - this.maxRows * 18);
                 context.drawItemInSlot(this.textRenderer, this.itemStacks.get(u), xSpace, ySpace - this.maxRows * 18);
 
