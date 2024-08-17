@@ -45,6 +45,7 @@ public class Events {
                 Identifier identifier = iterator.next();
 
                 if (StringUtil.shouldStoreStructureIdentifier(identifier)) {
+
                     Identifier mayorStructureIdentifier = StringUtil.getMayorStructureIdentifier(identifier);
                     int level = StringUtil.getStructureLevelByIdentifier(identifier);
                     List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(server.getOverworld(), identifier);
@@ -62,6 +63,11 @@ public class Events {
                     Vec3i size = StructureHelper.getStructureSize(server.getOverworld(), identifier);
 
                     MayorStructure mayorStructure = new MayorStructure(mayorStructureIdentifier, level, experience, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
+
+                    // TESt
+//                    if (identifier.getPath().contains("plains_small")) {
+//                        System.out.println(identifier+ " : "+mayorStructureIdentifier+ " : "+biomeCategory);
+//                    }
 
                     if (MayorManager.mayorStructureMap.containsKey(biomeCategory)) {
                         MayorManager.mayorStructureMap.get(biomeCategory).add(mayorStructure);

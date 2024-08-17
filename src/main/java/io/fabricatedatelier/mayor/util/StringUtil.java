@@ -39,8 +39,9 @@ public class StringUtil {
 
     public static int getStructureLevelByIdentifier(Identifier structureIdentifier) {
         String string = structureIdentifier.getPath();
-        Pattern pattern = Pattern.compile(".*_\\d{2}_(\\d+)$");
+        Pattern pattern = Pattern.compile(".*_\\d+_(\\d+)$");
         Matcher matcher = pattern.matcher(string);
+
         if (matcher.matches()) {
             String number = matcher.group(1);
             return Integer.parseInt(number);
@@ -51,6 +52,15 @@ public class StringUtil {
     public static String getStructureName(Identifier structureIdentifier) {
         Text structure = Text.translatable("building_" + structureIdentifier.getPath());
         String string = structure.getString().replaceAll("[0-9]", "");
+        int lastSpaceIndex = string.lastIndexOf(" ");
+        if (lastSpaceIndex == string.length() - 1) {
+            string = string.substring(0, lastSpaceIndex);
+        }
+        return string;
+    }
+
+    public static String getStructureString(Identifier structureIdentifier){
+        String string = structureIdentifier.getPath().replaceAll("[0-9]", "").replaceAll("_+$", "");
         return string;
     }
 

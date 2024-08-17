@@ -61,7 +61,7 @@ public class StructureStartMixin {
     @Inject(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructurePiece;generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockBox;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/BlockPos;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void placeMixinX(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info,
                              List list, BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11, StructurePiece structurePiece) {
-        if(!this.centerPos.equals(BlockPos.ORIGIN)) {
+        if (!this.centerPos.equals(BlockPos.ORIGIN)) {
             MayorVillageState mayorVillageState = ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState();
             if (mayorVillageState.hasVillage(this.centerPos)) {
                 if (structurePiece instanceof PoolStructurePiece poolStructurePiece && poolStructurePiece.getPoolElement() instanceof SinglePoolElementAccess singlePoolElementAccess
@@ -78,7 +78,7 @@ public class StructureStartMixin {
                     }
                     if (StringUtil.shouldStoreStructureIdentifier(singlePoolElementAccess.getLocation().left().get())) {
                         StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(),
-                                StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get()), 1);
+                                StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get()), 1, 0);
                         villageData.addStructure(structureData);
                     }
                 }

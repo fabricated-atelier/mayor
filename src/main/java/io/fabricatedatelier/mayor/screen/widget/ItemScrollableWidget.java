@@ -73,7 +73,7 @@ public class ItemScrollableWidget extends ScrollableWidget {
 
     @Override
     protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (!this.itemStacks.isEmpty()) {
+        if (this.itemStacks != null && !this.itemStacks.isEmpty()) {
             int ySpace = this.getY() + 1;
             int xSpace = this.getX() + 6;
 

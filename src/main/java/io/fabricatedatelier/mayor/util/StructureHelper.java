@@ -33,6 +33,7 @@ import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
@@ -238,6 +239,48 @@ public class StructureHelper {
         return requiredItemStacks;
     }
 
+    public static List<ItemStack> getStructureItems(World world, BlockBox blockBox) {
+        List<ItemStack> itemStacks = new ArrayList<>();
+        for (int i = 0; i < blockBox.getBlockCountX(); i++) {
+            for (int u = 0; u < blockBox.getBlockCountZ(); u++) {
+                for (int o = 0; o < blockBox.getBlockCountY(); o++) {
+                    BlockPos pos = new BlockPos(blockBox.getMinX(), blockBox.getMinY(), blockBox.getMinZ());
+
+                    BlockState blockState = world.getBlockState(pos.add(i, u, o));
+
+                    if (blockState.contains(Properties.DOUBLE_BLOCK_HALF) && blockState.get(Properties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
+                        continue;
+                    }
+                    if (blockState.contains(Properties.BED_PART) && blockState.get(Properties.BED_PART) == BedPart.FOOT) {
+                        continue;
+                    }
+                    ItemStack itemStack = new ItemStack(blockState.getBlock().asItem());
+                    if (itemStack.isIn(Tags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
+                        continue;
+                    }
+                    if (itemStacks.isEmpty()) {
+                        itemStacks.add(itemStack);
+                    } else {
+                        for (int k = 0; k < itemStacks.size(); k++) {
+                            if (itemStacks.get(k).isOf(itemStack.getItem())) {
+                                if (itemStacks.get(k).getCount() >= itemStacks.get(k).getMaxCount()) {
+                                    continue;
+                                }
+                                itemStacks.get(k).setCount(itemStacks.get(k).getCount() + 1);
+                                break;
+                            }
+                            if (k == itemStacks.size() - 1) {
+                                itemStacks.add(itemStack);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return itemStacks;
+    }
+
     public static int getStructureExperience(List<ItemStack> requiredStacks) {
         int experience = 0;
         for (ItemStack requiredStack : requiredStacks) {
@@ -250,6 +293,23 @@ public class StructureHelper {
 
     public static BlockPos getBottomCenterPos(StructurePiece structurePiece) {
         return new BlockPos(structurePiece.getCenter().getX(), structurePiece.getBoundingBox().getMinY(), structurePiece.getCenter().getZ());
+    }
+
+    @Nullable
+    public static MayorStructure getUpgradeStructure(Identifier currentStructureId, MayorCategory.BiomeCategory biomeCategory) {
+        int currentStructureLevel = StringUtil.getStructureLevelByIdentifier(currentStructureId);
+        String currentStructureString = StringUtil.getStructureString(currentStructureId);
+
+        for (int i = 0; i < MayorManager.mayorStructureMap.get(biomeCategory).size(); i++) {
+            MayorStructure mayorStructure = MayorManager.mayorStructureMap.get(biomeCategory).get(i);
+            if (!currentStructureString.equals(StringUtil.getStructureString(mayorStructure.getIdentifier()))) {
+                continue;
+            }
+            if (currentStructureLevel+1 == StringUtil.getStructureLevelByIdentifier(mayorStructure.getIdentifier())) {
+                return mayorStructure;
+            }
+        }
+        return null;
     }
 
     public static MayorCategory.BiomeCategory getBiomeCategory(RegistryEntry<Biome> biome) {

@@ -30,7 +30,7 @@ public class RenderUtil {
             if (mayorManager.getVillageData() != null && StructureHelper.findCrosshairTarget(client.player) instanceof BlockHitResult blockHitResult) {
                 for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
                     if (entry.getValue().getBlockBox().contains(blockHitResult.getBlockPos())) {
-                        String structureName = StringUtil.getStructureName(entry.getValue().getIdentifier()) + Text.translatable("mayor.screen.level", entry.getValue().getLevel()).getString();
+                        String structureName = StringUtil.getStructureName(entry.getValue().getIdentifier()) + " " + Text.translatable("mayor.screen.level", entry.getValue().getLevel()).getString();
                         context.drawText(client.textRenderer, structureName, 10, 10, 0xFFFFFF, false);
                         break;
                     }

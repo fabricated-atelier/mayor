@@ -1,28 +1,32 @@
 package io.fabricatedatelier.mayor.screen.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.EntityViewPacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
+import io.fabricatedatelier.mayor.screen.MayorVillageScreen;
 import io.fabricatedatelier.mayor.state.StructureData;
+import io.fabricatedatelier.mayor.util.InventoryUtil;
+import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ObjectScrollableWidget extends ScrollableWidget {
@@ -31,7 +35,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
 
     private final Text title;
     private final TextRenderer textRenderer;
-    private MayorScreen mayorScreen;
+    private Screen parentScreen;
 
     @Nullable
     private List<Object> objects;
@@ -48,8 +52,8 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         this.textRenderer = textRenderer;
     }
 
-    public void setMayorScreen(MayorScreen mayorScreen) {
-        this.mayorScreen = mayorScreen;
+    public void setParentScreen(Screen parentScreen) {
+        this.parentScreen = parentScreen;
     }
 
     public void setObjects(@Nullable List<Object> objects, @Nullable List<Text> texts) {
@@ -254,30 +258,48 @@ public class ObjectScrollableWidget extends ScrollableWidget {
 
     private void clicked() {
         if (this.objects != null && !this.objects.isEmpty() && this.objects.size() > this.selectedIndex) {
-            if (this.objects.getFirst() instanceof MayorCategory.BuildingCategory) {
-                if (this.selectedIndex < 0) {
-                    this.mayorScreen.setSelectedCategory(null);
-                } else {
-                    this.mayorScreen.setSelectedCategory((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex));
-                    List<Object> objects = new ArrayList<>();
-                    List<Text> texts = new ArrayList<>();
-                    for (MayorStructure entry : this.mayorScreen.getAvailableStructureMap().get((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex))) {
-                        objects.add(entry);
-                        texts.add(Text.translatable("building_" + entry.getIdentifier().getPath()));
+            if (this.parentScreen instanceof MayorScreen mayorScreen) {
+                if (this.objects.getFirst() instanceof MayorCategory.BuildingCategory) {
+                    if (this.selectedIndex < 0) {
+                        mayorScreen.setSelectedCategory(null);
+                    } else {
+                        mayorScreen.setSelectedCategory((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex));
+                        List<Object> objects = new ArrayList<>();
+                        List<Text> texts = new ArrayList<>();
+                        if (mayorScreen.getAvailableStructureMap().containsKey((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex))) {
+                            for (MayorStructure entry : mayorScreen.getAvailableStructureMap().get((MayorCategory.BuildingCategory) this.objects.get(this.selectedIndex))) {
+                                objects.add(entry);
+                                texts.add(Text.translatable("building_" + entry.getIdentifier().getPath()));
+                            }
+                            mayorScreen.getBuildingScrollableWidget().setObjects(objects, texts);
+                            mayorScreen.getBuildingScrollableWidget().setScrollY(0);
+                            mayorScreen.getBuildingScrollableWidget().setSelectedIndex(-1);
+                            mayorScreen.getMayorManager().setMayorStructure(null);
+                            mayorScreen.getRequiredItemScrollableWidget().setItemStacks(null);
+                        }
                     }
-                    this.mayorScreen.getBuildingScrollableWidget().setObjects(objects, texts);
-                    this.mayorScreen.getBuildingScrollableWidget().setScrollY(0);
-                    this.mayorScreen.getBuildingScrollableWidget().setSelectedIndex(-1);
-                    this.mayorScreen.getMayorManager().setMayorStructure(null);
-                    this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(null);
+                } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {
+                    mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
+                    mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
                 }
-            } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {
-                this.mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
-                this.mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
-            } else if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity) {
-                new EntityViewPacket(villagerEntity.getId()).sendPacket();
-            } else if (this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
-
+            } else if (this.parentScreen instanceof MayorVillageScreen mayorVillageScreen) {
+                if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity) {
+                    new EntityViewPacket(villagerEntity.getId()).sendPacket();
+                } else if (this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
+                    MayorStructure mayorStructure = StructureHelper.getUpgradeStructure(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
+                    if (mayorStructure != null) {
+                        List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorStructure.getRequiredItemStacks());
+                        mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
+                        if (requiredItemStacks.isEmpty()) {
+                            mayorVillageScreen.getUpgradeButton().active = true;
+                            mayorVillageScreen.getUpgradeButton().visible = true;
+                        }
+                    } else {
+                        this.selectedIndex = -1;
+                        mayorVillageScreen.setUpgradeStructureNotAvailableTicks(60);
+                        mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(null);
+                    }
+                }
             }
             MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         }

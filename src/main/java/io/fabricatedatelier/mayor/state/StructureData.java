@@ -12,12 +12,14 @@ public class StructureData {
     private final BlockBox blockBox;
     private final Identifier identifier;
     private int level;
+    private int experience;
 
-    public StructureData(BlockPos bottomCenterPos, BlockBox blockBox, Identifier identifier, int level) {
+    public StructureData(BlockPos bottomCenterPos, BlockBox blockBox, Identifier identifier, int level, int experience) {
         this.bottomCenterPos = bottomCenterPos;
         this.blockBox = blockBox;
         this.identifier = identifier;
         this.level = level;
+        this.experience = experience;
     }
 
     public StructureData(NbtCompound nbt) {
@@ -25,6 +27,7 @@ public class StructureData {
         this.blockBox = new BlockBox(nbt.getInt("MinX"), nbt.getInt("MinY"), nbt.getInt("MinZ"), nbt.getInt("MaxX"), nbt.getInt("MaxY"), nbt.getInt("MaxZ"));
         this.identifier = Identifier.of(nbt.getString("Identifier"));
         this.level = nbt.getInt("Level");
+        this.experience = nbt.getInt("Experience");
     }
 
     public void writeDataToNbt(NbtCompound nbt) {
@@ -37,6 +40,7 @@ public class StructureData {
         nbt.putInt("MaxZ", this.blockBox.getMaxZ());
         nbt.putString("Identifier", this.identifier.toString());
         nbt.putInt("Level", this.level);
+        nbt.putInt("Experience", this.experience);
     }
 
     public NbtCompound writeDataToNbt() {
@@ -50,6 +54,7 @@ public class StructureData {
         nbt.putInt("MaxZ", this.blockBox.getMaxZ());
         nbt.putString("Identifier", this.identifier.toString());
         nbt.putInt("Level", this.level);
+        nbt.putInt("Experience", this.experience);
         return nbt;
     }
 
@@ -72,5 +77,13 @@ public class StructureData {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
     }
 }

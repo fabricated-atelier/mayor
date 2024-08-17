@@ -81,10 +81,10 @@ public class MayorScreen extends Screen {
             texts.add(Text.translatable(MayorCategory.BuildingCategory.values()[i].name()));
         }
         this.buildingCategoryScrollableWidget.setObjects(objects, texts);
-        this.buildingCategoryScrollableWidget.setMayorScreen(this);
+        this.buildingCategoryScrollableWidget.setParentScreen(this);
 
         this.buildingScrollableWidget = this.addDrawableChild(new ObjectScrollableWidget(80, 16, 70, 170, Text.translatable("building.buildings"), this.textRenderer));
-        this.buildingScrollableWidget.setMayorScreen(this);
+        this.buildingScrollableWidget.setParentScreen(this);
 
         this.availableStacks.clear();
         if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
