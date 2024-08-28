@@ -11,6 +11,7 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 
+@Deprecated
 public record StructureRotatePacket(boolean rotateLeft) implements CustomPayload {
 
     public static final CustomPayload.Id<StructureRotatePacket> PACKET_ID = new CustomPayload.Id<>(Mayor.identifierOf("structure_rotate_packet"));

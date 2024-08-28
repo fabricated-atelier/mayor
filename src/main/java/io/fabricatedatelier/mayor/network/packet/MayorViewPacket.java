@@ -73,7 +73,8 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
     public void handleClientPacket(ServerPlayNetworking.Context context) {
         if (this.mayorView) {
             VillageData villageData = MayorStateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());
-            if (villageData != null) { // && villageData.getMayorPlayerUuid().equals(context.player().getUuid())
+            if (villageData != null) { // && villageData.getMayorPlayerUuid().equals(context.player().getUuid()) || context.player().isCreativeLevelTwoOp()
+                ((MayorManagerAccess)context.player()).getMayorManager().setVillageData(villageData);
                 if (!MayorManager.mayorStructureMap.isEmpty()) {
                     List<MayorStructuresPacket.MayorStructureData> list = new ArrayList<>();
                     for (var entries : MayorManager.mayorStructureMap.entrySet()) {

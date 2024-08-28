@@ -89,6 +89,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// Unused
+@Deprecated
 public record StructurePacket(Identifier structureId, BlockRotation structureRotation, boolean center) implements CustomPayload {
 
     public static final CustomPayload.Id<StructurePacket> PACKET_ID =

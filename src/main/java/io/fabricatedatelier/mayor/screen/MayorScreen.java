@@ -6,21 +6,26 @@ import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
+import io.fabricatedatelier.mayor.network.packet.StructureBuildPacket;
 import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.util.InventoryUtil;
 import io.fabricatedatelier.mayor.util.StringUtil;
+import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +50,8 @@ public class MayorScreen extends Screen {
     private List<ItemStack> availableStacks = new ArrayList<>();
     private ItemScrollableWidget availableItemScrollableWidget;
     private ItemScrollableWidget requiredItemScrollableWidget;
+
+    private ButtonWidget buildButton;
 
     private int levelX = 0;
     private int levelY = 0;
@@ -108,6 +115,10 @@ public class MayorScreen extends Screen {
         int availableItemRows = Math.min(this.availableStacks.size() / 6 + 1, ItemScrollableWidget.getMaxRows());
 
         this.requiredItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 9 - availableItemRows * 18 - 25, 118, 28, Text.translatable("mayor.screen.required_items"), this.textRenderer));
+        //   this.requiredItemScrollableWidget.visible = true;
+        //    System.out.println("TEST");
+
+        //   System.out.println("TEST "+this.mayorManager.getVillageData());
 
         // Send a packet to the server to sync again to the client with a second method to call before
         if (this.mayorManager.getVillageData() != null) {
@@ -122,6 +133,43 @@ public class MayorScreen extends Screen {
             }
         }
 
+        Text build = Text.translatable("mayor.screen.build");
+        this.buildButton = this.addDrawableChild(ButtonWidget.builder(build, button -> {
+            if (button.active && this.mayorManager.getMayorStructure() != null) {
+                button.active = false;
+                button.visible = false;
+                this.requiredItemScrollableWidget.setItemStacks(null);
+
+                if (this.mayorManager.getStructureOriginBlockPos() == null) {
+                    if (this.client != null && this.client.player != null && StructureHelper.findCrosshairTarget(this.client.player) instanceof BlockHitResult blockHitResult) {
+                        this.mayorManager.setStructureOriginBlockPos(blockHitResult.getBlockPos());
+                    } else {
+                        return;
+                    }
+                }
+
+                new StructureBuildPacket(this.mayorManager.getMayorStructure().getIdentifier(), this.mayorManager.getStructureOriginBlockPos(), StructureHelper.getStructureRotation(this.mayorManager.getStructureRotation()), this.mayorManager.getStructureCentered()).sendPacket();
+
+                this.mayorManager.setMayorStructure(null);
+                this.mayorManager.setStructureOriginBlockPos(null);
+                // Keep following
+                // this.mayorManager.setStructureRotation(BlockRotation.NONE);
+                // this.mayorManager.setStructureCentered(false);
+            }
+        }).build());
+        this.buildButton.visible = false;
+        this.buildButton.active = false;
+        this.buildButton.setWidth(this.textRenderer.getWidth(build) + 7);
+        this.buildButton.setX(this.width / 2 - this.buildButton.getWidth() / 2);
+        this.buildButton.setY(this.height / 2 + 38);
+
+        if (this.mayorManager.getMayorStructure() != null) {
+            this.requiredItemScrollableWidget.setItemStacks(this.mayorManager.getMayorStructure().getRequiredItemStacks());
+            if ((this.client != null && this.client.player != null && this.client.player.isCreativeLevelTwoOp()) || InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty()) {
+                this.buildButton.visible = true;
+                this.buildButton.active = true;
+            }
+        }
     }
 
     @Override
@@ -279,6 +327,13 @@ public class MayorScreen extends Screen {
         return this.buildingScrollableWidget;
     }
 
+    public ButtonWidget getBuildButton() {
+        return buildButton;
+    }
+
+    public List<ItemStack> getAvailableStacks() {
+        return this.availableStacks;
+    }
 
     private boolean isMouseWithinBounds(int x, int y, int width, int height, double mouseX, double mouseY) {
         return mouseX >= (double) (x - 1) && mouseX < (double) (x + width + 1) && mouseY >= (double) (y - 1) && mouseY < (double) (y + height + 1);

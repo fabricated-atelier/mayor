@@ -138,6 +138,11 @@ public class MayorVillageScreen extends Screen {
                     context.drawText(this.textRenderer, strings[i], this.width / 2 - this.textRenderer.getWidth(strings[i]) / 2, this.height / 2 - strings.length * 5 + i * 10, Colors.WHITE, false);
                 }
             }
+
+            if (this.client != null && mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client.world != null && this.client.player != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(this.client.player.getUuid()) && this.client.player.isCreativeLevelTwoOp()) {
+                Text mayor = Text.translatable("mayor.screen.mayor", this.client.world.getPlayerByUuid(mayorManager.getVillageData().getMayorPlayerUuid()).getName());
+                context.drawText(this.textRenderer, mayor, this.width - this.textRenderer.getWidth(mayor), 10, Colors.WHITE, false);
+            }
         }
     }
 

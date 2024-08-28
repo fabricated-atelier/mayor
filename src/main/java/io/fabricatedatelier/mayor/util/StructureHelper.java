@@ -3,12 +3,16 @@ package io.fabricatedatelier.mayor.util;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.init.Tags;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
+import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
+import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.StructureData;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -83,11 +87,10 @@ public class StructureHelper {
         return blockMap;
     }
 
+    @Deprecated
     public static Map<BlockPos, NbtCompound> getBlockPosNbtMap(ServerWorld serverWorld, Identifier structureId, BlockRotation structureRotation, boolean center) {
         Map<BlockPos, NbtCompound> blockMap = new HashMap<>();
-        Iterator<Map.Entry<BlockPos, BlockState>> iterator = getBlockPosBlockStateMap(serverWorld, structureId, structureRotation, center).entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<BlockPos, BlockState> entry = iterator.next();
+        for (Map.Entry<BlockPos, BlockState> entry : getBlockPosBlockStateMap(serverWorld, structureId, structureRotation, center).entrySet()) {
             blockMap.put(entry.getKey(), NbtHelper.fromBlockState(entry.getValue()));
         }
         return blockMap;
@@ -120,6 +123,8 @@ public class StructureHelper {
         return Vec3i.ZERO;
     }
 
+    // Unused
+    @Deprecated
     public static boolean updateMayorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation, boolean center) {
         MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
         List<MayorStructure> list = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory());
@@ -295,6 +300,16 @@ public class StructureHelper {
         return new BlockPos(structurePiece.getCenter().getX(), structurePiece.getBoundingBox().getMinY(), structurePiece.getCenter().getZ());
     }
 
+    public static BlockPos getBottomCenterPos(BlockPos originBlockPos, Vec3i size, BlockRotation structureRotation, boolean center) {
+        BlockPos bottomCenterPos = originBlockPos.mutableCopy().up();
+        if (!center) {
+            BlockPos rotated = new BlockPos(new Vec3i(size.getX() / 2, 0, size.getZ() / 2)).rotate(structureRotation);
+            bottomCenterPos = bottomCenterPos.add(rotated);
+        }
+        return bottomCenterPos;
+    }
+
+
     @Nullable
     public static MayorStructure getUpgradeStructure(Identifier currentStructureId, MayorCategory.BiomeCategory biomeCategory) {
         int currentStructureLevel = StringUtil.getStructureLevelByIdentifier(currentStructureId);
@@ -305,7 +320,7 @@ public class StructureHelper {
             if (!currentStructureString.equals(StringUtil.getStructureString(mayorStructure.getIdentifier()))) {
                 continue;
             }
-            if (currentStructureLevel+1 == StringUtil.getStructureLevelByIdentifier(mayorStructure.getIdentifier())) {
+            if (currentStructureLevel + 1 == StringUtil.getStructureLevelByIdentifier(mayorStructure.getIdentifier())) {
                 return mayorStructure;
             }
         }
@@ -377,6 +392,118 @@ public class StructureHelper {
             return MayorCategory.BuildingCategory.HOUSE;
         }
         return MayorCategory.BuildingCategory.HOUSE;
+    }
+
+    public static BlockBox getStructureBlockBox(BlockPos originBlockPos, Vec3i size, BlockRotation structureRotation, boolean center) {
+        BlockPos bottomCorner = originBlockPos.mutableCopy().up();
+        if (center) {
+            BlockPos rotated = new BlockPos(new Vec3i(-size.getX() / 2, 0, -size.getZ() / 2)).rotate(structureRotation);
+            bottomCorner = bottomCorner.add(rotated);
+        }
+        BlockPos rotated = new BlockPos(new Vec3i(size.getX() - 1, size.getY(), size.getZ() - 1)).rotate(structureRotation);
+        BlockPos topCorner = bottomCorner.mutableCopy().add(rotated);
+
+        int minX = Math.min(bottomCorner.getX(), topCorner.getX());
+        int minY = Math.min(bottomCorner.getY(), topCorner.getY());
+        int minZ = Math.min(bottomCorner.getZ(), topCorner.getZ());
+        int maxX = Math.max(bottomCorner.getX(), topCorner.getX());
+        int maxY = Math.max(bottomCorner.getY(), topCorner.getY());
+        int maxZ = Math.max(bottomCorner.getZ(), topCorner.getZ());
+        return new BlockBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
+
+    public static boolean tryBuildStructure(ServerPlayerEntity serverPlayerEntity, MayorStructure mayorStructure, BlockPos originBlockPos, BlockRotation structureRotation, boolean center) {
+        Map<BlockPos, BlockState> blockPosBlockStateMap = mayorStructure.getBlockMap();
+
+        if (!blockPosBlockStateMap.isEmpty()) {
+            MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
+
+            mayorManager.setMayorStructure(mayorStructure);
+            mayorManager.setStructureOriginBlockPos(originBlockPos);
+            mayorManager.setStructureRotation(structureRotation);
+            mayorManager.setStructureCentered(center);
+
+            if (canPlaceStructure(mayorManager)) {
+
+                boolean buildStructure = false;
+                if (serverPlayerEntity.isCreativeLevelTwoOp()) {
+                    placeBlocks(serverPlayerEntity.getServerWorld(), blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
+                    buildStructure = true;
+                } else {
+                    // maybe check if the player is the mayor here
+
+                    // Todo: Assign villager to build this mayorStructure here
+                    // add info to villageData that this building is in construction
+                }
+                if (buildStructure) {
+                    BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
+                    BlockBox blockBox = getStructureBlockBox(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
+                    StructureData structureData = new StructureData(bottomCenterPos, blockBox,
+                            mayorStructure.getIdentifier(), mayorStructure.getLevel(), mayorStructure.getExperience());
+
+                    mayorManager.getVillageData().addStructure(structureData);
+
+                    MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverPlayerEntity.getServerWorld()).getMayorVillageState();
+                    mayorVillageState.markDirty();
+
+                    // Sync village data to show structure name on hud
+                    new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures()).sendPacket(serverPlayerEntity);
+
+                    mayorManager.setMayorStructure(null);
+                    mayorManager.setStructureOriginBlockPos(null);
+                }
+                return buildStructure;
+            }
+        }
+        return false;
+    }
+
+    public static void placeBlocks(ServerWorld serverWorld, Map<BlockPos, BlockState> blockPosBlockStateMap, BlockPos origin, Vec3i size, BlockRotation rotation, boolean center) {
+        for (Map.Entry<BlockPos, BlockState> entry : blockPosBlockStateMap.entrySet()) {
+            BlockPos pos = entry.getKey();
+            if (center) {
+                pos = pos.add(-size.getX() / 2, 0, -size.getZ() / 2);
+            }
+            pos = pos.rotate(rotation);
+            BlockState state = entry.getValue().rotate(rotation);
+
+            serverWorld.setBlockState(origin.add(pos), state, 3, 0);
+        }
+    }
+
+    public static boolean canPlaceStructure(MayorManager mayorManager) {
+        if (mayorManager.getVillageData() != null && mayorManager.getMayorStructure() != null) {
+            BlockPos origin = mayorManager.getStructureOriginBlockPos();
+            if (origin == null) {
+                if (StructureHelper.findCrosshairTarget(mayorManager.playerEntity()) instanceof BlockHitResult blockHitResult) {
+                    origin = blockHitResult.getBlockPos();
+                } else {
+                    return false;
+                }
+            }
+            BlockPos villageCenterPos = mayorManager.getVillageData().getCenterPos();
+            int radius = MayorVillageState.villageLevelRadius.get(mayorManager.getVillageData().getLevel());
+            if (!origin.isWithinDistance(villageCenterPos, radius)) {
+                return false;
+            }
+            BlockBox blockBox = getStructureBlockBox(origin, mayorManager.getMayorStructure().getSize(), mayorManager.getStructureRotation(), mayorManager.getStructureCentered());
+            if (!villageCenterPos.isWithinDistance(new Vec3i(blockBox.getMinX(), blockBox.getMinY(), blockBox.getMinZ()), radius)) {
+                return false;
+            }
+            if (!villageCenterPos.isWithinDistance(new Vec3i(blockBox.getMaxX(), blockBox.getMaxY(), blockBox.getMaxZ()), radius)) {
+                return false;
+            }
+            if (!mayorManager.getVillageData().getStructures().isEmpty()) {
+                for (StructureData structureData : mayorManager.getVillageData().getStructures().values()) {
+                    if (structureData.getBlockBox().contains(origin) || structureData.getBlockBox().intersects(blockBox)) {
+                        return false;
+                    }
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
     }
 
 }

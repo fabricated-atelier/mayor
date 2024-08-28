@@ -14,6 +14,8 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.Optional;
 
+// Unused
+@Deprecated
 public record StructureOriginPacket(Optional<BlockPos> origin) implements CustomPayload {
 
     public static final CustomPayload.Id<StructureOriginPacket> PACKET_ID =

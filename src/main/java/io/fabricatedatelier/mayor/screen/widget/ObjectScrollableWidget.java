@@ -135,8 +135,10 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     if (this.objects.size() > i && this.objects.get(i) instanceof VillagerEntity villagerEntity) {
                         List<Text> villagerTooltip = new ArrayList<>();
                         villagerTooltip.add(villagerEntity.getName());
-                        String profession = villagerEntity.getVillagerData().getProfession().id();
-                        villagerTooltip.add(Text.translatable("mayor.screen.villager_profession", (profession.substring(0, 1).toUpperCase() + profession.substring(1))));
+                        if (villagerEntity.hasCustomName()) {
+                            String profession = villagerEntity.getVillagerData().getProfession().id();
+                            villagerTooltip.add(Text.translatable("mayor.screen.villager_profession", (profession.substring(0, 1).toUpperCase() + profession.substring(1))));
+                        }
                         villagerTooltip.add(Text.translatable("mayor.screen.level", villagerEntity.getVillagerData().getLevel()));
                         context.drawTooltip(this.textRenderer, villagerTooltip, mouseX, mouseY);
                     } else if (isTextToLong) {
@@ -281,6 +283,10 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                 } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {
                     mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
                     mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
+                    if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty()) {
+                        mayorScreen.getBuildButton().active = true;
+                        mayorScreen.getBuildButton().visible = true;
+                    }
                 }
             } else if (this.parentScreen instanceof MayorVillageScreen mayorVillageScreen) {
                 if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity) {

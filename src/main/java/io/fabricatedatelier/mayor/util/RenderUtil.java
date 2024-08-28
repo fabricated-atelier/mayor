@@ -1,6 +1,5 @@
 package io.fabricatedatelier.mayor.util;
 
-import java.util.Iterator;
 import java.util.Map;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -58,10 +57,8 @@ public class RenderUtil {
                 context.matrixStack().push();
                 context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
 
-                Iterator<Map.Entry<BlockPos, BlockState>> iterator = blockMap.entrySet().iterator();
-                while (iterator.hasNext()) {
-                    Map.Entry<BlockPos, BlockState> entry = iterator.next();
-
+                boolean canBuildStructure = StructureHelper.canPlaceStructure(mayorManager);
+                for (Map.Entry<BlockPos, BlockState> entry : blockMap.entrySet()) {
                     BlockPos pos = entry.getKey();
                     if (mayorManager.getStructureCentered()) {
                         pos = pos.add(-mayorManager.getMayorStructure().getSize().getX() / 2, 0, -mayorManager.getMayorStructure().getSize().getZ() / 2);
@@ -70,7 +67,7 @@ public class RenderUtil {
                     pos = pos.rotate(mayorManager.getStructureRotation());
                     BlockState state = entry.getValue().rotate(mayorManager.getStructureRotation());
 
-                    renderBlock(client, context.matrixStack(), context.consumers(), origin.add(pos), state);
+                    renderBlock(client, context.matrixStack(), context.consumers(), origin.add(pos), state, canBuildStructure);
                 }
 
                 context.matrixStack().pop();
@@ -78,11 +75,11 @@ public class RenderUtil {
         }
     }
 
-    public static void renderBlock(MinecraftClient client, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, BlockPos blockPos, BlockState blockState) {
+    public static void renderBlock(MinecraftClient client, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, BlockPos blockPos, BlockState blockState, boolean canBuildStructure) {
         matrices.push();
         matrices.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 
-        // Solves z fighting
+        // May solve z fighting
         matrices.translate(.5, .5, .5);
         matrices.scale(1.0001f, 1.0001f, 1.0001f);
         matrices.translate(-.5, -.5, -.5);
@@ -99,7 +96,7 @@ public class RenderUtil {
             if (blockState.getRenderType().equals(BlockRenderType.ENTITYBLOCK_ANIMATED)) {
                 ((BuiltinModelItemRendererAccess) ((BlockRenderManagerAccess) client.getBlockRenderManager()).getBuiltinModelItemRenderer()).setWorldAndBlockState(client.world, blockState);
             }
-            client.getBlockRenderManager().renderBlockAsEntity(blockState, matrices, vertexConsumerProvider, LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV);
+            client.getBlockRenderManager().renderBlockAsEntity(blockState, matrices, vertexConsumerProvider, LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE, canBuildStructure ? OverlayTexture.DEFAULT_UV : 1);
         }
         matrices.pop();
     }

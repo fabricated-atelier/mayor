@@ -14,6 +14,7 @@ public class NetworkPayloads {
         registerC2S(StructureCenterPacket.PACKET_ID, StructureCenterPacket.PACKET_CODEC);
         registerC2S(EntityListC2SPacket.PACKET_ID, EntityListC2SPacket.PACKET_CODEC);
         registerC2S(EntityViewPacket.PACKET_ID, EntityViewPacket.PACKET_CODEC);
+        registerC2S(StructureBuildPacket.PACKET_ID, StructureBuildPacket.PACKET_CODEC);
 
         // S2C
         registerS2C(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);

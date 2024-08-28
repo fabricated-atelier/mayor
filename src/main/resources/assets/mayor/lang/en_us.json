@@ -11,6 +11,7 @@
     "mayor.village": "Village",
 
     "mayor.screen.title": "Mayor",
+    "mayor.screen.mayor": "Mayor: %s",
     "mayor.screen.level": "Lv. %s",
     "mayor.screen.villagers": "Villagers: %s",
     "mayor.screen.iron_golems": "Iron Golems: %s",
@@ -23,6 +24,7 @@
     "mayor.screen.category_values": "Category Values",
     "mayor.screen.no_structure_upgrade_available": "No Structure Upgrade Available",
     "mayor.screen.upgrade": "Upgrade",
+    "mayor.screen.build": "Build",
     "mayor.screen.building_value": "%s / %s",
 
     "building.category": "Categories",

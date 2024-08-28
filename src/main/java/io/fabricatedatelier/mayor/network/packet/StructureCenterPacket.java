@@ -11,6 +11,7 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 
+@Deprecated
 public record StructureCenterPacket(boolean center) implements CustomPayload {
 
     public static final CustomPayload.Id<StructureCenterPacket> PACKET_ID = new CustomPayload.Id<>(Mayor.identifierOf("structure_center_packet"));
