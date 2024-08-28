@@ -11,6 +11,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -20,21 +21,10 @@ import java.util.Optional;
 
 public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
     private BlockPos structureOriginPos;
-    private HashSet<BlockPos> connectedBlocks = new HashSet<>();
+    private final HashSet<BlockPos> connectedBlocks = new HashSet<>();
 
     public AbstractVillageContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
-    }
-
-    @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
     }
 
     @Override
@@ -67,14 +57,11 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
 
     public void setStructureOriginPos(BlockPos structureOriginPos) {
         this.structureOriginPos = structureOriginPos;
+        markDirty();
     }
 
     public HashSet<BlockPos> getConnectedBlocks() {
         return this.connectedBlocks;
-    }
-
-    public void setConnectedBlocks(HashSet<BlockPos> connectedBlocks) {
-        this.connectedBlocks = connectedBlocks;
     }
 
     public void addConnectedBlocks(BlockPos... pos) {
@@ -82,6 +69,28 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
             if (entry.equals(this.pos)) continue;
             this.connectedBlocks.add(entry);
         }
+        markDirty();
+    }
+
+// Network
+
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            serverWorld.getChunkManager().markForUpdate(this.getPos());
+        }
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+        return createNbt(registryLookup);
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
 

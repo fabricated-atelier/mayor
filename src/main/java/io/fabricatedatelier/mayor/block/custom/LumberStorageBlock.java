@@ -1,9 +1,9 @@
 package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
-import io.fabricatedatelier.mayor.block.Properties;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.block.Properties;
+import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
 import io.fabricatedatelier.mayor.block.voxelshape.LumberBlockVoxelShapes;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -58,7 +58,9 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         BlockState targetedState = ctx.getWorld().getBlockState(ctx.getBlockPos());
 
         if (state == null) return null;
-        if (!isNextToSameBlock(world, pos)) setOrigin(world, pos);
+        if (!isNextToSameBlock(world, pos)) {
+            setOrigin(world, pos);
+        }
 
         //TODO: use else branch if it exceeded the structure size
         if (targetedState.getBlock() instanceof LumberStorageBlock) {
@@ -187,7 +189,6 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
     public static int connectedBlocksCount(World world, BlockPos pos, HashSet<BlockPos> checked, List<Direction.Type> directionTypes) {
         if (checked.contains(pos)) return 0;
-
         int count = 1;
         for (var type : directionTypes) {
             Set<BlockPos> possibleDirections = type.stream()

@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.block.entity.client;
 
-import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
 import io.fabricatedatelier.mayor.block.Properties;
+import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -9,7 +9,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
 
@@ -17,22 +16,22 @@ public class LumberStorageBlockEntityRenderer<T extends LumberStorageBlockEntity
     private int tick = 0, rotTick = 0;
 
     @Override
-    public void render(T entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(T blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (!(client.world instanceof ClientWorld world)) return;
+        if (client.world == null) return;
 
         tick++;
         if (tick % 100 == 0) rotTick++;
         if (rotTick > 10) rotTick = 0;
 
-        BlockState state = entity.getCachedState();
+        BlockState state = blockEntity.getCachedState();
         switch (state.get(Properties.SHAPE)) {
             case ALL_WALLS -> {
                 int blockPerLog = 2;
 
                 matrices.push();
                 matrices.translate(0.2, 0.125, 0);
-                renderLog(blockPerLog, client, matrices, light, overlay, vertexConsumers, entity);
+                renderLog(blockPerLog, client, matrices, light, overlay, vertexConsumers, blockEntity);
                 matrices.pop();
             }
         }

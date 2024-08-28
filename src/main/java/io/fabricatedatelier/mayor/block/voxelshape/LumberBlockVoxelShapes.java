@@ -1,10 +1,9 @@
 package io.fabricatedatelier.mayor.block.voxelshape;
 
-import io.fabricatedatelier.mayor.block.custom.LumberStorageBlock;
 import io.fabricatedatelier.mayor.block.Properties;
+import io.fabricatedatelier.mayor.block.custom.LumberStorageBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 
@@ -24,23 +23,12 @@ public class LumberBlockVoxelShapes {
 
         return switch (shape) {
             case ALL_WALLS -> {
-                if (state.get(LumberStorageBlock.FACING).equals(Direction.NORTH) || state.get(LumberStorageBlock.FACING).equals(Direction.SOUTH)) {
-                    yield VoxelShapes.union(
-                            ground_1x1,
-                            VoxelShapes.cuboid(0, 0, 0.125, 0.125, 0.5, 0.25),
-                            VoxelShapes.cuboid(0.875, 0, 0.75, 1, 0.5, 0.875),
-                            VoxelShapes.cuboid(0.875, 0, 0.125, 1, 0.5, 0.25),
-                            VoxelShapes.cuboid(0, 0, 0.75, 0.125, 0.5, 0.875)
-                    );
-                } else {
-                    yield VoxelShapes.union(
-                            ground_1x1,
-                            VoxelShapes.cuboid(0.125, 0, 0.875, 0.25, 0.5, 1),
-                            VoxelShapes.cuboid(0.75, 0, 0, 0.875, 0.5, 0.125),
-                            VoxelShapes.cuboid(0.125, 0, 0, 0.25, 0.5, 0.125),
-                            VoxelShapes.cuboid(0.75, 0, 0.875, 0.875, 0.5, 1)
-                    );
-                }
+                VoxelShape voxelShape = switch (state.get(LumberStorageBlock.FACING)) {
+                    case NORTH, SOUTH -> VoxelShapes.union(shape_east, shape_west);
+                    case EAST, WEST -> VoxelShapes.union(shape_north, shape_south);
+                    default -> VoxelShapes.empty();
+                };
+                yield needsGroundPlate ? VoxelShapes.union(ground_1x1, voxelShape) : voxelShape;
             }
             case TWO_WALLS_END, TWO_WALLS_MID -> switch (state.get(LumberStorageBlock.FACING)) {
                 case NORTH, SOUTH -> {

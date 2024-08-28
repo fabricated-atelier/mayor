@@ -1,8 +1,8 @@
 package io.fabricatedatelier.mayor.datagen;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.init.Blocks;
 import io.fabricatedatelier.mayor.block.Properties;
+import io.fabricatedatelier.mayor.init.Blocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.data.client.*;
@@ -33,8 +33,15 @@ public class ModelProvider extends FabricModelProvider {
     private BlockStateVariantMap createMultiBlockStructureMap() {
         return BlockStateVariantMap.create(Properties.SHAPE, Properties.POSITION, Properties.SIDE)
                 .register((part, position, side) -> switch (part) {
-                            case ALL_WALLS -> BlockStateVariant.create().put(VariantSettings.MODEL,
-                                    Mayor.identifierOf("block/1x1/lumber_1x1"));
+                            case ALL_WALLS -> {
+                                if (position.equals(Properties.VerticalPosition.TOP)) {
+                                    yield BlockStateVariant.create().put(VariantSettings.MODEL,
+                                            Mayor.identifierOf("block/1x1/lumber_1x1_top"));
+                                } else {
+                                    yield BlockStateVariant.create().put(VariantSettings.MODEL,
+                                            Mayor.identifierOf("block/1x1/lumber_1x1"));
+                                }
+                            }
                             case TWO_WALLS_END -> {
                                 String model = "block/1xn/lumber_1xn_end_";
                                 if (position.equals(Properties.VerticalPosition.BOTTOM)) model += "bottom";
