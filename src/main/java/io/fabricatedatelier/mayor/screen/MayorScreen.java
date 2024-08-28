@@ -115,10 +115,6 @@ public class MayorScreen extends Screen {
         int availableItemRows = Math.min(this.availableStacks.size() / 6 + 1, ItemScrollableWidget.getMaxRows());
 
         this.requiredItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 9 - availableItemRows * 18 - 25, 118, 28, Text.translatable("mayor.screen.required_items"), this.textRenderer));
-        //   this.requiredItemScrollableWidget.visible = true;
-        //    System.out.println("TEST");
-
-        //   System.out.println("TEST "+this.mayorManager.getVillageData());
 
         // Send a packet to the server to sync again to the client with a second method to call before
         if (this.mayorManager.getVillageData() != null) {
@@ -262,8 +258,8 @@ public class MayorScreen extends Screen {
                     context.drawTexture(ItemScrollableWidget.SLOTS, this.requiredItemScrollableWidget.getX() + this.requiredItemScrollableWidget.getWidth() + 2, this.requiredItemScrollableWidget.getY() - this.requiredItemScrollableWidget.getHeight() - 18, 27, 28, 3, 11, 128, 128);
                     if (isMouseWithinBounds(this.requiredItemScrollableWidget.getX() + this.requiredItemScrollableWidget.getWidth() + 2, this.requiredItemScrollableWidget.getY() - this.requiredItemScrollableWidget.getHeight() - 18, 3, 11, mouseX, mouseY)) {
                         List<Text> missingTooltip = new ArrayList<>();
-                        for (int i = 0; i < missingItems.size(); i++) {
-                            missingTooltip.add(Text.of(missingItems.get(i).getName().getString() + " " + missingItems.get(i).getCount() + "x"));
+                        for (ItemStack missingItem : missingItems) {
+                            missingTooltip.add(Text.of(missingItem.getName().getString() + " " + missingItem.getCount() + "x"));
                         }
                         context.drawTooltip(this.textRenderer, missingTooltip, mouseX, mouseY);
                     }
