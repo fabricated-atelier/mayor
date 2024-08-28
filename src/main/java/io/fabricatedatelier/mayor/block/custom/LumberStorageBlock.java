@@ -58,9 +58,6 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         BlockState targetedState = ctx.getWorld().getBlockState(ctx.getBlockPos());
 
         if (state == null) return null;
-        if (!isNextToSameBlock(world, pos)) {
-            setOrigin(world, pos);
-        }
 
         //TODO: use else branch if it exceeded the structure size
         if (targetedState.getBlock() instanceof LumberStorageBlock) {
@@ -75,6 +72,11 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
             state = state.with(Properties.POSITION, Properties.VerticalPosition.BOTTOM);
         }
         state = getShape(world, pos, state);
+
+        if (state.get(Properties.SHAPE).equals(Properties.Shape.ALL_WALLS)) {
+            setOrigin(world, pos);
+        }
+
         return state;
     }
 
@@ -88,43 +90,39 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     @Override
     protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         super.onStateReplaced(state, world, pos, newState, moved);
-        if (!isOrigin(world, pos)) return;
-
-        for (BlockPos entry : BlockPos.iterateOutwards(pos, 1, 1, 1)) {
-            BlockState entryState = world.getBlockState(entry);
-            if (!(entryState.getBlock() instanceof LumberStorageBlock)) continue;
-            setOrigin(world, entry);
-            break;
+        if (!isNextToSameBlock(world, pos)) {
+            setOrigin(world, pos);
         }
     }
 
     @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         BlockState finalState = super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
-        if (isSupported(world, pos)) {
-            finalState = getShape(world, pos, finalState);
-            if (!finalState.get(Properties.SHAPE).equals(Properties.Shape.ALL_WALLS)) {
-                BlockState stateBelow = world.getBlockState(pos.down());
-                if (stateBelow.getBlock() instanceof LumberStorageBlock) {
-                    finalState = finalState
-                            .with(Properties.POSITION, Properties.VerticalPosition.TOP)
-                            .with(Properties.SHAPE, stateBelow.get(Properties.SHAPE));
-                } else {
-                    finalState = finalState.with(Properties.POSITION, Properties.VerticalPosition.BOTTOM);
-                }
-            }
-        } else {
+        if (!isSupported(world, pos)) {
             world.breakBlock(pos, true);
+            return finalState;
         }
+
+        finalState = getShape(world, pos, finalState);
+        if (!finalState.get(Properties.SHAPE).equals(Properties.Shape.ALL_WALLS)) {
+            BlockState stateBelow = world.getBlockState(pos.down());
+            if (stateBelow.getBlock() instanceof LumberStorageBlock) {
+                finalState = finalState
+                        .with(Properties.POSITION, Properties.VerticalPosition.TOP)
+                        .with(Properties.SHAPE, stateBelow.get(Properties.SHAPE));
+            } else {
+                finalState = finalState.with(Properties.POSITION, Properties.VerticalPosition.BOTTOM);
+            }
+        }
+
         return finalState;
     }
 
     private static BlockState getShape(WorldAccess world, BlockPos pos, BlockState state) {
         Map<Direction, BlockState> surroundingStates = new HashMap<>();
-        surroundingStates.put(Direction.NORTH, world.getBlockState(pos.north()));
-        surroundingStates.put(Direction.EAST, world.getBlockState(pos.east()));
-        surroundingStates.put(Direction.SOUTH, world.getBlockState(pos.south()));
-        surroundingStates.put(Direction.WEST, world.getBlockState(pos.west()));
+        for (var direction : Direction.Type.HORIZONTAL) {
+            surroundingStates.put(direction, world.getBlockState(pos.offset(direction)));
+        }
 
         List<Direction> sameBlockDirections = surroundingStates.entrySet().stream()
                 .filter(entry -> entry.getValue().getBlock() instanceof LumberStorageBlock)

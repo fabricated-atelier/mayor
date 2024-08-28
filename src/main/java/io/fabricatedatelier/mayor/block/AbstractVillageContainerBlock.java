@@ -63,22 +63,6 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
     }
 
-    public static void setOrigin(WorldAccess world, BlockPos pos) {
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return;
-        blockEntity.setStructureOriginPos(pos);
-    }
-
-    public static Optional<BlockPos> getOrigin(BlockView world, BlockPos pos) {
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity))
-            return Optional.empty();
-        return blockEntity.getStructureOriginPos();
-    }
-
-    public static boolean isOrigin(WorldAccess world, BlockPos pos) {
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return false;
-        return blockEntity.isStructureOrigin();
-    }
-
     @Override
     protected BlockRenderType getRenderType(BlockState state) {
         return BlockRenderType.MODEL;
@@ -95,4 +79,21 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     @Nullable
     @Override
     abstract public BlockEntity createBlockEntity(BlockPos pos, BlockState state);
+
+
+    public static void setOrigin(WorldAccess world, BlockPos pos) {
+        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return;
+        blockEntity.setStructureOriginPos(pos);
+    }
+
+    public static Optional<BlockPos> getOrigin(BlockView world, BlockPos pos) {
+        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity))
+            return Optional.empty();
+        return blockEntity.getStructureOriginPos();
+    }
+
+    public static boolean isOrigin(WorldAccess world, BlockPos pos) {
+        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return false;
+        return blockEntity.isStructureOrigin();
+    }
 }
