@@ -1,17 +1,22 @@
 package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
+import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.Properties;
 import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
 import io.fabricatedatelier.mayor.block.voxelshape.LumberBlockVoxelShapes;
+import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -21,8 +26,9 @@ import net.minecraft.world.WorldAccess;
 import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class LumberStorageBlock extends AbstractVillageContainerBlock {
 
@@ -118,6 +124,20 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         return finalState;
     }
 
+    @Override
+    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return LumberBlockVoxelShapes.get(state);
+    }
+
+    @Override
+    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+        ConnectedBlockUtil.BoundingBox boundingBox = new ConnectedBlockUtil.BoundingBox(world, pos, false);
+        Mayor.LOGGER.info("Connected Blocks: {}", ConnectedBlockUtil.connectedBlocksCount(boundingBox));
+        Mayor.LOGGER.info("Min: {} | Max: {}", boundingBox.getMinPos(), boundingBox.getMaxPos());
+        Mayor.LOGGER.info("Has Holes: {}", boundingBox.hasHoles());
+        return super.onUse(state, world, pos, player, hit);
+    }
+
     private static BlockState getShape(WorldAccess world, BlockPos pos, BlockState state) {
         Map<Direction, BlockState> surroundingStates = new HashMap<>();
         for (var direction : Direction.Type.HORIZONTAL) {
@@ -156,12 +176,6 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
         return state;
     }
 
-    @Override
-    protected VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
-        return LumberBlockVoxelShapes.get(state);
-    }
-
-
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isSupported(WorldView world, BlockPos originalPos) {
         BlockState stateBelow = world.getBlockState(originalPos.down());
@@ -183,21 +197,5 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     public static boolean wallsAreAdjacent(List<Direction> sides) {
         return Direction.Type.HORIZONTAL.stream()
                 .allMatch(direction -> sides.stream().noneMatch(direction.getOpposite()::equals));
-    }
-
-    public static int connectedBlocksCount(World world, BlockPos pos, HashSet<BlockPos> checked, List<Direction.Type> directionTypes) {
-        if (checked.contains(pos)) return 0;
-        int count = 1;
-        for (var type : directionTypes) {
-            Set<BlockPos> possibleDirections = type.stream()
-                    .filter(direction -> world.getBlockState(pos.offset(direction)).getBlock() instanceof LumberStorageBlock)
-                    .map(pos::offset)
-                    .collect(Collectors.toSet());
-
-            for (BlockPos newPos : possibleDirections) {
-                count += connectedBlocksCount(world, newPos, checked, directionTypes);
-            }
-        }
-        return count;
     }
 }
