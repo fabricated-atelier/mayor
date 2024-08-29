@@ -67,15 +67,19 @@ public class MayorScreen extends Screen {
     @Override
     protected void init() {
         this.availableStructureMap.clear();
-        if (MayorManager.mayorStructureMap.containsKey(mayorManager.getBiomeCategory())) {
-            for (int i = 0; i < MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).size(); i++) {
-                MayorCategory.BuildingCategory buildingCategory = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i).getBuildingCategory();
-                if (availableStructureMap.containsKey(buildingCategory)) {
-                    availableStructureMap.get(buildingCategory).add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
-                } else {
-                    List<MayorStructure> list = new ArrayList<>();
-                    list.add(MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory()).get(i));
-                    availableStructureMap.put(buildingCategory, list);
+        if (MayorManager.mayorStructureMap.containsKey(this.mayorManager.getBiomeCategory())) {
+            boolean isCreativeLevelTwoOp = this.client != null && this.client.player != null && this.client.player.isCreativeLevelTwoOp();
+            int villageLevel = this.mayorManager.getVillageData() != null ? this.mayorManager.getVillageData().getLevel() : 1;
+            for (int i = 0; i < MayorManager.mayorStructureMap.get(this.mayorManager.getBiomeCategory()).size(); i++) {
+                if (isCreativeLevelTwoOp || MayorManager.mayorStructureMap.get(this.mayorManager.getBiomeCategory()).get(i).getLevel() <= villageLevel) {
+                    MayorCategory.BuildingCategory buildingCategory = MayorManager.mayorStructureMap.get(this.mayorManager.getBiomeCategory()).get(i).getBuildingCategory();
+                    if (availableStructureMap.containsKey(buildingCategory)) {
+                        availableStructureMap.get(buildingCategory).add(MayorManager.mayorStructureMap.get(this.mayorManager.getBiomeCategory()).get(i));
+                    } else {
+                        List<MayorStructure> list = new ArrayList<>();
+                        list.add(MayorManager.mayorStructureMap.get(this.mayorManager.getBiomeCategory()).get(i));
+                        availableStructureMap.put(buildingCategory, list);
+                    }
                 }
             }
         }
