@@ -2,12 +2,8 @@ package io.fabricatedatelier.mayor.init;
 
 import com.google.common.collect.ImmutableSet;
 import io.fabricatedatelier.mayor.Mayor;
-import net.fabricmc.fabric.api.object.builder.v1.villager.VillagerProfessionBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -16,15 +12,11 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.poi.PointOfInterestType;
-import net.minecraft.world.poi.PointOfInterestTypes;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-import java.util.Set;
+import java.util.Iterator;
 import java.util.function.Predicate;
 
 public class Entities {
@@ -64,6 +56,11 @@ public class Entities {
 
     public static void initialize() {
         // static initialisation
+
+//        Iterator<VillagerProfession> iterator = Registries.VILLAGER_PROFESSION.stream().iterator();
+//        while(iterator.hasNext()) {
+//            System.out.println(iterator.next());
+//        }
     }
 
 }
