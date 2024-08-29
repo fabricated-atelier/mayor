@@ -4,6 +4,7 @@ import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.PassiveEntity;
@@ -11,12 +12,14 @@ import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Box;
+import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 
@@ -54,5 +57,10 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
                 }
             }
         }
+    }
+
+    @Inject(method = "initBrain",at = @At("TAIL"),locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void initBrainMixin(Brain<VillagerEntity> brain, CallbackInfo info, VillagerProfession villagerProfession){
+        System.out.println("TEST "+villagerProfession);
     }
 }

@@ -15,6 +15,7 @@ public class Mayor implements ModInitializer {
     public void onInitialize() {
         Blocks.initialize();
         Items.initialize();
+        Entities.initialize();
         ItemGroups.initialize();
         BlockEntities.initialize();
         NetworkPayloads.initialize();
