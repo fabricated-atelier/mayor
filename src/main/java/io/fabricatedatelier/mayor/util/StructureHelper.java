@@ -429,11 +429,14 @@ public class StructureHelper {
                 if (serverPlayerEntity.isCreativeLevelTwoOp()) {
                     placeBlocks(serverPlayerEntity.getServerWorld(), blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     buildStructure = true;
-                } else {
-                    // maybe check if the player is the mayor here
+                } else if (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
+                    if (InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty()) {
 
-                    // Todo: Assign villager to build this mayorStructure here
-                    // add info to villageData that this building is in construction
+                        // Todo: Assign villager to build this mayorStructure here
+                        // add info to villageData that this building is in construction
+                        // remove using items of available items, put in extra inventory for villager to use
+                        buildStructure = true;
+                    }
                 }
                 if (buildStructure) {
                     BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
@@ -445,6 +448,8 @@ public class StructureHelper {
 
                     MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverPlayerEntity.getServerWorld()).getMayorVillageState();
                     mayorVillageState.markDirty();
+
+                    // VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
 
                     // Sync village data to show structure name on hud
                     new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures()).sendPacket(serverPlayerEntity);
@@ -481,8 +486,11 @@ public class StructureHelper {
                     return false;
                 }
             }
+            if (!mayorManager.playerEntity().isCreativeLevelTwoOp() && mayorManager.getMayorStructure().getLevel() <= mayorManager.getVillageData().getLevel()) {
+                return false;
+            }
             BlockPos villageCenterPos = mayorManager.getVillageData().getCenterPos();
-            int radius = MayorVillageState.villageLevelRadius.get(mayorManager.getVillageData().getLevel());
+            int radius = VillageHelper.VILLAGE_LEVEL_RADIUS.get(mayorManager.getVillageData().getLevel());
             if (!origin.isWithinDistance(villageCenterPos, radius)) {
                 return false;
             }

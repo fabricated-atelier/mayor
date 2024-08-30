@@ -10,6 +10,7 @@ import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
+import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -83,7 +84,8 @@ public class MayorVillageScreen extends Screen {
                 button.active = false;
                 button.visible = false;
                 this.upgradeStructureScrollableWidget.setItemStacks(null);
-                // Send packet to try to upgrade here
+                // Todo: Send packet to try to upgrade here
+
             }).build());
             this.upgradeButton.active = false;
             this.upgradeButton.visible = false;
@@ -141,7 +143,7 @@ public class MayorVillageScreen extends Screen {
 
             if (this.client != null && mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client.world != null && this.client.player != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(this.client.player.getUuid()) && this.client.player.isCreativeLevelTwoOp()) {
                 Text mayor = Text.translatable("mayor.screen.mayor", this.client.world.getPlayerByUuid(mayorManager.getVillageData().getMayorPlayerUuid()).getName());
-                context.drawText(this.textRenderer, mayor, this.width - this.textRenderer.getWidth(mayor), 10, Colors.WHITE, false);
+                context.drawText(this.textRenderer, mayor, this.width - this.textRenderer.getWidth(mayor)-8, 6, Colors.WHITE, false);
             }
         }
     }
@@ -150,41 +152,42 @@ public class MayorVillageScreen extends Screen {
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
         super.renderBackground(context, mouseX, mouseY, delta);
 
-        int villageBackgroundX = this.width - 170;
-        int villageBackgroundY = 16;
-        int maxWidth = 160;
-        int maxHeight = 20 + MayorCategory.BuildingCategory.values().length * 10;
-        // top left
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4, villageBackgroundY, 25, 0, 7, 7, 128, 128);
-        // top middle
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY, maxWidth - 7, 7, 32, 0, 7, 7, 128, 128);
-        // top right
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY, 39, 0, 7, 7, 128, 128);
-        // middle left
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4, villageBackgroundY + 7, 7, maxHeight, 25, 7, 7, 7, 128, 128);
-        // middle middle
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + 7, maxWidth - 7, maxHeight, 32, 7, 7, 7, 128, 128);
-        // middle right
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + 7, 7, maxHeight, 39, 7, 7, 7, 128, 128);
-        // bottom left
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4, villageBackgroundY + maxHeight + 7, 25, 14, 7, 7, 128, 128);
-        // bottom middle
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + maxHeight + 7, maxWidth - 7, 7, 32, 14, 7, 7, 128, 128);
-        // bottom right
-        context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + maxHeight + 7, 39, 14, 7, 7, 128, 128);
+        if (this.mayorManager.getVillageData() != null && this.mayorManager.getVillageData().getLevel() < VillageHelper.VILLAGE_MAX_LEVEL) {
+            int villageBackgroundX = this.width - 170;
+            int villageBackgroundY = 16;
+            int maxWidth = 160;
+            int maxHeight = 20 + MayorCategory.BuildingCategory.values().length * 10;
+            // top left
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4, villageBackgroundY, 25, 0, 7, 7, 128, 128);
+            // top middle
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY, maxWidth - 7, 7, 32, 0, 7, 7, 128, 128);
+            // top right
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY, 39, 0, 7, 7, 128, 128);
+            // middle left
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4, villageBackgroundY + 7, 7, maxHeight, 25, 7, 7, 7, 128, 128);
+            // middle middle
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + 7, maxWidth - 7, maxHeight, 32, 7, 7, 7, 128, 128);
+            // middle right
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + 7, 7, maxHeight, 39, 7, 7, 7, 128, 128);
+            // bottom left
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4, villageBackgroundY + maxHeight + 7, 25, 14, 7, 7, 128, 128);
+            // bottom middle
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + maxHeight + 7, maxWidth - 7, 7, 32, 14, 7, 7, 128, 128);
+            // bottom right
+            context.drawTexture(MayorScreen.VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + maxHeight + 7, 39, 14, 7, 7, 128, 128);
 
 
-        context.drawText(this.textRenderer, Text.translatable("mayor.screen.category_values"), villageBackgroundX + 5, villageBackgroundY + 7, Colors.WHITE, true);
-        for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
-            Text category = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
-            context.drawText(this.textRenderer, category, villageBackgroundX + 10, villageBackgroundY + 20 + i * 10, Colors.WHITE, false);
-            context.drawText(this.textRenderer, ":", villageBackgroundX + 10 + this.textRenderer.getWidth(category), villageBackgroundY + 20 + i * 10, Colors.WHITE, false);
+            context.drawText(this.textRenderer, Text.translatable("mayor.screen.category_values"), villageBackgroundX + 5, villageBackgroundY + 7, Colors.WHITE, true);
+            for (int i = 0; i < MayorCategory.BuildingCategory.values().length; i++) {
+                Text category = Text.translatable(MayorCategory.BuildingCategory.values()[i].name());
+                context.drawText(this.textRenderer, category, villageBackgroundX + 10, villageBackgroundY + 20 + i * 10, Colors.WHITE, false);
+                context.drawText(this.textRenderer, ":", villageBackgroundX + 10 + this.textRenderer.getWidth(category), villageBackgroundY + 20 + i * 10, Colors.WHITE, false);
 
-            // Todo: Adjust the 10000 to the correct value maybe in a final list hardcoded?
-            Text experience = Text.translatable("mayor.screen.building_value", this.buildingCategoryExperienceMap.get(MayorCategory.BuildingCategory.values()[i]), 10000);
-            context.drawText(this.textRenderer, experience, this.width - 20 - this.textRenderer.getWidth(experience), villageBackgroundY + 20 + i * 10, Colors.WHITE, false);
+                int requiredBuildingCategoryExperience = VillageHelper.getVillageLevelBuildingExperienceRequirement(this.mayorManager.getVillageData().getLevel() + 1, MayorCategory.BuildingCategory.values()[i]);
+                Text experience = Text.translatable("mayor.screen.building_value", this.buildingCategoryExperienceMap.get(MayorCategory.BuildingCategory.values()[i]), requiredBuildingCategoryExperience);
 
-
+                context.drawText(this.textRenderer, experience, this.width - 20 - this.textRenderer.getWidth(experience), villageBackgroundY + 20 + i * 10, requiredBuildingCategoryExperience<= this.buildingCategoryExperienceMap.get(MayorCategory.BuildingCategory.values()[i])  ? 32319: Colors.WHITE, false);
+            }
         }
     }
 

@@ -14,8 +14,6 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Map;
-
 public record StructureBuildPacket(Identifier mayorStructureIdentifier, BlockPos originBlockPos, int structureRotation, boolean center) implements CustomPayload {
 
     public static final CustomPayload.Id<StructureBuildPacket> PACKET_ID = new CustomPayload.Id<>(Mayor.identifierOf("structure_build_packet"));

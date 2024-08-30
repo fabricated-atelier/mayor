@@ -99,17 +99,7 @@ public class MayorScreen extends Screen {
 
         this.availableStacks.clear();
         if (this.mayorManager.getVillageData() != null && this.client != null && this.client.world != null) {
-            for (int i = 0; i < this.mayorManager.getVillageData().getStorageOriginBlockPosList().size(); i++) {
-                if (this.client.world.getBlockState(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)).getBlock() instanceof AbstractVillageContainerBlock && this.client.world.getBlockEntity(this.mayorManager.getVillageData().getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
-//                    for (int u = 0; u < this.availableStacks.size(); u++) {
-//                        if (this.availableStacks.get(u).isOf() && this.availableStacks.get(u).getCount() < this.availableStacks.get(u).getMaxCount()) {
-//
-//                        }
-//                    }
-//                    this.availableStacks.add();
-                }
-            }
-
+            this.availableStacks = InventoryUtil.getAvailableItems(this.mayorManager.getVillageData(), this.client.world);
             this.availableItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 11, 118, 28, Text.translatable("mayor.screen.available_items"), this.textRenderer));
             if (this.availableStacks.isEmpty()) {
                 this.availableStacks.add(ItemStack.EMPTY);

@@ -15,12 +15,12 @@ public class MayorStateHelper {
     public static boolean isInVillageRange(ServerWorld serverWorld, BlockPos blockPos) {
         MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
 
-        int maxDistance = MayorVillageState.villageLevelRadius.values().stream().toList().get(MayorVillageState.villageLevelRadius.size() - 1);
+        int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
 
         for (int i = 0; i < mayorVillageState.getVillageCenterPoses().size(); i++) {
             if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, maxDistance)) {
                 VillageData villageData = mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i));
-                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, MayorVillageState.villageLevelRadius.get(villageData.getLevel()))) {
+                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()))) {
                     return true;
                 }
             }
@@ -34,12 +34,12 @@ public class MayorStateHelper {
     public static BlockPos getVillageCenterPos(ServerWorld serverWorld, BlockPos blockPos) {
         MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
 
-        int maxDistance = MayorVillageState.villageLevelRadius.values().stream().toList().get(MayorVillageState.villageLevelRadius.size() - 1);
+        int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
 
         for (int i = 0; i < mayorVillageState.getVillageCenterPoses().size(); i++) {
             if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, maxDistance)) {
                 VillageData villageData = mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i));
-                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, MayorVillageState.villageLevelRadius.get(villageData.getLevel()))) {
+                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()))) {
                     return mayorVillageState.getVillageCenterPoses().get(i);
                 }
             }
@@ -52,12 +52,12 @@ public class MayorStateHelper {
     public static VillageData getClosestVillage(ServerWorld serverWorld, BlockPos blockPos){
         MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
 
-        int maxDistance = MayorVillageState.villageLevelRadius.values().stream().toList().get(MayorVillageState.villageLevelRadius.size() - 1);
+        int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
 
         for (int i = 0; i < mayorVillageState.getVillageCenterPoses().size(); i++) {
             if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, maxDistance)) {
                 VillageData villageData = mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i));
-                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, MayorVillageState.villageLevelRadius.get(villageData.getLevel()))) {
+                if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()))) {
                    return villageData;
                 }
             }
