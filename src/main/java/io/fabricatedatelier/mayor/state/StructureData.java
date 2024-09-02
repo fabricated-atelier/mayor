@@ -6,6 +6,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 
+/**
+ * Built structures
+ */
 public class StructureData {
 
     private final BlockPos bottomCenterPos;

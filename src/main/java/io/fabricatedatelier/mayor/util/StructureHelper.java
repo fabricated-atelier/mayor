@@ -5,12 +5,14 @@ import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
+import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.init.Tags;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
 import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
+import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import net.minecraft.block.*;
@@ -18,6 +20,7 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -426,41 +429,61 @@ public class StructureHelper {
             if (canPlaceStructure(mayorManager)) {
 
                 boolean buildStructure = false;
-                if (serverPlayerEntity.isCreativeLevelTwoOp()) {
-                    placeBlocks(serverPlayerEntity.getServerWorld(), blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
-                    buildStructure = true;
-                } else if (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
-                    if (InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty()) {
 
-                        // Todo: Assign villager to build this mayorStructure here
-                        // add info to villageData that this building is in construction
-                        // remove using items of available items, put in extra inventory for villager to use
-                        buildStructure = true;
-                    }
-                }
-                if (buildStructure) {
+                if (serverPlayerEntity.isCreativeLevelTwoOp() || (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid()) && InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty() && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
                     BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     BlockBox blockBox = getStructureBlockBox(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     StructureData structureData = new StructureData(bottomCenterPos, blockBox,
                             mayorStructure.getIdentifier(), mayorStructure.getLevel(), mayorStructure.getExperience());
 
-                    mayorManager.getVillageData().addStructure(structureData);
+                    if (serverPlayerEntity.isCreativeLevelTwoOp()) {
+                        placeBlocks(serverPlayerEntity.getServerWorld(), blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
+                        mayorManager.getVillageData().addStructure(structureData);
+                        VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
+                        // Sync village data to show structure name on hud
+                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures()).sendPacket(serverPlayerEntity);
+                    } else {
+                        Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
+                        ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center));
+                        //    mayorManager.getVillageData().getConstructions().g
+                        // Todo: Set multiple target positions to use a random one at the edges of the building
 
+                        builder.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
+                        builder.setTargetPosition(structureData.getBottomCenterPos());
+                        mayorManager.getVillageData().addConstruction(constructionData);
+//                        }
+                        //                        // Todo: Assign villager to build this mayorStructure here
+//                        // add info to villageData that this building is in construction
+//                        // remove using items of available items, put in extra inventory for villager to use
+
+                    }
                     MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverPlayerEntity.getServerWorld()).getMayorVillageState();
                     mayorVillageState.markDirty();
 
-                    // VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
-
-                    // Sync village data to show structure name on hud
-                    new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures()).sendPacket(serverPlayerEntity);
-
                     mayorManager.setMayorStructure(null);
                     mayorManager.setStructureOriginBlockPos(null);
+                    return true;
                 }
-                return buildStructure;
             }
         }
         return false;
+    }
+
+    public static Map<BlockPos, BlockState> getBlockPosBlockStateMap(Map<BlockPos, BlockState> blockPosBlockStateMap, BlockPos origin, Vec3i size, BlockRotation rotation, boolean center) {
+        Map<BlockPos, BlockState> blockMap = new HashMap<>();
+
+        for (Map.Entry<BlockPos, BlockState> entry : blockPosBlockStateMap.entrySet()) {
+            BlockPos pos = entry.getKey();
+            if (center) {
+                pos = pos.add(-size.getX() / 2, 0, -size.getZ() / 2);
+            }
+            pos = pos.rotate(rotation);
+            BlockState state = entry.getValue().rotate(rotation);
+
+            blockMap.put(origin.add(pos), state);
+        }
+
+        return blockMap;
     }
 
     public static void placeBlocks(ServerWorld serverWorld, Map<BlockPos, BlockState> blockPosBlockStateMap, BlockPos origin, Vec3i size, BlockRotation rotation, boolean center) {

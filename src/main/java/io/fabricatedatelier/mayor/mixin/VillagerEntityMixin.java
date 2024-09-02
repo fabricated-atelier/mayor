@@ -1,20 +1,36 @@
 package io.fabricatedatelier.mayor.mixin;
 
+import com.google.common.collect.ImmutableSet;
+import com.mojang.datafixers.util.Pair;
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
+import io.fabricatedatelier.mayor.entity.access.Builder;
+import io.fabricatedatelier.mayor.entity.task.BuilderTaskListProvider;
+import io.fabricatedatelier.mayor.init.Entities;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleState;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.village.VillagerProfession;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,7 +40,18 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.List;
 
 @Mixin(VillagerEntity.class)
-public abstract class VillagerEntityMixin extends MerchantEntity {
+public abstract class VillagerEntityMixin extends MerchantEntity implements Builder {
+
+
+    @Nullable
+    @Unique
+    private BlockPos villageCenterPos = null;
+    @Nullable
+    @Unique
+    private BlockPos targetPosition = null;
+    @Unique
+    private final SimpleInventory builderInventory = new SimpleInventory(27);
+
 
     public VillagerEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
         super(entityType, world);
@@ -59,8 +86,61 @@ public abstract class VillagerEntityMixin extends MerchantEntity {
         }
     }
 
-    @Inject(method = "initBrain",at = @At("TAIL"),locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void initBrainMixin(Brain<VillagerEntity> brain, CallbackInfo info, VillagerProfession villagerProfession){
-        System.out.println("TEST "+villagerProfession);
+    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
+    private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
+        writeBuilderInventory(nbt, this.getRegistryManager());
+        nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos != null ? this.villageCenterPos : BlockPos.ORIGIN));
+        nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.targetPosition != null ? this.targetPosition : BlockPos.ORIGIN));
+    }
+
+    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+    private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
+        readBuilderInventory(nbt, this.getRegistryManager());
+        if (!NbtHelper.toBlockPos(nbt, "VillageCenterPos").get().equals(BlockPos.ORIGIN)) {
+            this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").get();
+        }
+        if (!NbtHelper.toBlockPos(nbt, "TargetPosition").get().equals(BlockPos.ORIGIN)) {
+            this.targetPosition = NbtHelper.toBlockPos(nbt, "TargetPosition").get();
+        }
+    }
+
+    @Inject(method = "onDeath", at = @At("TAIL"))
+    private void onDeathMixin(DamageSource damageSource, CallbackInfo info) {
+        if (!this.getWorld().isClient()) {
+            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+                ItemScatterer.spawn(this.getWorld(), this.getBlockPos(), this.builderInventory);
+            }
+            // Todo: Find new villager to build structure if this villager hat a task to build
+        }
+    }
+
+    @Inject(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;)V", ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void initBrainMixin(Brain<VillagerEntity> brain, CallbackInfo info, VillagerProfession villagerProfession) {
+//        brain.setTaskList(Entities.BUILDING, BuilderTaskListProvider.createBuildingTasks(villagerProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
+    }
+
+    @Override
+    public BlockPos getVillageCenterPosition() {
+        return this.villageCenterPos;
+    }
+
+    @Override
+    public void setVillageCenterPosition(BlockPos villageCenterPosition) {
+        this.villageCenterPos = villageCenterPosition;
+    }
+
+    @Override
+    public BlockPos getTargetPosition() {
+        return this.targetPosition;
+    }
+
+    @Override
+    public void setTargetPosition(BlockPos targetPosition) {
+        this.targetPosition = targetPosition;
+    }
+
+    @Override
+    public SimpleInventory getBuilderInventory() {
+        return this.builderInventory;
     }
 }

@@ -13,7 +13,7 @@ import java.util.*;
 public class VillageData {
 
     private final BlockPos centerPos;
-    private  MayorCategory.BiomeCategory biomeCategory;
+    private MayorCategory.BiomeCategory biomeCategory;
     private int level = 1;
     // private Text name = Text.translatable("mayor.village");
     private String name = "Village";
@@ -25,14 +25,14 @@ public class VillageData {
     private List<UUID> villagers = new ArrayList<UUID>();
     private List<UUID> ironGolems = new ArrayList<UUID>();
     private Map<BlockPos, StructureData> structures = new HashMap<>();
+    private Map<BlockPos, ConstructionData> constructions = new HashMap<>();
 
     public VillageData(BlockPos centerPos) {
         this.centerPos = centerPos;
     }
 
     public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
-                       List<UUID> ironGolems, Map<BlockPos, StructureData> structures) {
-
+                       List<UUID> ironGolems, Map<BlockPos, StructureData> structures, Map<BlockPos, ConstructionData> constructions) {
         this.centerPos = centerPos;
         this.biomeCategory = biomeCategory;
         this.level = level;
@@ -44,6 +44,7 @@ public class VillageData {
         this.villagers = villagers;
         this.ironGolems = ironGolems;
         this.structures = structures;
+        this.constructions = constructions;
     }
 
     public VillageData(NbtCompound nbt) {
@@ -69,10 +70,16 @@ public class VillageData {
             this.ironGolems.add(nbt.getUuid("IronGolemUuid" + i));
         }
         this.structures.clear();
-        NbtList nbtList = nbt.getList("Structures", NbtElement.COMPOUND_TYPE);
-        for (int i = 0; i < nbtList.size(); i++) {
-            StructureData structureData = new StructureData(nbtList.getCompound(i));
+        NbtList structureList = nbt.getList("Structures", NbtElement.COMPOUND_TYPE);
+        for (int i = 0; i < structureList.size(); i++) {
+            StructureData structureData = new StructureData(structureList.getCompound(i));
             structures.put(structureData.getBottomCenterPos(), structureData);
+        }
+        this.constructions.clear();
+        NbtList constructionList = nbt.getList("Constructions", NbtElement.COMPOUND_TYPE);
+        for (int i = 0; i < constructionList.size(); i++) {
+            ConstructionData constructionData = new ConstructionData(constructionList.getCompound(i));
+            constructions.put(constructionData.getBottomCenterPos(), constructionData);
         }
     }
 
@@ -99,13 +106,21 @@ public class VillageData {
         for (int i = 0; i < this.ironGolems.size(); i++) {
             nbt.putUuid("IronGolemUuid" + i, this.ironGolems.get(i));
         }
-        NbtList nbtList = new NbtList();
+        NbtList structureList = new NbtList();
         for (StructureData structureData : this.structures.values()) {
             NbtCompound nbtCompound = new NbtCompound();
             structureData.writeDataToNbt(nbtCompound);
-            nbtList.add(nbtCompound);
+            structureList.add(nbtCompound);
         }
-        nbt.put("Structures", nbtList);
+        nbt.put("Structures", structureList);
+
+        NbtList constructionList = new NbtList();
+        for (ConstructionData constructionData : this.constructions.values()) {
+            NbtCompound nbtCompound = new NbtCompound();
+            constructionData.writeDataToNbt(nbtCompound);
+            constructionList.add(nbtCompound);
+        }
+        nbt.put("Constructions", constructionList);
 
         // this.structureData.values().
         // var test = BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, pos);
@@ -122,7 +137,7 @@ public class VillageData {
         return this.biomeCategory;
     }
 
-    public void setBiomeCategory(MayorCategory.BiomeCategory biomeCategory){
+    public void setBiomeCategory(MayorCategory.BiomeCategory biomeCategory) {
         this.biomeCategory = biomeCategory;
     }
 
@@ -225,7 +240,7 @@ public class VillageData {
 
     // Structures
     public Map<BlockPos, StructureData> getStructures() {
-        return structures;
+        return this.structures;
     }
 
     public void setStructures(Map<BlockPos, StructureData> structures) {
@@ -238,6 +253,23 @@ public class VillageData {
 
     public void removeStructure(StructureData structureData) {
         this.structures.remove(structureData.getBottomCenterPos());
+    }
+
+    // Constructions
+    public  Map<BlockPos, ConstructionData> getConstructions() {
+        return this.constructions;
+    }
+
+    public void setConstructions( Map<BlockPos, ConstructionData> constructions) {
+        this.constructions = constructions;
+    }
+
+    public void addConstruction(ConstructionData constructionData) {
+        this.constructions.put(constructionData.getBottomCenterPos(),constructionData);
+    }
+
+    public void removeConstruction(ConstructionData constructionData) {
+        this.structures.remove(constructionData.getBottomCenterPos());
     }
 
 }

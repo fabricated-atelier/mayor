@@ -8,6 +8,8 @@
     "key.mayor.structure_upward": "Upward Structure",
     "key.mayor.structure_downward": "Downward Structure",
 
+    "entity.minecraft.villager.builder": "Builder",
+
     "mayor.village": "Village",
     "mayor.village.level_up": "%s Level Up",
 

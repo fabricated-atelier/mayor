@@ -33,11 +33,12 @@ public class TakeJobSiteTaskMixin {
 
 //    Blocks
     @Inject(method = "method_47211",at = @At(value = "HEAD"))
-    private static void canUseJobSite(TaskTriggerer.TaskContext taskContext, MemoryQueryResult memoryQueryResult, MemoryQueryResult memoryQueryResult2, MemoryQueryResult memoryQueryResult3, MemoryQueryResult memoryQueryResult4, float f, ServerWorld world, VillagerEntity entity, long time, CallbackInfoReturnable<Boolean> cir) {
+    private static void method_47211Mixin(TaskTriggerer.TaskContext taskContext, MemoryQueryResult memoryQueryResult, MemoryQueryResult memoryQueryResult2, MemoryQueryResult memoryQueryResult3, MemoryQueryResult memoryQueryResult4, float f, ServerWorld world, VillagerEntity entity, long time, CallbackInfoReturnable<Boolean> cir) {
 //        System.out.println(entity+ " : "+memoryQueryResult+" : "+memoryQueryResult.getValue());
 
 //       memoryQueryResult.
 //        Mayor.LOGGER.error(taskContext);
 //       SmithingTableBlock
+//        System.out.println("TAKE JOB");
     }
 }

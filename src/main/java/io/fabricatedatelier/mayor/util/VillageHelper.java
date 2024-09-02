@@ -1,12 +1,15 @@
 package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
+import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +20,47 @@ public class VillageHelper {
     public static int VILLAGE_MAX_LEVEL = 5;
 
     public static final Map<Integer, Integer> VILLAGE_LEVEL_RADIUS = Map.of(1, 50, 2, 100, 3, 150, 4, 200, 5, 300);
+
+    public static boolean hasTasklessBuildingVillager(VillageData villageData, ServerWorld serverWorld) {
+        for (int i = 0; i < villageData.getVillagers().size(); i++) {
+            if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
+                if (villagerEntity instanceof Builder builder) {
+                    if (builder.getTargetPosition() == null) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Nullable
+    public static Builder getTasklessBuildingVillagerBuilder(VillageData villageData, ServerWorld serverWorld) {
+        for (int i = 0; i < villageData.getVillagers().size(); i++) {
+            if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
+                if (villagerEntity instanceof Builder builder) {
+                    if (builder.getTargetPosition() == null) {
+                        return builder;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static VillagerEntity getTasklessBuildingVillager(VillageData villageData, ServerWorld serverWorld) {
+        for (int i = 0; i < villageData.getVillagers().size(); i++) {
+            if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
+                if (villagerEntity instanceof Builder builder) {
+                    if (builder.getTargetPosition() == null) {
+                        return villagerEntity;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
     public static void tryLevelUpVillage(VillageData villageData, ServerWorld serverWorld) {
         if (villageData.getLevel() < VILLAGE_MAX_LEVEL) {

@@ -4,6 +4,7 @@ import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
+import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -15,10 +16,7 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int level, String name, long age, Optional<UUID> mayorPlayerUuid, long mayorPlayerTime,
                                 List<BlockPos> storageOriginBlockPosList, List<UUID> villagers, List<UUID> ironGolems, Map<BlockPos, StructureData> structures) implements CustomPayload {
@@ -65,8 +63,9 @@ public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int le
         List<UUID> villagers = this.villagers();
         List<UUID> ironGolems = this.ironGolems();
         Map<BlockPos, StructureData> structures = this.structures();
+        Map<BlockPos, ConstructionData> constructions = new HashMap<>();
 
-        VillageData villageData = new VillageData(centerPos, biomeCategory, level, name, age, mayorPlayerUuid, mayorPlayerTime, storageOriginBlockPosList, villagers, ironGolems, structures);
+        VillageData villageData = new VillageData(centerPos, biomeCategory, level, name, age, mayorPlayerUuid, mayorPlayerTime, storageOriginBlockPosList, villagers, ironGolems, structures, constructions);
         mayorManager.setVillageData(villageData);
         mayorManager.setBiomeCategory(biomeCategory);
     }
