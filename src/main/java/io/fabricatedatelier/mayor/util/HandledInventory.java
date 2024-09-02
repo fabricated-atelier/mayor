@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.util;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Direction;
@@ -77,6 +78,20 @@ public interface HandledInventory extends SidedInventory {
         return stack;
     }
 
+    default boolean contains(Item item) {
+        for (ItemStack stack : this.getItems()) {
+            if (stack.getItem().equals(item)) return true;
+        }
+        return false;
+    }
+
+    default boolean contains(ItemStack stack) {
+        for (ItemStack entry : this.getItems()) {
+            if (entry.equals(stack)) return true;
+        }
+        return false;
+    }
+
     @Override
     default boolean canPlayerUse(PlayerEntity player) {
         return true;
@@ -86,5 +101,9 @@ public interface HandledInventory extends SidedInventory {
     default void clear() {
         getItems().clear();
         markDirty();
+    }
+
+    default void markDirty() {
+
     }
 }
