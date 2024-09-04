@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
 
+@Deprecated
 @Mixin(TakeJobSiteTask.class)
 public class TakeJobSiteTaskMixin {
 

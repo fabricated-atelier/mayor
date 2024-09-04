@@ -16,12 +16,13 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Optional;
 
+@Deprecated
 @Mixin(GoToWorkTask.class)
 public class GoToWorkTaskMixin {
 
     @Inject(method = "method_46890",at = @At(value = "RETURN",ordinal = 2),locals = LocalCapture.CAPTURE_FAILSOFT)
     private static void test(TaskTriggerer.TaskContext taskContext, MemoryQueryResult memoryQueryResult, MemoryQueryResult memoryQueryResult2, ServerWorld world, VillagerEntity entity, long time, CallbackInfoReturnable<Boolean> cir, GlobalPos globalPos, MinecraftServer minecraftServer){
-        System.out.println(entity+ " : ");
+//        System.out.println(entity+ " : ");
 //        GlobalPos globalPos = taskContext.getValue(memoryQueryResult);
 
 //        MinecraftServer minecraftServer = world.getServer();
