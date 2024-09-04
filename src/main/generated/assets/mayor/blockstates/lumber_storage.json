@@ -1,304 +1,34 @@
 {
   "variants": {
-    "facing=east,position=bottom,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 90
+    "position=center": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 90
+    "position=east": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left",
-      "y": 90
+    "position=no_wall": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right",
-      "y": 90
+    "position=north": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left",
-      "y": 90
+    "position=north_east": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right",
-      "y": 90
+    "position=north_west": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom",
-      "y": 90
+    "position=south": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom",
-      "y": 90
+    "position=south_east": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom",
-      "y": 90
+    "position=south_west": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     },
-    "facing=east,position=bottom,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom",
-      "y": 90
-    },
-    "facing=east,position=top,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 90
-    },
-    "facing=east,position=top,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 90
-    },
-    "facing=east,position=top,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top",
-      "y": 90
-    },
-    "facing=east,position=top,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top",
-      "y": 90
-    },
-    "facing=north,position=bottom,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1"
-    },
-    "facing=north,position=bottom,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1"
-    },
-    "facing=north,position=bottom,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left"
-    },
-    "facing=north,position=bottom,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right"
-    },
-    "facing=north,position=bottom,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left"
-    },
-    "facing=north,position=bottom,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right"
-    },
-    "facing=north,position=bottom,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom"
-    },
-    "facing=north,position=bottom,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom"
-    },
-    "facing=north,position=bottom,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom"
-    },
-    "facing=north,position=bottom,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom"
-    },
-    "facing=north,position=top,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1"
-    },
-    "facing=north,position=top,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1"
-    },
-    "facing=north,position=top,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left_top"
-    },
-    "facing=north,position=top,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right_top"
-    },
-    "facing=north,position=top,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left_top"
-    },
-    "facing=north,position=top,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right_top"
-    },
-    "facing=north,position=top,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top"
-    },
-    "facing=north,position=top,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top"
-    },
-    "facing=north,position=top,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top"
-    },
-    "facing=north,position=top,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top"
-    },
-    "facing=south,position=bottom,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom",
-      "y": 180
-    },
-    "facing=south,position=bottom,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom",
-      "y": 180
-    },
-    "facing=south,position=top,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 180
-    },
-    "facing=south,position=top,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 180
-    },
-    "facing=south,position=top,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top",
-      "y": 180
-    },
-    "facing=south,position=top,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top",
-      "y": 180
-    },
-    "facing=west,position=bottom,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_bottom",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom",
-      "y": 270
-    },
-    "facing=west,position=bottom,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_bottom",
-      "y": 270
-    },
-    "facing=west,position=top,shape=all_walls,side=left": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 270
-    },
-    "facing=west,position=top,shape=all_walls,side=right": {
-      "model": "mayor:block/1x1/lumber_1x1",
-      "y": 270
-    },
-    "facing=west,position=top,shape=one_wall_end,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_end_left_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=one_wall_end,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_end_right_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=one_wall_mid,side=left": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_left_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=one_wall_mid,side=right": {
-      "model": "mayor:block/2xn/lumber_2xn_mid_right_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=two_walls_end,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=two_walls_end,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_end_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=two_walls_mid,side=left": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top",
-      "y": 270
-    },
-    "facing=west,position=top,shape=two_walls_mid,side=right": {
-      "model": "mayor:block/1xn/lumber_1xn_mid_top",
-      "y": 270
+    "position=west": {
+      "model": "mayor:block/1x1/lumber_1x1_top"
     }
   }
 }

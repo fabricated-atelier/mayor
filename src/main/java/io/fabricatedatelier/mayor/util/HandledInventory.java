@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.util;
 
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
@@ -105,5 +106,9 @@ public interface HandledInventory extends SidedInventory {
 
     default void markDirty() {
 
+    }
+
+    default InventoryStorage getAsStorage(@Nullable Direction direction) {
+        return InventoryStorage.of(this, direction);
     }
 }
