@@ -8,15 +8,12 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +25,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
 
 public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     public static final EnumProperty<MayorProperties.Position> POSITION = MayorProperties.POSITION;
@@ -71,7 +71,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
         BlockPos originPos = getOrigin(world, pos).orElse(pos);
-        ConnectedBlockUtil.BoundingBox box = new ConnectedBlockUtil.BoundingBox(world, originPos, false);
+        var box = new ConnectedBlockUtil.BoundingBox(world, originPos, false);
         if (!box.hasHoles() && box.isSquare()) {
             state = getConnectedWallsState(world, state, pos);
         } else {
