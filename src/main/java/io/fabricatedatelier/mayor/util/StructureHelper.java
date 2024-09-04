@@ -428,7 +428,7 @@ public class StructureHelper {
 
             if (canPlaceStructure(mayorManager)) {
 
-                boolean buildStructure = false;
+//                boolean buildStructure = false;
 
                 if (serverPlayerEntity.isCreativeLevelTwoOp() || (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid()) && InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty() && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
                     BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
@@ -452,6 +452,8 @@ public class StructureHelper {
                         builder.setTargetPosition(structureData.getBottomCenterPos());
                         mayorManager.getVillageData().addConstruction(constructionData);
 //                        }
+
+                        System.out.println("ASSIGNED "+builder);
                         //                        // Todo: Assign villager to build this mayorStructure here
 //                        // add info to villageData that this building is in construction
 //                        // remove using items of available items, put in extra inventory for villager to use
@@ -531,10 +533,39 @@ public class StructureHelper {
                     }
                 }
             }
+            if (!mayorManager.getVillageData().getConstructions().isEmpty()) {
+                for (ConstructionData constructionData : mayorManager.getVillageData().getConstructions().values()) {
+                    if (constructionData.getStructureData().getBlockBox().contains(origin) || constructionData.getStructureData().getBlockBox().intersects(blockBox)) {
+                        return false;
+                    }
+                }
+            }
+            // Todo: Give villager the possibility to remove curtain blocks before building a structure
+            for (int i = blockBox.getMinX(); i <= blockBox.getMaxX(); i++) {
+                for (int u = blockBox.getMinY(); u <= blockBox.getMaxY(); u++) {
+                    for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
+                        if (!mayorManager.playerEntity().getWorld().getBlockState(BlockPos.ofFloored(i, u, o)).isAir()) {
+                            return false;
+                        }
+                    }
+                }
+            }
         } else {
             return false;
         }
         return true;
     }
+
+    public static Map<BlockPos, BlockState> getMissingConstructionBlockMap(ServerWorld serverWorld, ConstructionData constructionData) {
+        Map<BlockPos, BlockState> blockMap = new HashMap<>();
+        for (Map.Entry<BlockPos, BlockState> entry : constructionData.getBlockMap().entrySet()) {
+            if (!serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
+                blockMap.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return blockMap;
+    }
+
+    // Todo: void method to place blocks 
 
 }
