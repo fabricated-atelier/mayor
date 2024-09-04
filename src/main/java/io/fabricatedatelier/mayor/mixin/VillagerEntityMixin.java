@@ -89,19 +89,19 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
         writeBuilderInventory(nbt, this.getRegistryManager());
-        nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos != null ? this.villageCenterPos : BlockPos.ORIGIN));
-        nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.targetPosition != null ? this.targetPosition : BlockPos.ORIGIN));
+        if (this.villageCenterPos != null) {
+            nbt.put("VillageCenterPos", NbtHelper.fromBlockPos( this.villageCenterPos));
+        }
+        if (this.targetPosition != null) {
+            nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.targetPosition));
+        }
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
         readBuilderInventory(nbt, this.getRegistryManager());
-        if (!NbtHelper.toBlockPos(nbt, "VillageCenterPos").get().equals(BlockPos.ORIGIN)) {
-            this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").get();
-        }
-        if (!NbtHelper.toBlockPos(nbt, "TargetPosition").get().equals(BlockPos.ORIGIN)) {
-            this.targetPosition = NbtHelper.toBlockPos(nbt, "TargetPosition").get();
-        }
+        this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").orElse(null);
+        this.targetPosition = NbtHelper.toBlockPos(nbt, "TargetPosition").orElse(null);
     }
 
     @Inject(method = "onDeath", at = @At("TAIL"))
@@ -116,7 +116,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Inject(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;)V", ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void initBrainMixin(Brain<VillagerEntity> brain, CallbackInfo info, VillagerProfession villagerProfession) {
-//        brain.setTaskList(Entities.BUILDING, BuilderTaskListProvider.createBuildingTasks(villagerProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
+        brain.setTaskList(Entities.BUILDING, BuilderTaskListProvider.createBuildingTasks(villagerProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
     }
 
     @Override
