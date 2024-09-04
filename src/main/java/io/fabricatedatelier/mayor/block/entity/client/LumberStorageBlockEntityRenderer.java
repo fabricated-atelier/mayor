@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.block.entity.client;
 
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.block.MayorProperties;
 import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -25,7 +26,7 @@ public class LumberStorageBlockEntityRenderer<T extends LumberStorageBlockEntity
         if (rotTick > 10) rotTick = 0;
 
         BlockState state = blockEntity.getCachedState();
-        if (AbstractVillageContainerBlock.isSingle(state)) {
+        if (state.contains(AbstractVillageContainerBlock.POSITION) && state.get(AbstractVillageContainerBlock.POSITION).equals(MayorProperties.Position.SINGLE)) {
             int blockPerLog = 2;
 
             matrices.push();

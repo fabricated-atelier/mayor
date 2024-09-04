@@ -8,13 +8,16 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -25,21 +28,15 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
+import java.util.*;
 
 public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
-    public static final BooleanProperty NORTH = Properties.NORTH;
-    public static final BooleanProperty EAST = Properties.EAST;
-    public static final BooleanProperty SOUTH = Properties.SOUTH;
-    public static final BooleanProperty WEST = Properties.WEST;
+    public static final EnumProperty<MayorProperties.Position> POSITION = MayorProperties.POSITION;
 
     protected AbstractVillageContainerBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.getDefaultState()
-                .with(NORTH, false)
-                .with(EAST, false)
-                .with(SOUTH, false)
-                .with(WEST, false)
+                .with(POSITION, MayorProperties.Position.SINGLE)
                 .with(Properties.WATERLOGGED, false)
         );
     }
@@ -47,7 +44,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(NORTH, EAST, SOUTH, WEST, Properties.WATERLOGGED);
+        builder.add(POSITION, Properties.WATERLOGGED);
     }
 
     @Nullable
@@ -59,18 +56,28 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     }
 
     @Override
+    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
+        ConnectedBlockUtil.BoundingBox box = new ConnectedBlockUtil.BoundingBox(world, pos, false);
+        if (!box.hasHoles() && box.isSquare()) {
+            state = getConnectedWallsState(world, state, pos);
+            world.setBlockState(pos, state);
+        }
+        super.onPlaced(world, pos, state, placer, itemStack);
+    }
+
+    @Override
     public BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos) {
         if (state.get(Properties.WATERLOGGED)) {
             world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
-        state = getConnectedWallsState(world, state, pos);
-        return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
-    }
-
-    @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        state = getConnectedWallsState(world, state, pos);
-        super.onPlaced(world, pos, state, placer, itemStack);
+        BlockPos originPos = getOrigin(world, pos).orElse(pos);
+        ConnectedBlockUtil.BoundingBox box = new ConnectedBlockUtil.BoundingBox(world, originPos, false);
+        if (!box.hasHoles() && box.isSquare()) {
+            state = getConnectedWallsState(world, state, pos);
+        } else {
+            state = state.with(POSITION, MayorProperties.Position.SINGLE);
+        }
+        return state;
     }
 
     @Override
@@ -95,32 +102,39 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     @Override
     abstract public BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 
-    public static boolean isSingle(BlockState state) {
-        if (state.contains(NORTH) && state.get(NORTH)) return false;
-        if (state.contains(EAST) && state.get(EAST)) return false;
-        if (state.contains(SOUTH) && state.get(SOUTH)) return false;
-        return !state.contains(WEST) || !state.get(WEST);
-    }
-
     public static BlockState getConnectedWallsState(WorldAccess world, BlockState state, BlockPos pos) {
-        ConnectedBlockUtil.BoundingBox box = new ConnectedBlockUtil.BoundingBox(world, pos, false);
-        if (box.getConnectedPosList().size() < 2) return state;
-        if (!box.hasHoles() && box.isSquare()) {
-            if (world.getBlockState(pos.offset(Direction.NORTH)).getBlock().getClass().equals(state.getBlock().getClass())) {
-                state = state.with(NORTH, true);
-            }
-            if (world.getBlockState(pos.offset(Direction.EAST)).getBlock().getClass().equals(state.getBlock().getClass())) {
-                state = state.with(EAST, true);
-            }
-            if (world.getBlockState(pos.offset(Direction.SOUTH)).getBlock().getClass().equals(state.getBlock().getClass())) {
-                state = state.with(SOUTH, true);
-            }
-            if (world.getBlockState(pos.offset(Direction.WEST)).getBlock().getClass().equals(state.getBlock().getClass())) {
-                state = state.with(WEST, true);
-            }
+        HashSet<Direction> connectedBlocks = getValidConnectedDirections(world, pos);
+        for (var entry : MayorProperties.Position.values()) {
+            if (entry.getConnectedDirections().equals(connectedBlocks)) state = state.with(POSITION, entry);
         }
         return state;
     }
+
+    private static boolean isSameBlock(BlockState stateA, BlockState stateB) {
+        // no instanceof check since we want to know if it's actually the same block and not any of the subclasses
+        // ... using the class for that still feels wrong, so change if there is a better solution
+        return stateA.getBlock().getClass().equals(stateB.getBlock().getClass());
+    }
+
+    public static Map<Direction, BlockState> getConnectedBlockStates(WorldAccess world, BlockPos pos) {
+        Map<Direction, BlockState> connectedBlockStates = new HashMap<>();
+        for (Direction entry : Direction.Type.HORIZONTAL) {
+            connectedBlockStates.put(entry, world.getBlockState(pos.offset(entry)));
+        }
+        return connectedBlockStates;
+    }
+
+    public static HashSet<Direction> getValidConnectedDirections(WorldAccess world, BlockPos pos) {
+        HashSet<Direction> validConnections = new HashSet<>();
+        BlockState originState = world.getBlockState(pos);
+        for (var entry : getConnectedBlockStates(world, pos).entrySet()) {
+            if (isSameBlock(originState, world.getBlockState(pos.offset(entry.getKey())))) {
+                validConnections.add(entry.getKey());
+            }
+        }
+        return validConnections;
+    }
+
 
     public static void setOrigin(WorldAccess world, BlockPos pos) {
         if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return;
