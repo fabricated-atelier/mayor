@@ -1,7 +1,6 @@
 package io.fabricatedatelier.mayor.screen;
 
-import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
-import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
@@ -22,7 +21,6 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
@@ -38,7 +36,7 @@ import java.util.Map;
 @Environment(EnvType.CLIENT)
 public class MayorScreen extends Screen {
 
-    public static final Identifier VILLAGE = Identifier.of("mayor", "textures/gui/sprites/hud/mayor_village.png");
+    public static final Identifier VILLAGE = Mayor.identifierOf("textures/gui/sprites/hud/mayor_village.png");
     private final MayorManager mayorManager;
 
     private Map<MayorCategory.BuildingCategory, List<MayorStructure>> availableStructureMap = new HashMap<>();
@@ -233,7 +231,7 @@ public class MayorScreen extends Screen {
                         }
                     }
                     for (Map.Entry<String, Integer> structureNames : structureTooltip.entrySet()) {
-                        structuresTooltip.add(Text.of(" - " + structureNames.getKey() + structureNames.getValue() + "x"));
+                        structuresTooltip.add(Text.of(" - " + structureNames.getKey() + " " + structureNames.getValue() + "x"));
                     }
 
                 }

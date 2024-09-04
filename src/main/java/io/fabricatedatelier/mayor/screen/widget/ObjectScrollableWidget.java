@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.screen.widget;
 
+import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.EntityViewPacket;
@@ -31,7 +32,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class ObjectScrollableWidget extends ScrollableWidget {
 
-    private static final Identifier OBJECTS = Identifier.of("mayor", "textures/gui/sprites/hud/mayor_objects.png");
+    private static final Identifier OBJECTS = Mayor.identifierOf("textures/gui/sprites/hud/mayor_objects.png");
 
     private final Text title;
     private final TextRenderer textRenderer;
@@ -152,8 +153,8 @@ public class ObjectScrollableWidget extends ScrollableWidget {
 
     @Override
     public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-        if (this.texts != null) {
-            renderTitle(context);
+        if (this.texts != null && !this.texts.isEmpty()) {
+            // renderTitle(context);
             this.renderContents(context, mouseX, mouseY, delta);
             this.renderOverlay(context, mouseX, mouseY);
         }
@@ -164,12 +165,12 @@ public class ObjectScrollableWidget extends ScrollableWidget {
     }
 
     private void renderTitle(DrawContext context) {
-        context.drawText(this.textRenderer, this.title, this.getX() + this.width - this.textRenderer.getWidth(this.title), this.getY() - this.maxRows * 18 - 16, Colors.WHITE, false);
+        context.drawText(this.textRenderer, this.title, this.getX() + this.width - this.textRenderer.getWidth(this.title), this.getY(), Colors.WHITE, false);
     }
 
     private void renderOverlay(DrawContext context, int mouseX, int mouseY) {
         if (this.overflows()) {
-            int row = (int) this.getScrollY() / 18;
+            int row = (int) this.getScrollY() / 13;
             int arrowX = this.getX() + this.width / 2 - 8;
 
             // top arrow
@@ -187,7 +188,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
             int bottomArrowY = this.getY() + this.maxRows * 13 + 3;
             context.drawTexture(OBJECTS, arrowX, bottomArrowY, 17, 24, 17, 12, 128, 128);
 
-            if ((this.rows - this.maxRows) > row + 1) {
+            if ((this.rows - this.maxRows) > row) {
                 if (isPointWithinBounds(arrowX - this.getX(), bottomArrowY - this.getY(), 17, 12, mouseX, mouseY)) {
                     context.drawTexture(OBJECTS, arrowX, bottomArrowY, 17, 12, 17, 12, 128, 128);
                 } else {
@@ -211,7 +212,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         if (!this.visible) {
             return false;
         }
-        if (isWithinBounds(mouseX, mouseY)) {
+        if (isWithinExtraBounds(mouseX, mouseY,0,15)) {
             if (this.texts != null && !this.texts.isEmpty() && this.objects != null) {
                 if (isPointWithinBounds(this.width / 2 - 8, -15, 17, 12, mouseX, mouseY)) {
                     this.setScrollY(this.getScrollY() - this.getDeltaYPerScroll());
@@ -256,6 +257,10 @@ public class ObjectScrollableWidget extends ScrollableWidget {
 
     public void setSelectedIndex(int selectedIndex) {
         this.selectedIndex = selectedIndex;
+    }
+
+    private boolean isWithinExtraBounds(double mouseX, double mouseY, int extraX, int extraY){
+        return mouseX >= (double) this.getX()-extraX && mouseX < this.getX() + this.width + 4+extraX && mouseY < (double) this.getY() + this.maxRows * 13+extraY && mouseY >= (double) (this.getY()-extraY);
     }
 
     private void clicked() {

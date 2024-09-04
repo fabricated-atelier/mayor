@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.screen.widget;
 
 import java.util.List;
 
+import io.fabricatedatelier.mayor.Mayor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Environment(EnvType.CLIENT)
 public class ItemScrollableWidget extends ScrollableWidget {
 
-    public static final Identifier SLOTS = Identifier.of("mayor", "textures/gui/sprites/hud/mayor_slots.png");
+    public static final Identifier SLOTS = Mayor.identifierOf("textures/gui/sprites/hud/mayor_slots.png");
 
     private final Text title;
     private final TextRenderer textRenderer;
