@@ -10,4 +10,6 @@ public interface StructureTemplateAccess {
     List<StructureTemplate.PalettedBlockInfoList> getBlockInfoLists();
 
     List<Entity> getSpawnedEntities();
+
+    void clearSpawnedEntities();
 }

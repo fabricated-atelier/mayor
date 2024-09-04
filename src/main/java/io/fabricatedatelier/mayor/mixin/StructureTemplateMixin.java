@@ -37,6 +37,11 @@ public class StructureTemplateMixin implements StructureTemplateAccess {
 
     @Override
     public List<Entity> getSpawnedEntities() {
-        return spawnedEntities;
+        return this.spawnedEntities;
+    }
+
+    @Override
+    public void clearSpawnedEntities() {
+        this.spawnedEntities.clear();
     }
 }

@@ -214,7 +214,9 @@ public class VillageData {
     }
 
     public void addVillager(UUID villager) {
-        this.villagers.add(villager);
+        if (!this.villagers.contains(villager)) {
+            this.villagers.add(villager);
+        }
     }
 
     public void removeVillager(UUID villager) {
@@ -231,7 +233,9 @@ public class VillageData {
     }
 
     public void addIronGolem(UUID ironGolem) {
-        this.ironGolems.add(ironGolem);
+        if (!this.ironGolems.contains(ironGolem)) {
+            this.ironGolems.add(ironGolem);
+        }
     }
 
     public void removeIronGolem(UUID ironGolem) {
@@ -256,16 +260,16 @@ public class VillageData {
     }
 
     // Constructions
-    public  Map<BlockPos, ConstructionData> getConstructions() {
+    public Map<BlockPos, ConstructionData> getConstructions() {
         return this.constructions;
     }
 
-    public void setConstructions( Map<BlockPos, ConstructionData> constructions) {
+    public void setConstructions(Map<BlockPos, ConstructionData> constructions) {
         this.constructions = constructions;
     }
 
     public void addConstruction(ConstructionData constructionData) {
-        this.constructions.put(constructionData.getBottomCenterPos(),constructionData);
+        this.constructions.put(constructionData.getBottomCenterPos(), constructionData);
     }
 
     public void removeConstruction(ConstructionData constructionData) {
