@@ -83,6 +83,7 @@ public class RenderUtil {
         matrices.translate(.5, .5, .5);
         matrices.scale(1.0001f, 1.0001f, 1.0001f);
         matrices.translate(-.5, -.5, -.5);
+
         if (!blockState.getFluidState().isEmpty()) {
             GlStateManager._depthMask(false); // Disable depth mask for rendering fluids
             var matrixStack = RenderSystem.getModelViewStack().pushMatrix();

@@ -2,22 +2,31 @@ package io.fabricatedatelier.mayor.entity.task;
 
 import com.google.common.collect.ImmutableMap;
 
+import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.entity.access.Builder;
+import io.fabricatedatelier.mayor.init.BlockEntities;
+import io.fabricatedatelier.mayor.state.ConstructionData;
+import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
+import net.minecraft.entity.ai.brain.task.FindWalkTargetTask;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
-public class BuilderVillagerTask extends MultiTickTask<VillagerEntity> {
-    private static final int MAX_RUN_TIME = 200;
-    public static final float WALK_SPEED = 0.5F;
+public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
+    //    private static final int MAX_RUN_TIME = 200;
+//    public static final float WALK_SPEED = 0.5F;
     @Nullable
     private BlockPos currentTarget;
     private long nextResponseTime;
@@ -26,7 +35,7 @@ public class BuilderVillagerTask extends MultiTickTask<VillagerEntity> {
 
 //    private final BlockPos targetPosition = BlockPos.ORIGIN;
 
-    public BuilderVillagerTask() {
+    public BuilderBuildTask() {
         super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
     }
 
@@ -55,11 +64,49 @@ public class BuilderVillagerTask extends MultiTickTask<VillagerEntity> {
             if (builder.getBuilderInventory().isEmpty()) {
                 return false;
             }
-            this.currentTarget = builder.getTargetPosition();
+            // Todo: Set closest building position
+
+            this.currentTarget = findClosestTarget(serverWorld, villagerEntity, builder);
         }
         return this.currentTarget != null;
 //        }
     }
+
+    @Nullable
+    private BlockPos findClosestTarget(ServerWorld serverWorld, VillagerEntity villagerEntity, Builder builder) {
+        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
+            VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+            if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
+                ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+
+                BlockPos pos = null;
+                for (int i = constructionData.getStructureData().getBlockBox().getMinX(); i < constructionData.getStructureData().getBlockBox().getMaxX(); i++) {
+                    for (int u = constructionData.getStructureData().getBlockBox().getMinZ(); u < constructionData.getStructureData().getBlockBox().getMaxZ(); u++) {
+                        BlockPos checkPos = BlockPos.ofFloored(i, constructionData.getStructureData().getBlockBox().getMinY(), u);
+                        if (pos != null && checkPos.getSquaredDistance(villagerEntity.getPos()) > pos.getSquaredDistance(villagerEntity.getPos())) {
+                            continue;
+                        }
+                        pos = checkPos;
+                    }
+                }
+                if (pos != null) {
+                    for (int i = 0; i < 4; i++) {
+                        if (!constructionData.getStructureData().getBlockBox().contains(pos.offset(Direction.fromHorizontal(i)))) {
+
+                            // TEST Todo: Lol pos check
+                            System.out.println("TEST " + serverWorld.getBlockState(pos.offset(Direction.fromHorizontal(i))));
+
+                            return pos.offset(Direction.fromHorizontal(i));
+                        }
+                    }
+                }
+
+            }
+        }
+        return null;
+    }
+
 
     //    @Nullable
 //    private BlockPos chooseRandomTarget(ServerWorld world) {
@@ -93,9 +140,9 @@ public class BuilderVillagerTask extends MultiTickTask<VillagerEntity> {
         if (this.currentTarget == null || this.currentTarget.isWithinDistance(villagerEntity.getPos(), 1.0)) {
             if (this.currentTarget != null && l > this.nextResponseTime) {
                 BlockState blockState = serverWorld.getBlockState(this.currentTarget);
-                Block block = blockState.getBlock();
-                Block block2 = serverWorld.getBlockState(this.currentTarget.down()).getBlock();
-
+//                Block block = blockState.getBlock();
+//                Block block2 = serverWorld.getBlockState(this.currentTarget.down()).getBlock();
+//                BlockEntities
                 System.out.println("KEEP RUNNING " + villagerEntity + " : " + l);
 //                if (block instanceof CropBlock && ((CropBlock)block).isMature(blockState)) {
 //                    serverWorld.breakBlock(this.currentTarget, true, villagerEntity);
@@ -152,9 +199,9 @@ public class BuilderVillagerTask extends MultiTickTask<VillagerEntity> {
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
         if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
-                return false;
+            return false;
         }
-        return this.ticksRan < 200;
+        return this.ticksRan < 2000;
     }
 }
 

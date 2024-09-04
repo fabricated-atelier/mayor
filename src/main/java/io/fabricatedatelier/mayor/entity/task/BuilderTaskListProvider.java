@@ -25,10 +25,11 @@ public class BuilderTaskListProvider {
                                         Pair.of(GoToIfNearbyTask.create(MemoryModuleType.JOB_SITE, 0.4F, 4), 7),
                                         Pair.of(GoToNearbyPositionTask.create(MemoryModuleType.JOB_SITE, 0.4F, 1, 10), 5),
 //                                        Pair.of(GoToSecondaryPositionTask.create(MemoryModuleType.SECONDARY_JOB_SITE, speed, 1, 6, MemoryModuleType.JOB_SITE), 5),
-                                        Pair.of(new BuilderVillagerTask(), 2),
-                                        Pair.of(new BuilderCollectItemsTask(), 2)
+                                        Pair.of(new BuilderBuildTask(), 2),
+                                        Pair.of(new BuilderCollectTask(), 2)
 //                                        Pair.of(new BoneMealTask(), profession == VillagerProfession.FARMER ? 4 : 7)
                                 ))),
+                // Todo: check here?
                 Pair.of(2, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, speed, 9, 100, 1200)),
                 Pair.of(99, ScheduleActivityTask.create())
         );

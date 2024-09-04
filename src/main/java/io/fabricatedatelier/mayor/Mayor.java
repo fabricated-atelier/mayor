@@ -23,6 +23,7 @@ public class Mayor implements ModInitializer {
         Events.initialize();
         Loaders.initialize();
         Tags.initialize();
+        Commands.initialize();
 
         LOGGER.info("No sir, we only take Emeralds as payment...");
     }

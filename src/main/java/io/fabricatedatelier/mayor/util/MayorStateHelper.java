@@ -10,6 +10,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MayorStateHelper {
 
     public static boolean isInVillageRange(ServerWorld serverWorld, BlockPos blockPos) {
@@ -49,7 +52,7 @@ public class MayorStateHelper {
     }
 
     @Nullable
-    public static VillageData getClosestVillage(ServerWorld serverWorld, BlockPos blockPos){
+    public static VillageData getClosestVillage(ServerWorld serverWorld, BlockPos blockPos) {
         MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
 
         int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
@@ -58,12 +61,24 @@ public class MayorStateHelper {
             if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, maxDistance)) {
                 VillageData villageData = mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i));
                 if (mayorVillageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()))) {
-                   return villageData;
+                    return villageData;
                 }
             }
         }
 
         return null;
+    }
+
+    public static List<VillageData> getVillages(ServerWorld serverWorld) {
+        List<VillageData> list = new ArrayList<>();
+        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        for (int i = 0; i < mayorVillageState.getVillageCenterPoses().size(); i++) {
+            if (mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i)) != null) {
+                list.add(mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i)));
+            }
+        }
+
+        return list;
     }
 
     public static void updateVillageUuids(ServerWorld serverWorld, BlockPos centerPos, LivingEntity livingEntity) {

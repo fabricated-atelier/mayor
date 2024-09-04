@@ -56,6 +56,16 @@ public class MayorVillageState extends PersistentState {
         return villageData;
     }
 
+    public boolean deleteVillageData(BlockPos centerPos) {
+        if (this.villages.containsKey(centerPos)) {
+            this.villages.remove(centerPos);
+            this.markDirty();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public VillageData getVillageData(BlockPos centerPos) {
         return this.villages.get(centerPos);
     }
