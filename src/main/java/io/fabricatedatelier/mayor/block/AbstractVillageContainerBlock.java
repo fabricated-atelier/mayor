@@ -59,7 +59,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         ConnectedBlockUtil.BoundingBox box = new ConnectedBlockUtil.BoundingBox(world, pos, false);
         if (!box.hasHoles() && box.isSquare()) {
-            state = getConnectedWallsState(world, state, pos);
+            state = state.with(POSITION, getPositionFromConnectedWalls(world, pos));
             world.setBlockState(pos, state);
         }
         super.onPlaced(world, pos, state, placer, itemStack);
@@ -73,7 +73,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         BlockPos originPos = getOrigin(world, pos).orElse(pos);
         var box = new ConnectedBlockUtil.BoundingBox(world, originPos, false);
         if (!box.hasHoles() && box.isSquare()) {
-            state = getConnectedWallsState(world, state, pos);
+            state = state.with(POSITION, getPositionFromConnectedWalls(world, pos));
         } else {
             state = state.with(POSITION, MayorProperties.Position.SINGLE);
         }
@@ -92,7 +92,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
 
     @Override
     protected VoxelShape getCullingShape(BlockState state, BlockView world, BlockPos pos) {
-        return VoxelShapes.fullCube();
+        return VoxelShapes.empty();
     }
 
     @Override
@@ -102,12 +102,12 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     @Override
     abstract public BlockEntity createBlockEntity(BlockPos pos, BlockState state);
 
-    public static BlockState getConnectedWallsState(WorldAccess world, BlockState state, BlockPos pos) {
+    public static MayorProperties.Position getPositionFromConnectedWalls(WorldAccess world, BlockPos pos) {
         HashSet<Direction> connectedBlocks = getValidConnectedDirections(world, pos);
         for (var entry : MayorProperties.Position.values()) {
-            if (entry.getConnectedDirections().equals(connectedBlocks)) state = state.with(POSITION, entry);
+            if (entry.getConnectedDirections().equals(connectedBlocks)) return entry;
         }
-        return state;
+        return MayorProperties.Position.SINGLE;
     }
 
     private static boolean isSameBlock(BlockState stateA, BlockState stateB) {

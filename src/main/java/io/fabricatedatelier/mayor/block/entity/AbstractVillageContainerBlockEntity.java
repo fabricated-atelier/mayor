@@ -96,7 +96,9 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
 
 // Util
 
-    public abstract StructureDimensions getMaxStructureDimensions();
+    public StructureDimensions getMaxStructureDimensions() {
+        return new StructureDimensions(3);
+    }
 
     public static Optional<HashSet<BlockPos>> getConnectedBlocksFromOrigin(AbstractVillageContainerBlockEntity blockEntity) {
         World world = blockEntity.getWorld();
@@ -109,5 +111,8 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
 
 
     public record StructureDimensions(int width, int height, int length) {
+        public StructureDimensions(int length) {
+            this(length, length, length);
+        }
     }
 }

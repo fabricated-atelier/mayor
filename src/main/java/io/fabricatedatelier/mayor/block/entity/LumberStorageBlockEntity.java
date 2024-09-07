@@ -1,11 +1,9 @@
 package io.fabricatedatelier.mayor.block.entity;
 
+import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.init.BlockEntities;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.DefaultedList;
@@ -23,13 +21,13 @@ public class LumberStorageBlockEntity extends AbstractVillageContainerBlockEntit
         return inventory;
     }
 
-    public LumberStorageBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.LUMBER_STORAGE, pos, state);
+    @Override
+    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
+        return stack.isIn(TagProvider.ItemTags.LUMBER_STORAGE_STORABLE);
     }
 
-    @Override
-    public StructureDimensions getMaxStructureDimensions() {
-        return new StructureDimensions(2, 2, 5);
+    public LumberStorageBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntities.LUMBER_STORAGE, pos, state);
     }
 
     public void modifyInventorySynced(Consumer<HandledInventory> consumer) {

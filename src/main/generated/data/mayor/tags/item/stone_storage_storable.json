@@ -1,0 +1,43 @@
+{
+  "values": [
+    "#minecraft:stone_crafting_materials",
+    "#minecraft:sand",
+    "#minecraft:stone_bricks",
+    {
+      "id": "#c:ores",
+      "required": false
+    },
+    {
+      "id": "#c:stone",
+      "required": false
+    },
+    {
+      "id": "#c:stones",
+      "required": false
+    },
+    {
+      "id": "#c:cobblestone",
+      "required": false
+    },
+    {
+      "id": "#c:cobblestones",
+      "required": false
+    },
+    {
+      "id": "#c:concrete",
+      "required": false
+    },
+    {
+      "id": "#c:concretes",
+      "required": false
+    },
+    {
+      "id": "#c:concrete_powder",
+      "required": false
+    },
+    {
+      "id": "#c:concrete_powders",
+      "required": false
+    }
+  ]
+}

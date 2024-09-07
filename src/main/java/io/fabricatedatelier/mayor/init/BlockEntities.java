@@ -34,6 +34,7 @@ public class BlockEntities {
         BlockEntityType<T> blockEntityType = register(name, entityFactory, blocks);
         ItemStorage.SIDED.registerForBlockEntity((blockEntity, direction) -> {
             if (blockEntity instanceof HandledInventory inventory) return inventory.getAsStorage(direction);
+            Mayor.LOGGER.error("BlockEntity was missing HandledInventory Interface at registration");
             return null;
         }, blockEntityType);
         return blockEntityType;

@@ -6,7 +6,6 @@ import net.minecraft.util.math.Direction;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 
 public class MayorProperties {
     public static final EnumProperty<Position> POSITION = EnumProperty.of("position", Position.class);
