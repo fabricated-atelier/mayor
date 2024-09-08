@@ -1,9 +1,8 @@
 package io.fabricatedatelier.mayor.entity.task;
 
 import com.google.common.collect.ImmutableMap;
-
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
-import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
@@ -15,7 +14,6 @@ import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
-import net.minecraft.entity.passive.CowEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.server.world.ServerWorld;
@@ -23,8 +21,8 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
-//    private static final int MAX_RUN_TIME = 200;
-//    public static final float WALK_SPEED = 0.5F;
+    //    private static final int MAX_RUN_TIME = 200;
+    //    public static final float WALK_SPEED = 0.5F;
     @Nullable
     private BlockPos currentTarget;
     private long nextResponseTime;
@@ -97,7 +95,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
             Item item = StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).values().stream().findFirst().get().getBlock().asItem();
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
-                if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity ) {
+                if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
                     // Find the correct one lul
                     // Todo: abstractVillageContainerBlockEntity contains item
                     return villageData.getStorageOriginBlockPosList().get(i);
