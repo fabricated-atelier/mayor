@@ -1,25 +1,19 @@
 package io.fabricatedatelier.mayor.entity.task;
 
 import com.google.common.collect.ImmutableMap;
-
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.entity.access.Builder;
-import io.fabricatedatelier.mayor.init.BlockEntities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
-import net.minecraft.block.Block;
+import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
-import net.minecraft.entity.ai.brain.task.FindWalkTargetTask;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -74,7 +68,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
     @Nullable
     private BlockPos findClosestTarget(ServerWorld serverWorld, VillagerEntity villagerEntity, Builder builder) {
-        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
         if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
             VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
             if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {

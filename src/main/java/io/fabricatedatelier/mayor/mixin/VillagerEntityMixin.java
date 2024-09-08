@@ -2,7 +2,6 @@ package io.fabricatedatelier.mayor.mixin;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.entity.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.Entities;
@@ -62,7 +61,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, this.getBlockPos());
         if (villageData != null) {
             villageData.addVillager(info.getReturnValue().getUuid());
-            ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
+            MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
         }
     }
 
@@ -80,7 +79,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
                     }
                 }
                 if (foundNewIronGolem) {
-                    ((MayorVillageStateAccess) world).getMayorVillageState().markDirty();
+                    MayorStateHelper.getMayorVillageState(world).markDirty();
                 }
             }
         }
@@ -90,7 +89,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
         writeBuilderInventory(nbt, this.getRegistryManager());
         if (this.villageCenterPos != null) {
-            nbt.put("VillageCenterPos", NbtHelper.fromBlockPos( this.villageCenterPos));
+            nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos));
         }
         if (this.targetPosition != null) {
             nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.targetPosition));

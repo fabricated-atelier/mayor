@@ -15,8 +15,12 @@ import java.util.List;
 
 public class MayorStateHelper {
 
+    public static MayorVillageState getMayorVillageState(ServerWorld serverWorld) {
+        return ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+    }
+
     public static boolean isInVillageRange(ServerWorld serverWorld, BlockPos blockPos) {
-        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
 
         int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
 
@@ -35,7 +39,7 @@ public class MayorStateHelper {
     // Similar to isInVillageRange
     @Nullable
     public static BlockPos getVillageCenterPos(ServerWorld serverWorld, BlockPos blockPos) {
-        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
 
         int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
 
@@ -53,7 +57,7 @@ public class MayorStateHelper {
 
     @Nullable
     public static VillageData getClosestVillage(ServerWorld serverWorld, BlockPos blockPos) {
-        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
 
         int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
 
@@ -71,7 +75,7 @@ public class MayorStateHelper {
 
     public static List<VillageData> getVillages(ServerWorld serverWorld) {
         List<VillageData> list = new ArrayList<>();
-        MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
         for (int i = 0; i < mayorVillageState.getVillageCenterPoses().size(); i++) {
             if (mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i)) != null) {
                 list.add(mayorVillageState.getVillageData(mayorVillageState.getVillageCenterPoses().get(i)));
@@ -82,21 +86,21 @@ public class MayorStateHelper {
     }
 
     public static void updateVillageUuids(ServerWorld serverWorld, BlockPos centerPos, LivingEntity livingEntity) {
-        VillageData villageData = ((MayorVillageStateAccess) serverWorld).getMayorVillageState().getVillageData(centerPos);
+        VillageData villageData = MayorStateHelper.getMayorVillageState(serverWorld).getVillageData(centerPos);
         if (livingEntity instanceof VillagerEntity) {
             if (villageData.getVillagers().contains(livingEntity.getUuid())) {
                 villageData.getVillagers().remove(livingEntity.getUuid());
             } else {
                 villageData.getVillagers().add(livingEntity.getUuid());
             }
-            ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
+            MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
         } else if (livingEntity instanceof IronGolemEntity) {
             if (villageData.getIronGolems().contains(livingEntity.getUuid())) {
                 villageData.getIronGolems().remove(livingEntity.getUuid());
             } else {
                 villageData.getIronGolems().add(livingEntity.getUuid());
             }
-            ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
+            MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
         }
     }
 

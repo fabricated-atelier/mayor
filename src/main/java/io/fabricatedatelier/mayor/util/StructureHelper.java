@@ -3,24 +3,24 @@ package io.fabricatedatelier.mayor.util;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.init.Tags;
-import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
+import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.StructurePacket;
 import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -459,7 +459,7 @@ public class StructureHelper {
 //                        // remove using items of available items, put in extra inventory for villager to use
 
                     }
-                    MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverPlayerEntity.getServerWorld()).getMayorVillageState();
+                    MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverPlayerEntity.getServerWorld());
                     mayorVillageState.markDirty();
 
                     mayorManager.setMayorStructure(null);

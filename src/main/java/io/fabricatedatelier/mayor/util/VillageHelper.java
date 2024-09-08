@@ -1,6 +1,5 @@
 package io.fabricatedatelier.mayor.util;
 
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.StructureData;
@@ -82,7 +81,7 @@ public class VillageHelper {
                 }
             }
             villageData.setLevel(villageData.getLevel() + 1);
-            ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
+            MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
 
             List<ServerPlayerEntity> list = serverWorld.getPlayers(player -> player.getBlockPos().isWithinDistance(villageData.getCenterPos(), VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())));
             for (ServerPlayerEntity serverPlayerEntity : list) {

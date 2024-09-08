@@ -3,7 +3,6 @@ package io.fabricatedatelier.mayor.init;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
@@ -93,7 +92,7 @@ public class Commands {
         if (blockPos == null && source.getPlayer() == null) {
             source.sendFeedback(() -> Text.translatable("commands.mayor.something_went_wrong"), false);
         } else {
-            MayorVillageState mayorVillageState = ((MayorVillageStateAccess) source.getWorld()).getMayorVillageState();
+            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(source.getWorld());
             if (code == 0) {
                 // Create
                 BlockPos pos = blockPos != null ? blockPos : source.getPlayer().getBlockPos();

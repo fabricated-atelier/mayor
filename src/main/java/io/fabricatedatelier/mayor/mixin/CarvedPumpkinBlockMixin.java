@@ -1,6 +1,5 @@
 package io.fabricatedatelier.mayor.mixin;
 
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import net.minecraft.block.CarvedPumpkinBlock;
@@ -24,7 +23,7 @@ public class CarvedPumpkinBlockMixin {
             VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, pos);
             if (villageData != null) {
                 villageData.getIronGolems().add(ironGolemEntity.getUuid());
-                ((MayorVillageStateAccess) serverWorld).getMayorVillageState().markDirty();
+                MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
             }
         }
     }

@@ -1,6 +1,5 @@
 package io.fabricatedatelier.mayor.mixin;
 
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.access.SinglePoolElementAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.data.StructureXpLoader;
@@ -9,6 +8,7 @@ import io.fabricatedatelier.mayor.mixin.access.JigsawStructureAccess;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
+import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.minecraft.entity.passive.IronGolemEntity;
@@ -50,10 +50,10 @@ public class StructureStartMixin {
     private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info) {
         if (structure.getType().equals(StructureType.JIGSAW) && structure instanceof JigsawStructureAccess jigsawStructureAccess
                 && jigsawStructureAccess.getStartPool().isIn(Tags.StructurePools.VILLAGES)) {
-            MayorVillageState mayorVillageState = ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState();
+            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
             BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
             if (!mayorVillageState.hasVillage(centerPos)) {
-                VillageData villageData = ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState().createVillageData(centerPos);
+                VillageData villageData = mayorVillageState.createVillageData(centerPos);
                 villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.toServerWorld().getBiome(centerPos)));
                 this.centerPos = centerPos;
             }
@@ -65,7 +65,7 @@ public class StructureStartMixin {
     private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info,
                             List list, BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11, StructurePiece structurePiece) {
         if (!this.centerPos.equals(BlockPos.ORIGIN)) {
-            MayorVillageState mayorVillageState = ((MayorVillageStateAccess) world.toServerWorld()).getMayorVillageState();
+            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
             if (mayorVillageState.hasVillage(this.centerPos)) {
                 if (structurePiece instanceof PoolStructurePiece poolStructurePiece && poolStructurePiece.getPoolElement() instanceof SinglePoolElementAccess singlePoolElementAccess
                         && singlePoolElementAccess.getLocation().left().isPresent()) {

@@ -1,12 +1,12 @@
 package io.fabricatedatelier.mayor.entity.task;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
+import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
@@ -61,7 +61,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
                 // Todo: Set the needed target Position here
                 // this is the needed position of the abstract village container block with the correct items
-                MayorVillageState mayorVillageState = ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
+                MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
                 if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
                     VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
                     if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
