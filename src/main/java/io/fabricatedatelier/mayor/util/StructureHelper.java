@@ -544,7 +544,8 @@ public class StructureHelper {
             for (int i = blockBox.getMinX(); i <= blockBox.getMaxX(); i++) {
                 for (int u = blockBox.getMinY(); u <= blockBox.getMaxY(); u++) {
                     for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
-                        if (!mayorManager.playerEntity().getWorld().getBlockState(BlockPos.ofFloored(i, u, o)).isAir()) {
+                        BlockState state = mayorManager.playerEntity().getWorld().getBlockState(BlockPos.ofFloored(i, u, o));
+                        if (!state.isAir() && !state.isIn(Tags.Blocks.MAYOR_STRUCTURE_REPLACEABLE)) {
                             return false;
                         }
                     }

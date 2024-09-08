@@ -24,6 +24,7 @@ public class Tags {
 
     public static class Blocks {
         public static TagKey<Block> MAYOR_STRUCTURE_EXCLUDED = createTag("mayor_structure_excluded");
+        public static TagKey<Block> MAYOR_STRUCTURE_REPLACEABLE = createTag("mayor_structure_replaceable");
 
         @SuppressWarnings("SameParameterValue")
         private static TagKey<Block> createTag(String name) {
