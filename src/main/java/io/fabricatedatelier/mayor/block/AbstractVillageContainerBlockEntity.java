@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.block;
 
+import io.fabricatedatelier.mayor.util.AbstractStorageCallback;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import net.minecraft.block.BlockState;
@@ -16,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +24,14 @@ import java.util.Optional;
 public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
     private BlockPos structureOriginPos;
     private final HashSet<BlockPos> connectedBlocks = new HashSet<>();
+    private AbstractStorageCallback callback;
 
     public AbstractVillageContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    public void registerCallback(AbstractStorageCallback callback) {
+        this.callback = callback;
     }
 
     @Override
@@ -70,6 +75,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
 
     public void setStructureOriginPos(BlockPos structureOriginPos) {
         this.structureOriginPos = structureOriginPos;
+        callback.onOriginChanged(this);
         markDirty();
     }
 
@@ -82,6 +88,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
             if (entry.equals(this.pos)) continue;
             this.connectedBlocks.add(entry);
         }
+        callback.onConnectedBlocksChanged(this);
         markDirty();
     }
 
