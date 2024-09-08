@@ -73,9 +73,9 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         return Optional.ofNullable(this.structureOriginPos);
     }
 
-    public void setStructureOriginPos(BlockPos structureOriginPos) {
-        this.structureOriginPos = structureOriginPos;
-        callback.onOriginChanged(this);
+    public void setStructureOriginPos(BlockPos newStructureOriginPos) {
+        callback.onOriginChanged(this, new BlockPos(this.structureOriginPos), new BlockPos(newStructureOriginPos));
+        this.structureOriginPos = newStructureOriginPos;
         markDirty();
     }
 
