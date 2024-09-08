@@ -40,13 +40,6 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     }
 
     @Override
-    protected boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
-        // setBlockState is still possible, use BlockItem for that
-        // if (isNextToSameBlock(world, pos) || !isSupported(world, pos)) return false;
-        return super.canPlaceAt(state, world, pos);
-    }
-
-    @Override
     protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         super.onStateReplaced(state, world, pos, newState, moved);
         if (!isNextToSameBlock(world, pos)) {

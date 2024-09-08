@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.block.entity;
 
+import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.init.BlockEntities;
 import net.minecraft.block.BlockState;

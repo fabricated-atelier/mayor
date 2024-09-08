@@ -1,21 +1,30 @@
 package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
-import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.ItemActionResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -47,6 +56,32 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         builder.add(POSITION, Properties.WATERLOGGED);
     }
 
+    @Override
+    protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
+        BlockPos originPos = getOrigin(world, pos).orElse(pos);
+        if (world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity && !world.isClient()) {
+            // extract
+            Optional<ItemStack> removedStack = blockEntity.extract(hit.getSide());
+            if (removedStack.isPresent() && !removedStack.get().isEmpty()) {
+                player.getInventory().offerOrDrop(removedStack.get());
+                return ActionResult.SUCCESS;
+            }
+        }
+        return super.onUse(state, world, pos, player, hit);
+    }
+
+    @Override
+    protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+        BlockPos originPos = getOrigin(world, pos).orElse(pos);
+        if (world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity && !world.isClient()) {
+            // inset
+            if (blockEntity.insert(player.getStackInHand(hand).copyAndEmpty(), hit.getSide())) {
+                return ItemActionResult.SUCCESS;
+            }
+        }
+        return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
+    }
+
     @Nullable
     @Override
     public BlockState getPlacementState(ItemPlacementContext ctx) {
@@ -61,6 +96,9 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         if (!box.hasHoles() && box.isSquare()) {
             state = state.with(POSITION, getPositionFromConnectedWalls(world, pos));
             world.setBlockState(pos, state);
+            if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) { // TODO: only if origin
+                box.getConnectedPosList().forEach(blockEntity::addConnectedBlocks);
+            }
         }
         super.onPlaced(world, pos, state, placer, itemStack);
     }

@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.block.entity;
+package io.fabricatedatelier.mayor.block;
 
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.NbtKeys;
@@ -16,7 +16,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
@@ -35,7 +37,12 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
             this.setStructureOriginPos(BlockPos.fromLong(nbt.getLong(NbtKeys.BLOCK_ENTITY_ORIGIN_POS)));
         }
 
-        //TODO: connectedBlockList
+        this.connectedBlocks.clear();
+        NbtCompound blockPosListNbt = nbt.getCompound(NbtKeys.CONNECTED_BLOCKS);
+        for (String index : blockPosListNbt.getKeys()) {
+            BlockPos connectedPos = BlockPos.fromLong(blockPosListNbt.getLong(index));
+            this.connectedBlocks.add(connectedPos);
+        }
     }
 
     @Override
@@ -44,7 +51,13 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         Inventories.writeNbt(nbt, this.getItems(), registryLookup);
         this.getStructureOriginPos().ifPresent(originPos -> nbt.putLong(NbtKeys.BLOCK_ENTITY_ORIGIN_POS, originPos.asLong()));
 
-        //TODO: connectedBlockList
+        List<BlockPos> blockPosList = connectedBlocks.stream().toList();
+        NbtCompound blockPosListNbt = new NbtCompound();
+        for (int i = 0; i < blockPosList.size(); i++) {
+            BlockPos connectedPos = blockPosList.get(i);
+            blockPosListNbt.putLong(String.valueOf(i), connectedPos.asLong());
+        }
+        nbt.put(NbtKeys.CONNECTED_BLOCKS, blockPosListNbt);
     }
 
     public boolean isStructureOrigin() {

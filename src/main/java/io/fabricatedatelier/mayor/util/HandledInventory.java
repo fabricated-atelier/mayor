@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public interface HandledInventory extends SidedInventory {
     DefaultedList<ItemStack> getItems();
@@ -34,9 +35,25 @@ public interface HandledInventory extends SidedInventory {
         return true;
     }
 
+    default boolean insert(ItemStack stack, @Nullable Direction direction) {
+        if (!canInsert(getItems().size(), stack, direction)) return false;
+        if (!tryAddingStack(stack.copy())) return false;
+        markDirty();
+        return true;
+    }
+
     @Override
     default boolean canExtract(int slot, ItemStack stack, Direction dir) {
         return !isEmpty();
+    }
+
+    /**
+     * Extracts latest inserted item from HandledInventory.
+     * @param direction Interaction side for potential side filtering
+     * @return Removed Stack from Inventory. Is empty if stack couldn't be extracted.
+     */
+    default Optional<ItemStack> extract(@Nullable Direction direction) {
+        return tryRemovingStack();
     }
 
     @Override
@@ -58,13 +75,26 @@ public interface HandledInventory extends SidedInventory {
     default boolean tryAddingStack(ItemStack stack) {
         boolean stackWasAdded = false;
         for (int i = 0; i < size(); i++) {
-            if (!getItems().get(i).equals(ItemStack.EMPTY)) continue;
+            if (!getItems().get(i).equals(ItemStack.EMPTY) || !canInsert(i, stack, null)) continue;
             setStack(i, stack);
             stackWasAdded = true;
+            markDirty();
             break;
         }
-        markDirty();
         return stackWasAdded;
+    }
+
+    default Optional<ItemStack> tryRemovingStack() {
+        ItemStack outputStack = ItemStack.EMPTY;
+        for (int i = getItems().size() - 1; i >= 0; i--) {
+            ItemStack stackInList = getItems().get(i);
+            if (stackInList.isEmpty() || !canExtract(i, stackInList, null)) continue;
+            outputStack = getItems().get(i).copy();
+            setStack(i, ItemStack.EMPTY);
+            markDirty();
+            break;
+        }
+        return outputStack.isEmpty() ? Optional.empty() : Optional.of(outputStack);
     }
 
     @Override
@@ -104,11 +134,13 @@ public interface HandledInventory extends SidedInventory {
         markDirty();
     }
 
-    default void markDirty() {
-
-    }
+    void markDirty();
 
     default InventoryStorage getAsStorage(@Nullable Direction direction) {
         return InventoryStorage.of(this, direction);
+    }
+
+    default ItemVariant getTopItem(@Nullable Direction direction) {
+        return ItemVariant.of(getItems().getLast());
     }
 }

@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
-import io.fabricatedatelier.mayor.block.entity.AbstractVillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
