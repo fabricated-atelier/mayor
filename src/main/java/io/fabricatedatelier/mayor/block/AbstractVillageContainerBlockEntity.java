@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.block;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import io.fabricatedatelier.mayor.util.StorageCallback;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -16,6 +17,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -114,6 +116,19 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
             callback.onConnectedBlocksChanged(this);
         }
         markDirty();
+    }
+
+    public void broadcastNewOriginToConnectedBlocks(WorldAccess world, BlockPos newOriginPos) {
+        for (BlockPos connectedPos : getConnectedBlocks()) {
+            if (!(world.getBlockEntity(connectedPos) instanceof AbstractVillageContainerBlockEntity blockEntity)) continue;
+            blockEntity.setStructureOriginPos(newOriginPos);
+        }
+    }
+
+    public void broadcastBlockStateToConnectedBlocks(WorldAccess world, BlockState newState) {
+        for (BlockPos pos : getConnectedBlocks()) {
+            world.setBlockState(pos, newState, Block.NOTIFY_NEIGHBORS);
+        }
     }
 
 // --- Network & Data ---

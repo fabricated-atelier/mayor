@@ -2,7 +2,6 @@ package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
-import io.fabricatedatelier.mayor.util.HandledInventory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -103,7 +102,20 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
                 box.getConnectedPosList().forEach(blockEntity::addConnectedBlocks);
             }
         }
-        if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
+
+        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) {
+            super.onPlaced(world, pos, state, placer, itemStack);
+            return;
+        }
+
+        Optional<BlockPos> neighborPos = getFirstConnectedBlock(world, pos);
+        if (neighborPos.isPresent()) {
+            if (world.getBlockEntity(neighborPos.get()) instanceof AbstractVillageContainerBlockEntity neighborBlockEntity) {
+                if (neighborBlockEntity.getStructureOriginPos().isPresent()) {
+                    blockEntity.setStructureOriginPos(neighborBlockEntity.getStructureOriginPos().get());
+                }
+            }
+        } else {
             blockEntity.setStructureOriginPos(getOrigin(world, pos).orElse(pos));
         }
         super.onPlaced(world, pos, state, placer, itemStack);
@@ -111,11 +123,6 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
 
     @Override
     public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        if (!world.isClient()) {
-            if (world.getBlockEntity(pos) instanceof HandledInventory inventory && !inventory.isEmpty()) {
-                ItemScatterer.spawn(world, pos, inventory);
-            }
-        }
         return super.onBreak(world, pos, state, player);
     }
 
@@ -131,10 +138,27 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         } else {
             state = state.with(POSITION, MayorProperties.Position.SINGLE);
         }
-        if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
-            blockEntity.setStructureOriginPos(originPos);
-        }
         return state;
+    }
+
+    @Override
+    protected void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        if (state.isOf(newState.getBlock())) {
+            super.onStateReplaced(state, world, pos, newState, moved);
+            return;
+        }
+        if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
+            if (!world.isClient()) {
+                if (!blockEntity.isEmpty()) {
+                    ItemScatterer.spawn(world, pos, blockEntity);
+                }
+            }
+            if (blockEntity.isStructureOrigin()) {
+                getFirstConnectedBlock(world, pos).ifPresent(connectedPos ->
+                        blockEntity.broadcastNewOriginToConnectedBlocks(world, connectedPos));
+            }
+        }
+        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     @Override
@@ -181,6 +205,12 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         return connectedBlockStates;
     }
 
+    public static Optional<BlockPos> getFirstConnectedBlock(WorldAccess world, BlockPos pos) {
+        return getConnectedBlockStates(world, pos).entrySet()
+                .stream().filter(entry -> entry.getValue().getBlock() instanceof AbstractVillageContainerBlock)
+                .findFirst().map(entry -> pos.offset(entry.getKey()));
+    }
+
     public static HashSet<Direction> getValidConnectedDirections(WorldAccess world, BlockPos pos) {
         HashSet<Direction> validConnections = new HashSet<>();
         BlockState originState = world.getBlockState(pos);
@@ -202,10 +232,5 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity))
             return Optional.empty();
         return blockEntity.getStructureOriginPos();
-    }
-
-    public static boolean isOrigin(WorldAccess world, BlockPos pos) {
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return false;
-        return blockEntity.isStructureOrigin();
     }
 }
