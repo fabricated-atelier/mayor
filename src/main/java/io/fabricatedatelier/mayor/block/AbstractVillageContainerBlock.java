@@ -30,10 +30,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     public static final EnumProperty<MayorProperties.Position> POSITION = MayorProperties.POSITION;
@@ -98,9 +95,6 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         if (!box.hasHoles() && box.isSquare()) {
             state = state.with(POSITION, getPositionFromConnectedWalls(world, pos));
             world.setBlockState(pos, state);
-            if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
-                box.getConnectedPosList().forEach(blockEntity::addConnectedBlocks);
-            }
         }
 
         if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) {
@@ -113,17 +107,17 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             if (world.getBlockEntity(neighborPos.get()) instanceof AbstractVillageContainerBlockEntity neighborBlockEntity) {
                 if (neighborBlockEntity.getStructureOriginPos().isPresent()) {
                     blockEntity.setStructureOriginPos(neighborBlockEntity.getStructureOriginPos().get());
+                    if (world.getBlockEntity(neighborBlockEntity.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity originBlockEntity) {
+                        var originBox = new ConnectedBlockUtil.BoundingBox(world, neighborBlockEntity.getStructureOriginPos().get(), false);
+                        originBlockEntity.clearConnectedBlocks();
+                        originBlockEntity.addConnectedBlocks(new ArrayList<>(originBox.getConnectedPosList()));
+                    }
                 }
             }
         } else {
             blockEntity.setStructureOriginPos(getOrigin(world, pos).orElse(pos));
         }
         super.onPlaced(world, pos, state, placer, itemStack);
-    }
-
-    @Override
-    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        return super.onBreak(world, pos, state, player);
     }
 
     @Override
@@ -158,6 +152,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
                         blockEntity.broadcastNewOriginToConnectedBlocks(world, connectedPos));
             }
         }
+        //TODO: refresh connected blocks list on structure origin
         super.onStateReplaced(state, world, pos, newState, moved);
     }
 
@@ -192,9 +187,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     }
 
     private static boolean isSameBlock(BlockState stateA, BlockState stateB) {
-        // no instanceof check since we want to know if it's actually the same block and not any of the subclasses
-        // ... using the class for that still feels wrong, so change if there is a better solution
-        return stateA.getBlock().getClass().equals(stateB.getBlock().getClass());
+        return stateA.getBlock().equals(stateB.getBlock());
     }
 
     public static Map<Direction, BlockState> getConnectedBlockStates(WorldAccess world, BlockPos pos) {

@@ -1,9 +1,8 @@
 package io.fabricatedatelier.mayor.block;
 
+import io.fabricatedatelier.mayor.api.StorageCallback;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.NbtKeys;
-import io.fabricatedatelier.mayor.util.StorageCallback;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -33,16 +32,6 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         super(type, pos, state);
     }
 
-    /**
-     * If you want to listen to the {@link AbstractVillageContainerBlockEntity StorageBlockEntity}
-     * {@link StorageCallback callbacks}, you will need to register the callback first.<br>
-     * In the class, where you want to listen to those signals, implement the {@link StorageCallback} interface.<br>
-     * Then wherever you get access to the current {@link AbstractVillageContainerBlockEntity StorageBlockEntity},
-     * call its {@link AbstractVillageContainerBlockEntity#registerCallback(StorageCallback) registerCallback()} method
-     * with your current class's instance as the parameter (usually just a <code>this</code> call)
-     *
-     * @param callback Your current class, which implements the {@link StorageCallback} interface
-     */
     public void registerCallback(StorageCallback callback) {
         this.callback = callback;
     }
@@ -107,7 +96,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         return this.connectedBlocks;
     }
 
-    public void addConnectedBlocks(BlockPos... pos) {
+    public void addConnectedBlocks(List<BlockPos> pos) {
         for (BlockPos entry : pos) {
             if (entry.equals(this.pos)) continue;
             this.connectedBlocks.add(entry);
@@ -118,16 +107,15 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         markDirty();
     }
 
-    public void broadcastNewOriginToConnectedBlocks(WorldAccess world, BlockPos newOriginPos) {
-        for (BlockPos connectedPos : getConnectedBlocks()) {
-            if (!(world.getBlockEntity(connectedPos) instanceof AbstractVillageContainerBlockEntity blockEntity)) continue;
-            blockEntity.setStructureOriginPos(newOriginPos);
-        }
+    public void clearConnectedBlocks() {
+        this.getConnectedBlocks().clear();
     }
 
-    public void broadcastBlockStateToConnectedBlocks(WorldAccess world, BlockState newState) {
-        for (BlockPos pos : getConnectedBlocks()) {
-            world.setBlockState(pos, newState, Block.NOTIFY_NEIGHBORS);
+    public void broadcastNewOriginToConnectedBlocks(WorldAccess world, BlockPos newOriginPos) {
+        for (BlockPos connectedPos : getConnectedBlocks()) {
+            if (!(world.getBlockEntity(connectedPos) instanceof AbstractVillageContainerBlockEntity blockEntity))
+                continue;
+            blockEntity.setStructureOriginPos(newOriginPos);
         }
     }
 
