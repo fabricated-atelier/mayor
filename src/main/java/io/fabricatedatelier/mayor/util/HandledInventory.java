@@ -58,7 +58,7 @@ public interface HandledInventory extends SidedInventory {
 
     @Override
     default boolean isEmpty() {
-        return size() <= 0;
+        return size() <= 0 || getItems().stream().allMatch(ItemStack::isEmpty);
     }
 
     @Override

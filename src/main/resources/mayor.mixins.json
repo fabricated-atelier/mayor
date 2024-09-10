@@ -4,32 +4,33 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "BlockEntityMixin",
+    "BlockItemMixin",
+    "CarvedPumpkinBlockMixin",
     "EntityMixin",
+    "FindPointOfInterestTaskMixin",
+    "GoToWorkTaskMixin",
     "PlayerEntityMixin",
+    "ServerPlayerEntityMixin",
     "ServerWorldMixin",
+    "SinglePoolElementMixin",
     "StructureStartMixin",
     "StructureTemplateMixin",
-    "SinglePoolElementMixin",
-    "ServerPlayerEntityMixin",
-    "VillagerEntityMixin",
-    "CarvedPumpkinBlockMixin",
     "TakeJobSiteTaskMixin",
-    "FindPointOfInterestTaskMixin",
+    "VillagerEntityMixin",
     "VillagerTaskListProviderMixin",
-    "GoToWorkTaskMixin",
     "access.JigsawStructureAccess"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
+    "access.BlockRenderManagerAccess",
+    "client.BuiltinModelItemRendererMixin",
     "client.CameraMixin",
+    "client.InGameHudMixin",
+    "client.KeyBindingMixin",
     "client.MinecraftClientMixin",
     "client.MouseMixin",
-    "client.KeyBindingMixin",
-    "client.InGameHudMixin",
-    "client.PlayerEntityRendererMixin",
-    "client.BuiltinModelItemRendererMixin",
-    "access.BlockRenderManagerAccess"
+    "client.PlayerEntityRendererMixin"
   ]
 }

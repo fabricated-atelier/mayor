@@ -1,12 +1,13 @@
 package io.fabricatedatelier.mayor.block;
 
-import io.fabricatedatelier.mayor.util.AbstractStorageCallback;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.NbtKeys;
+import io.fabricatedatelier.mayor.util.StorageCallback;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -14,7 +15,7 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -24,14 +25,116 @@ import java.util.Optional;
 public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
     private BlockPos structureOriginPos;
     private final HashSet<BlockPos> connectedBlocks = new HashSet<>();
-    private AbstractStorageCallback callback;
+    private StorageCallback callback = null;
 
     public AbstractVillageContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
-    public void registerCallback(AbstractStorageCallback callback) {
+    /**
+     * If you want to listen to the {@link AbstractVillageContainerBlockEntity StorageBlockEntity}
+     * {@link StorageCallback callbacks}, you will need to register the callback first.<br>
+     * In the class, where you want to listen to those signals, implement the {@link StorageCallback} interface.<br>
+     * Then wherever you get access to the current {@link AbstractVillageContainerBlockEntity StorageBlockEntity},
+     * call its {@link AbstractVillageContainerBlockEntity#registerCallback(StorageCallback) registerCallback()} method
+     * with your current class's instance as the parameter (usually just a <code>this</code> call)
+     *
+     * @param callback Your current class, which implements the {@link StorageCallback} interface
+     */
+    public void registerCallback(StorageCallback callback) {
         this.callback = callback;
+    }
+
+    @Override
+    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
+        if (!this.isStructureOrigin()) return false;
+        return HandledInventory.super.canInsert(slot, stack, dir);
+    }
+
+    /**
+     * Use this method if you are not concerned about a specific slot.
+     * It will test for the condition on the first stack in the inventory.
+     */
+    public boolean canInsert(ItemStack stack, @Nullable Direction direction) {
+        return canInsert(0, stack, direction);
+    }
+
+    @Override
+    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+        if (!this.isStructureOrigin()) return false;
+        return HandledInventory.super.canExtract(slot, stack, dir);
+    }
+
+    public boolean isStructureOrigin() {
+        return this.pos.equals(this.structureOriginPos);
+    }
+
+    public Optional<BlockPos> getStructureOriginPos() {
+        return Optional.ofNullable(this.structureOriginPos);
+    }
+
+    public void setStructureOriginPos(BlockPos newStructureOriginPos) {
+        if (callback != null) {
+            callback.onOriginChanged(this, new BlockPos(this.structureOriginPos), new BlockPos(newStructureOriginPos));
+        }
+        this.structureOriginPos = newStructureOriginPos;
+        markDirty();
+    }
+
+    public boolean insertIntoOrigin(ItemStack stack, @Nullable Direction direction) {
+        if (this.getWorld() == null || this.getWorld().isClient()) return false;
+        if (this.getStructureOriginPos().isEmpty()) return false;
+        if (!(this.getWorld().getBlockEntity(this.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity blockEntity))
+            return false;
+        boolean inserted = blockEntity.insert(stack, direction);
+        if (inserted) blockEntity.markDirty();
+        return inserted;
+    }
+
+    public Optional<ItemStack> extractFromOrigin(@Nullable Direction direction) {
+        if (this.getWorld() == null || this.getWorld().isClient()) return Optional.empty();
+        if (this.getStructureOriginPos().isEmpty()) return Optional.empty();
+        if (!(this.getWorld().getBlockEntity(this.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity blockEntity))
+            return Optional.empty();
+        Optional<ItemStack> extractedStack = blockEntity.extract(direction);
+        if (extractedStack.isPresent()) blockEntity.markDirty();
+        return extractedStack;
+    }
+
+    public HashSet<BlockPos> getConnectedBlocks() {
+        return this.connectedBlocks;
+    }
+
+    public void addConnectedBlocks(BlockPos... pos) {
+        for (BlockPos entry : pos) {
+            if (entry.equals(this.pos)) continue;
+            this.connectedBlocks.add(entry);
+        }
+        if (callback != null) {
+            callback.onConnectedBlocksChanged(this);
+        }
+        markDirty();
+    }
+
+// --- Network & Data ---
+
+    @Override
+    public void markDirty() {
+        super.markDirty();
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            serverWorld.getChunkManager().markForUpdate(this.getPos());
+        }
+    }
+
+    @Override
+    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+        return createNbt(registryLookup);
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
     }
 
     @Override
@@ -63,76 +166,5 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
             blockPosListNbt.putLong(String.valueOf(i), connectedPos.asLong());
         }
         nbt.put(NbtKeys.CONNECTED_BLOCKS, blockPosListNbt);
-    }
-
-    public boolean isStructureOrigin() {
-        return this.pos.equals(this.structureOriginPos);
-    }
-
-    public Optional<BlockPos> getStructureOriginPos() {
-        return Optional.ofNullable(this.structureOriginPos);
-    }
-
-    public void setStructureOriginPos(BlockPos newStructureOriginPos) {
-        callback.onOriginChanged(this, new BlockPos(this.structureOriginPos), new BlockPos(newStructureOriginPos));
-        this.structureOriginPos = newStructureOriginPos;
-        markDirty();
-    }
-
-    public HashSet<BlockPos> getConnectedBlocks() {
-        return this.connectedBlocks;
-    }
-
-    public void addConnectedBlocks(BlockPos... pos) {
-        for (BlockPos entry : pos) {
-            if (entry.equals(this.pos)) continue;
-            this.connectedBlocks.add(entry);
-        }
-        callback.onConnectedBlocksChanged(this);
-        markDirty();
-    }
-
-// Network
-
-    @Override
-    public void markDirty() {
-        super.markDirty();
-        if (this.getWorld() instanceof ServerWorld serverWorld) {
-            serverWorld.getChunkManager().markForUpdate(this.getPos());
-        }
-    }
-
-    @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
-    }
-
-
-// Util
-
-    public StructureDimensions getMaxStructureDimensions() {
-        return new StructureDimensions(3);
-    }
-
-    public static Optional<HashSet<BlockPos>> getConnectedBlocksFromOrigin(AbstractVillageContainerBlockEntity blockEntity) {
-        World world = blockEntity.getWorld();
-        if (world == null) return Optional.empty();
-        if (blockEntity.getStructureOriginPos().isEmpty()) return Optional.empty();
-        if (!(world.getBlockEntity(blockEntity.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity originBlockEntity))
-            return Optional.empty();
-        return Optional.ofNullable(originBlockEntity.getConnectedBlocks());
-    }
-
-
-    public record StructureDimensions(int width, int height, int length) {
-        public StructureDimensions(int length) {
-            this(length, length, length);
-        }
     }
 }

@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
+import io.fabricatedatelier.mayor.util.HandledInventory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -19,6 +20,7 @@ import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemActionResult;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -56,7 +58,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         BlockPos originPos = getOrigin(world, pos).orElse(pos);
         if (world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity && !world.isClient()) {
             // extract
-            Optional<ItemStack> removedStack = blockEntity.extract(hit.getSide());
+            Optional<ItemStack> removedStack = blockEntity.extractFromOrigin(hit.getSide());
             if (removedStack.isPresent() && !removedStack.get().isEmpty()) {
                 player.getInventory().offerOrDrop(removedStack.get());
                 return ActionResult.SUCCESS;
@@ -68,9 +70,15 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     @Override
     protected ItemActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         BlockPos originPos = getOrigin(world, pos).orElse(pos);
-        if (world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity && !world.isClient()) {
-            // inset
-            if (blockEntity.insert(player.getStackInHand(hand).copyAndEmpty(), hit.getSide())) {
+
+        if (world.isClient())
+            return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
+        if (!(world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity))
+            return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
+
+        if (blockEntity.canInsert(player.getStackInHand(hand).copy(), hit.getSide())) {
+            if (blockEntity.insertIntoOrigin(player.getStackInHand(hand).copy(), hit.getSide())) {
+                player.getStackInHand(hand).decrementUnlessCreative(player.getStackInHand(hand).getCount(), player);
                 return ItemActionResult.SUCCESS;
             }
         }
@@ -91,11 +99,24 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
         if (!box.hasHoles() && box.isSquare()) {
             state = state.with(POSITION, getPositionFromConnectedWalls(world, pos));
             world.setBlockState(pos, state);
-            if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) { // TODO: only if origin
+            if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
                 box.getConnectedPosList().forEach(blockEntity::addConnectedBlocks);
             }
         }
+        if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
+            blockEntity.setStructureOriginPos(getOrigin(world, pos).orElse(pos));
+        }
         super.onPlaced(world, pos, state, placer, itemStack);
+    }
+
+    @Override
+    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        if (!world.isClient()) {
+            if (world.getBlockEntity(pos) instanceof HandledInventory inventory && !inventory.isEmpty()) {
+                ItemScatterer.spawn(world, pos, inventory);
+            }
+        }
+        return super.onBreak(world, pos, state, player);
     }
 
     @Override
@@ -109,6 +130,9 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             state = state.with(POSITION, getPositionFromConnectedWalls(world, pos));
         } else {
             state = state.with(POSITION, MayorProperties.Position.SINGLE);
+        }
+        if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
+            blockEntity.setStructureOriginPos(originPos);
         }
         return state;
     }
