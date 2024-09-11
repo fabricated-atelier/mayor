@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("unused")
 public interface HandledInventory extends SidedInventory {
     DefaultedList<ItemStack> getItems();
 
@@ -132,6 +133,13 @@ public interface HandledInventory extends SidedInventory {
     default void clear() {
         getItems().clear();
         markDirty();
+    }
+
+    default void moveInventory(HandledInventory external) {
+        for (int i = 0; i < this.getItems().size(); i++) {
+            external.setStack(i, this.getItems().get(i));
+        }
+        this.clear();
     }
 
     void markDirty();

@@ -19,13 +19,13 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
     private BlockPos structureOriginPos;
-    private final HashSet<BlockPos> connectedBlocks = new HashSet<>();
+    private final List<BlockPos> connectedBlocks = new ArrayList<>();
     private StorageCallback callback = null;
 
     public AbstractVillageContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -92,7 +92,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         return extractedStack;
     }
 
-    public HashSet<BlockPos> getConnectedBlocks() {
+    public List<BlockPos> getConnectedBlocks() {
         return this.connectedBlocks;
     }
 
@@ -111,7 +111,12 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         this.getConnectedBlocks().clear();
     }
 
-    public void broadcastNewOriginToConnectedBlocks(WorldAccess world, BlockPos newOriginPos) {
+    public void moveConnectedBlocks(AbstractVillageContainerBlockEntity newOriginBlockEntity) {
+        newOriginBlockEntity.getConnectedBlocks().clear();
+        newOriginBlockEntity.addConnectedBlocks(this.getConnectedBlocks());
+    }
+
+    public void broadcastNewOriginPos(WorldAccess world, BlockPos newOriginPos) {
         for (BlockPos connectedPos : getConnectedBlocks()) {
             if (!(world.getBlockEntity(connectedPos) instanceof AbstractVillageContainerBlockEntity blockEntity))
                 continue;

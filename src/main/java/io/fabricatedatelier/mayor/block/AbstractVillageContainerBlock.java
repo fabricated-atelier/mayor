@@ -142,17 +142,23 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             return;
         }
         if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
-            if (!world.isClient()) {
-                if (!blockEntity.isEmpty()) {
-                    ItemScatterer.spawn(world, pos, blockEntity);
+            if (blockEntity.isStructureOrigin()) {
+                if (getFirstConnectedBlock(world, pos).isPresent()) {
+                    BlockPos firstConnectedPos = getFirstConnectedBlock(world, pos).get();
+                    blockEntity.broadcastNewOriginPos(world, firstConnectedPos);
+                    if (world.getBlockEntity(firstConnectedPos) instanceof AbstractVillageContainerBlockEntity newOriginBlockEntity) {
+                        blockEntity.moveInventory(newOriginBlockEntity);
+                        blockEntity.moveConnectedBlocks(newOriginBlockEntity);
+                    }
+                } else {
+                    if (!world.isClient()) {
+                        if (!blockEntity.isEmpty()) {
+                            ItemScatterer.spawn(world, pos, blockEntity);
+                        }
+                    }
                 }
             }
-            if (blockEntity.isStructureOrigin()) {
-                getFirstConnectedBlock(world, pos).ifPresent(connectedPos ->
-                        blockEntity.broadcastNewOriginToConnectedBlocks(world, connectedPos));
-            }
         }
-        //TODO: refresh connected blocks list on structure origin
         super.onStateReplaced(state, world, pos, newState, moved);
     }
 
