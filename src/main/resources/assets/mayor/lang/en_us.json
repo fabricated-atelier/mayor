@@ -45,6 +45,7 @@
     "commands.mayor.village_get_level": "%s is level %s",
     "commands.mayor.village_set_name": "Set name %s for village at %s",
     "commands.mayor.village_get_name": "Village at %s is called %s",
+    "commands.mayor.village_creation_failed": "Village creation failed at position %s!\nToo close to next village",
 
     "building.category": "Categories",
     "building.category.house": "House",

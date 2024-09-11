@@ -54,8 +54,10 @@ public class StructureStartMixin {
             BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
             if (!mayorVillageState.hasVillage(centerPos)) {
                 VillageData villageData = mayorVillageState.createVillageData(centerPos);
-                villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.toServerWorld().getBiome(centerPos)));
-                this.centerPos = centerPos;
+                if (villageData != null) {
+                    villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.toServerWorld().getBiome(centerPos)));
+                    this.centerPos = centerPos;
+                }
             }
         }
     }
@@ -83,7 +85,7 @@ public class StructureStartMixin {
                     if (StringUtil.shouldStoreStructureIdentifier(singlePoolElementAccess.getLocation().left().get())) {
 
                         // Todo: Config option for adding xp at structure generation
-                        if(false){
+                        if (false) {
                             Identifier test = StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get());
                             int level = StringUtil.getStructureLevelByIdentifier(test);
                             List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(world.toServerWorld(), test);

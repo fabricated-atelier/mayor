@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.state;
 
 import java.util.*;
 
+import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -9,6 +10,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
+import org.jetbrains.annotations.Nullable;
 
 public class MayorVillageState extends PersistentState {
 
@@ -49,7 +51,14 @@ public class MayorVillageState extends PersistentState {
         return this.world;
     }
 
+    @Nullable
     public VillageData createVillageData(BlockPos centerPos) {
+        for(BlockPos pos : this.villages.keySet()){
+            if(pos.isWithinDistance(centerPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(VillageHelper.VILLAGE_MAX_LEVEL))){
+                return null;
+            }
+        }
+
         VillageData villageData = new VillageData(centerPos);
         this.villages.put(centerPos, villageData);
         this.markDirty();

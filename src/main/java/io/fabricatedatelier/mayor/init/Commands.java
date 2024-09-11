@@ -97,8 +97,12 @@ public class Commands {
                 // Create
                 BlockPos pos = blockPos != null ? blockPos : source.getPlayer().getBlockPos();
                 VillageData villageData = mayorVillageState.createVillageData(pos);
-                villageData.setBiomeCategory(StructureHelper.getBiomeCategory(source.getWorld().getBiome(pos)));
-                source.sendFeedback(() -> Text.translatable("commands.mayor.created_village", pos.toShortString()), true);
+                if(villageData != null) {
+                    villageData.setBiomeCategory(StructureHelper.getBiomeCategory(source.getWorld().getBiome(pos)));
+                    source.sendFeedback(() -> Text.translatable("commands.mayor.created_village", pos.toShortString()), true);
+                }else{
+                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_creation_failed", pos.toShortString()), false);
+                }
             } else if (code == 1) {
                 // Delete
                 VillageData villageData = blockPos != null ? mayorVillageState.getVillageData(blockPos) : MayorStateHelper.getClosestVillage(source.getWorld(), source.getPlayer().getBlockPos());
