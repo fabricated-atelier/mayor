@@ -197,7 +197,9 @@ public class VillageData {
     }
 
     public void addStorageOriginBlockPos(BlockPos blockPos) {
-        this.storageOriginBlockPosList.add(blockPos);
+        if (!this.storageOriginBlockPosList.contains(blockPos)) {
+            this.storageOriginBlockPosList.add(blockPos);
+        }
     }
 
     public void removeStorageOriginBlockPos(BlockPos blockPos) {
