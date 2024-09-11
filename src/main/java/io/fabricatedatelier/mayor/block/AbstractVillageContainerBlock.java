@@ -1,7 +1,9 @@
 package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
+import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
+import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -13,6 +15,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
@@ -152,6 +155,10 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
                     }
                 } else {
                     if (!world.isClient()) {
+                        VillageData villageData = MayorStateHelper.getClosestVillage((ServerWorld) world, pos);
+                        if (villageData != null) {
+                            villageData.removeStorageOriginBlockPos(pos);
+                        }
                         if (!blockEntity.isEmpty()) {
                             ItemScatterer.spawn(world, pos, blockEntity);
                         }
