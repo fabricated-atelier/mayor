@@ -4,6 +4,7 @@ import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -47,17 +48,34 @@ public class InventoryUtil {
     public static List<ItemStack> getAvailableItems(VillageData villageData, World world) {
         List<ItemStack> availableStacks = new ArrayList<>();
 
-        for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
-            if (world.getBlockState(villageData.getStorageOriginBlockPosList().get(i)).getBlock() instanceof AbstractVillageContainerBlock && world.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
-                availableStacks.addAll(abstractVillageContainerBlockEntity.getItems());
-                // Todo: Instead of addAll, increase count if smaller than maxCount
-
-            //                    for (int u = 0; u < this.availableStacks.size(); u++) {
-            //                        if (this.availableStacks.get(u).isOf() && this.availableStacks.get(u).getCount() < this.availableStacks.get(u).getMaxCount()) {
-            //
-            //                        }
-            //                    }
-            //                    this.availableStacks.add();
+        for (BlockPos pos : villageData.getStorageOriginBlockPosList()) {
+            if (world.getBlockState(pos).getBlock() instanceof AbstractVillageContainerBlock && world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
+                for (ItemStack stack : abstractVillageContainerBlockEntity.getItems()) {
+                    stack = stack.copy();
+                    if (stack.isEmpty()) {
+                        continue;
+                    }
+                    if (availableStacks.isEmpty()) {
+                        availableStacks.add(stack);
+                    } else {
+                        for (int u = 0; u < availableStacks.size(); u++) {
+                            if (ItemStack.areItemsAndComponentsEqual(availableStacks.get(u), stack)
+                                    && availableStacks.get(u).isStackable()
+                                    && availableStacks.get(u).getCount() < availableStacks.get(u).getMaxCount()) {
+                                if ((availableStacks.get(u).getCount() + stack.getCount()) < availableStacks.get(u).getMaxCount()) {
+                                    availableStacks.get(u).setCount(availableStacks.get(u).getCount() + stack.getCount());
+                                    break;
+                                } else {
+                                    stack.setCount(stack.getCount() - (availableStacks.get(u).getMaxCount() - availableStacks.get(u).getCount()));
+                                    availableStacks.get(u).setCount(availableStacks.get(u).getMaxCount());
+                                }
+                            } else if (u == availableStacks.size() - 1) {
+                                availableStacks.add(stack);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
