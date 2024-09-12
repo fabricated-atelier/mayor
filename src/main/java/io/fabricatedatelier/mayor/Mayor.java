@@ -21,7 +21,7 @@ public class Mayor implements ModInitializer {
         BlockEntities.initialize();
         NetworkPayloads.initialize();
         CustomC2SNetworking.initialize();
-        Events.initialize();
+        CommonEvents.initialize();
         Loaders.initialize();
         Tags.initialize();
         Commands.initialize();

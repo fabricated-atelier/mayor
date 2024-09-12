@@ -7,7 +7,6 @@ import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.block.BlockState;
@@ -25,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Events {
+public class CommonEvents {
 
     public static void initialize() {
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
@@ -74,15 +73,6 @@ public class Events {
                 }
             }
         });
-
-        // ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-        // });
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            if (!client.isInSingleplayer()) {
-                MayorManager.mayorStructureMap.clear();
-            }
-        });
-
     }
 
 }

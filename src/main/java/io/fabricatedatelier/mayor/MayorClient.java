@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor;
 
 import io.fabricatedatelier.mayor.block.entity.client.LumberStorageBlockEntityRenderer;
+import io.fabricatedatelier.mayor.init.ClientEvents;
 import io.fabricatedatelier.mayor.init.BlockEntities;
 import io.fabricatedatelier.mayor.init.KeyBindings;
 import io.fabricatedatelier.mayor.init.Renderer;
@@ -18,6 +19,7 @@ public class MayorClient implements ClientModInitializer {
         CustomS2CNetworking.initialize();
         Renderer.initialize();
         KeyBindings.initialize();
+        ClientEvents.initialize();
 
         BlockEntityRendererFactories.register(BlockEntities.VILLAGE_STORAGE, context -> new LumberStorageBlockEntityRenderer<>());
     }
