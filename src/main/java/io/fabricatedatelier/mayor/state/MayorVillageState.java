@@ -54,7 +54,7 @@ public class MayorVillageState extends PersistentState {
     @Nullable
     public VillageData createVillageData(BlockPos centerPos) {
         for(BlockPos pos : this.villages.keySet()){
-            if(pos.isWithinDistance(centerPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(VillageHelper.VILLAGE_MAX_LEVEL))){
+            if(pos.isWithinDistance(centerPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(VillageHelper.VILLAGE_MAX_LEVEL)*1.5f)){
                 return null;
             }
         }
