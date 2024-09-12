@@ -7,14 +7,15 @@ import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.VillagerUtilities;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.nbt.NbtCompound;
@@ -26,6 +27,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,12 +59,12 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         super(entityType, world);
     }
 
-    @Inject(method = "createChild(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/passive/PassiveEntity;)Lnet/minecraft/entity/passive/VillagerEntity;", at = @At("RETURN"))
-    private void createChildMixin(ServerWorld serverWorld, PassiveEntity passiveEntity, CallbackInfoReturnable<VillagerEntity> info) {
-        VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, this.getBlockPos());
+    @Inject(method = "initialize", at = @At("TAIL"))
+    private void initializeMixin(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, EntityData entityData, CallbackInfoReturnable<EntityData> info) {
+        VillageData villageData = MayorStateHelper.getClosestVillage(world.toServerWorld(), this.getBlockPos());
         if (villageData != null) {
-            villageData.addVillager(info.getReturnValue().getUuid());
-            MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+            villageData.addVillager(this.getUuid());
+            MayorStateHelper.getMayorVillageState(world.toServerWorld()).markDirty();
         }
     }
 
