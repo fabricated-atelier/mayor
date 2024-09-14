@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.entity.task;
+package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;

@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.util;
 
-import io.fabricatedatelier.mayor.entity.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;

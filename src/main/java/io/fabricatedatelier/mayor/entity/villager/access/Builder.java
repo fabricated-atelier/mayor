@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.entity.access;
+package io.fabricatedatelier.mayor.entity.villager.access;
 
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.nbt.NbtCompound;
