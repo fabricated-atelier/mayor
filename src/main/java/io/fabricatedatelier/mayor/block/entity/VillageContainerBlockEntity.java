@@ -1,21 +1,24 @@
-package io.fabricatedatelier.mayor.block;
+package io.fabricatedatelier.mayor.block.entity;
 
 import io.fabricatedatelier.mayor.api.StorageCallback;
+import io.fabricatedatelier.mayor.init.BlockEntities;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.WorldAccess;
@@ -23,15 +26,30 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public abstract class AbstractVillageContainerBlockEntity extends BlockEntity implements HandledInventory {
+public class VillageContainerBlockEntity extends BlockEntity implements HandledInventory {
+    public static final Map<Integer, Integer> MAX_STACK_COUNT_FROM_STRUCTURE_SIZE = Map.of(
+            1, 3,
+            2, 12,
+            3, 27
+    );
+
+    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(16, ItemStack.EMPTY);
     private BlockPos structureOriginPos;
     private final List<BlockPos> connectedBlocks = new ArrayList<>();
+
+    private TagKey<Item> insertableItems;
     private StorageCallback callback = null;
 
-    public AbstractVillageContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
+    public VillageContainerBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntities.VILLAGE_STORAGE, pos, state);
+    }
+
+    public VillageContainerBlockEntity(BlockPos pos, BlockState state, TagKey<Item> insertableItems) {
+        this(pos, state);
+        this.insertableItems = insertableItems;
     }
 
     public void registerCallback(StorageCallback callback) {
@@ -39,8 +57,15 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
     }
 
     @Override
+    public DefaultedList<ItemStack> getItems() {
+        return this.inventory;
+    }
+
+    @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        if (!this.isStructureOrigin()) return false;
+        if (!this.isStructureOrigin() || this.getWorld() == null) return false;
+        if (!stack.isIn(this.insertableItems)) return false;
+        //TODO: only allow if valid size
         return HandledInventory.super.canInsert(slot, stack, dir);
     }
 
@@ -90,10 +115,18 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         markDirty();
     }
 
+    public Optional<VillageContainerBlockEntity> getStructureOriginBlockEntity() {
+        if (this.world == null) return Optional.empty();
+        if (this.getStructureOriginPos().isEmpty()) return Optional.empty();
+        if (!(world.getBlockEntity(this.getStructureOriginPos().get()) instanceof VillageContainerBlockEntity blockEntity))
+            return Optional.empty();
+        return Optional.of(blockEntity);
+    }
+
     public boolean insertIntoOrigin(ItemStack stack, @Nullable Direction direction) {
         if (this.getWorld() == null || this.getWorld().isClient()) return false;
         if (this.getStructureOriginPos().isEmpty()) return false;
-        if (!(this.getWorld().getBlockEntity(this.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity blockEntity))
+        if (!(this.getWorld().getBlockEntity(this.getStructureOriginPos().get()) instanceof VillageContainerBlockEntity blockEntity))
             return false;
         boolean inserted = blockEntity.insert(stack, direction);
         if (inserted) blockEntity.markDirty();
@@ -103,7 +136,7 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
     public Optional<ItemStack> extractFromOrigin(@Nullable Direction direction) {
         if (this.getWorld() == null || this.getWorld().isClient()) return Optional.empty();
         if (this.getStructureOriginPos().isEmpty()) return Optional.empty();
-        if (!(this.getWorld().getBlockEntity(this.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity blockEntity))
+        if (!(this.getWorld().getBlockEntity(this.getStructureOriginPos().get()) instanceof VillageContainerBlockEntity blockEntity))
             return Optional.empty();
         Optional<ItemStack> extractedStack = blockEntity.extract(direction);
         if (extractedStack.isPresent()) blockEntity.markDirty();
@@ -129,14 +162,14 @@ public abstract class AbstractVillageContainerBlockEntity extends BlockEntity im
         this.getConnectedBlocks().clear();
     }
 
-    public void moveConnectedBlocks(AbstractVillageContainerBlockEntity newOriginBlockEntity) {
+    public void moveConnectedBlocks(VillageContainerBlockEntity newOriginBlockEntity) {
         newOriginBlockEntity.getConnectedBlocks().clear();
         newOriginBlockEntity.addConnectedBlocks(this.getConnectedBlocks());
     }
 
     public void broadcastNewOriginPos(WorldAccess world, BlockPos newOriginPos) {
         for (BlockPos connectedPos : getConnectedBlocks()) {
-            if (!(world.getBlockEntity(connectedPos) instanceof AbstractVillageContainerBlockEntity blockEntity))
+            if (!(world.getBlockEntity(connectedPos) instanceof VillageContainerBlockEntity blockEntity))
                 continue;
             blockEntity.setStructureOriginPos(newOriginPos);
         }

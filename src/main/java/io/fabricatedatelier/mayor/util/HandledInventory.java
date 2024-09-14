@@ -22,6 +22,10 @@ public interface HandledInventory extends SidedInventory {
         return getItems().size();
     }
 
+    default int nonEmptyStackSize() {
+        return (int) getItems().stream().filter(stack -> !stack.isEmpty()).count();
+    }
+
     @Override
     default int[] getAvailableSlots(Direction side) {
         List<Integer> availableSlots = new ArrayList<>();

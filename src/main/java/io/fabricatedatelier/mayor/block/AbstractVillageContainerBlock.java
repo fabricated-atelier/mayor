@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
+import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
@@ -55,7 +56,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         BlockPos originPos = getOrigin(world, pos).orElse(pos);
-        if (world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity && !world.isClient()) {
+        if (world.getBlockEntity(originPos) instanceof VillageContainerBlockEntity blockEntity && !world.isClient()) {
             // extract
             Optional<ItemStack> removedStack = blockEntity.extractFromOrigin(hit.getSide());
             if (removedStack.isPresent() && !removedStack.get().isEmpty()) {
@@ -72,7 +73,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
 
         if (world.isClient())
             return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
-        if (!(world.getBlockEntity(originPos) instanceof AbstractVillageContainerBlockEntity blockEntity))
+        if (!(world.getBlockEntity(originPos) instanceof VillageContainerBlockEntity blockEntity))
             return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
 
         if (blockEntity.canInsert(player.getStackInHand(hand).copy(), hit.getSide())) {
@@ -100,26 +101,25 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             world.setBlockState(pos, state);
         }
 
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) {
+        if (!(world.getBlockEntity(pos) instanceof VillageContainerBlockEntity blockEntity)) {
             super.onPlaced(world, pos, state, placer, itemStack);
             return;
         }
 
         Optional<BlockPos> neighborPos = getFirstConnectedBlock(world, pos);
-        if (neighborPos.isPresent()) {
-            if (world.getBlockEntity(neighborPos.get()) instanceof AbstractVillageContainerBlockEntity neighborBlockEntity) {
-                if (neighborBlockEntity.getStructureOriginPos().isPresent()) {
-                    blockEntity.setStructureOriginPos(neighborBlockEntity.getStructureOriginPos().get());
-                    if (world.getBlockEntity(neighborBlockEntity.getStructureOriginPos().get()) instanceof AbstractVillageContainerBlockEntity originBlockEntity) {
-                        var originBox = new ConnectedBlockUtil.BoundingBox(world, neighborBlockEntity.getStructureOriginPos().get(), false);
-                        originBlockEntity.clearConnectedBlocks();
-                        originBlockEntity.addConnectedBlocks(new ArrayList<>(originBox.getConnectedPosList()));
-                    }
+        if (neighborPos.isEmpty()) {
+            blockEntity.setStructureOriginPos(getOrigin(world, pos).orElse(pos));
+        } else if (world.getBlockEntity(neighborPos.get()) instanceof VillageContainerBlockEntity neighborBlockEntity) {
+            if (neighborBlockEntity.getStructureOriginPos().isPresent()) {
+                blockEntity.setStructureOriginPos(neighborBlockEntity.getStructureOriginPos().get());
+                if (world.getBlockEntity(neighborBlockEntity.getStructureOriginPos().get()) instanceof VillageContainerBlockEntity originBlockEntity) {
+                    var originBox = new ConnectedBlockUtil.BoundingBox(world, neighborBlockEntity.getStructureOriginPos().get(), false);
+                    originBlockEntity.clearConnectedBlocks();
+                    originBlockEntity.addConnectedBlocks(new ArrayList<>(originBox.getConnectedPosList()));
                 }
             }
-        } else {
-            blockEntity.setStructureOriginPos(getOrigin(world, pos).orElse(pos));
         }
+
         super.onPlaced(world, pos, state, placer, itemStack);
     }
 
@@ -144,12 +144,12 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             super.onStateReplaced(state, world, pos, newState, moved);
             return;
         }
-        if (world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity) {
+        if (world.getBlockEntity(pos) instanceof VillageContainerBlockEntity blockEntity) {
             if (blockEntity.isStructureOrigin()) {
                 if (getFirstConnectedBlock(world, pos).isPresent()) {
                     BlockPos firstConnectedPos = getFirstConnectedBlock(world, pos).get();
                     blockEntity.broadcastNewOriginPos(world, firstConnectedPos);
-                    if (world.getBlockEntity(firstConnectedPos) instanceof AbstractVillageContainerBlockEntity newOriginBlockEntity) {
+                    if (world.getBlockEntity(firstConnectedPos) instanceof VillageContainerBlockEntity newOriginBlockEntity) {
                         blockEntity.moveInventory(newOriginBlockEntity);
                         blockEntity.moveConnectedBlocks(newOriginBlockEntity);
                     }
@@ -230,12 +230,12 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
 
 
     public static void setOrigin(WorldAccess world, BlockPos pos) {
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity)) return;
+        if (!(world.getBlockEntity(pos) instanceof VillageContainerBlockEntity blockEntity)) return;
         blockEntity.setStructureOriginPos(pos);
     }
 
     public static Optional<BlockPos> getOrigin(BlockView world, BlockPos pos) {
-        if (!(world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity blockEntity))
+        if (!(world.getBlockEntity(pos) instanceof VillageContainerBlockEntity blockEntity))
             return Optional.empty();
         return blockEntity.getStructureOriginPos();
     }

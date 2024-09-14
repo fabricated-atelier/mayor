@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
-import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -49,8 +49,8 @@ public class InventoryUtil {
         List<ItemStack> availableStacks = new ArrayList<>();
 
         for (BlockPos pos : villageData.getStorageOriginBlockPosList()) {
-            if (world.getBlockState(pos).getBlock() instanceof AbstractVillageContainerBlock && world.getBlockEntity(pos) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
-                for (ItemStack stack : abstractVillageContainerBlockEntity.getItems()) {
+            if (world.getBlockState(pos).getBlock() instanceof AbstractVillageContainerBlock && world.getBlockEntity(pos) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
+                for (ItemStack stack : villageContainerBlockEntity.getItems()) {
                     stack = stack.copy();
                     if (stack.isEmpty()) {
                         continue;

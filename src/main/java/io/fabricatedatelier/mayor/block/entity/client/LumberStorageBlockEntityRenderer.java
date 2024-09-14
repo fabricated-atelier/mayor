@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.block.entity.client;
 
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.MayorProperties;
-import io.fabricatedatelier.mayor.block.entity.LumberStorageBlockEntity;
+import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -13,7 +13,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
 
-public class LumberStorageBlockEntityRenderer<T extends LumberStorageBlockEntity> implements BlockEntityRenderer<T> {
+public class LumberStorageBlockEntityRenderer<T extends VillageContainerBlockEntity> implements BlockEntityRenderer<T> {
     private int tick = 0, rotTick = 0;
 
     @Override

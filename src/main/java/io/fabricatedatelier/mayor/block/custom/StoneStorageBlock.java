@@ -1,8 +1,9 @@
 package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
-import io.fabricatedatelier.mayor.block.entity.StoneStorageBlockEntity;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
+import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.datagen.TagProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
@@ -32,6 +33,6 @@ public class StoneStorageBlock extends AbstractVillageContainerBlock {
 
     @Override
     public @Nullable BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new StoneStorageBlockEntity(pos, state);
+        return new VillageContainerBlockEntity(pos, state, TagProvider.ItemTags.STONE_STORAGE_STORABLE);
     }
 }

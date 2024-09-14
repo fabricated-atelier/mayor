@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.entity.task;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.entity.access.Builder;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
@@ -95,9 +95,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
             Item item = StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).values().stream().findFirst().get().getBlock().asItem();
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
-                if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
+                if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
                     // Find the correct one lul
-                    // Todo: abstractVillageContainerBlockEntity contains item
+                    // Todo: villageContainerBlockEntity contains item
                     return villageData.getStorageOriginBlockPosList().get(i);
                     // Todo: Maybe get closest storage blockpos of the of the storage multiblock
 //                        break;
@@ -111,7 +111,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 ////                entry.getValue().getBlock();
 //                // Todo: Find the correct Lumber,Stone or whatever storage block
 //                for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
-//                    if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof AbstractVillageContainerBlockEntity abstractVillageContainerBlockEntity) {
+//                    if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity abstractVillageContainerBlockEntity) {
 //                        // Find the correct one lul
 //                        return villageData.getStorageOriginBlockPosList().get(i);
 ////                        break;

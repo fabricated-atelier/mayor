@@ -19,6 +19,6 @@ public class MayorClient implements ClientModInitializer {
         Renderer.initialize();
         KeyBindings.initialize();
 
-        BlockEntityRendererFactories.register(BlockEntities.LUMBER_STORAGE, context -> new LumberStorageBlockEntityRenderer<>());
+        BlockEntityRendererFactories.register(BlockEntities.VILLAGE_STORAGE, context -> new LumberStorageBlockEntityRenderer<>());
     }
 }
