@@ -9,7 +9,7 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class TranslationProvider extends FabricLanguageProvider {
@@ -48,7 +48,7 @@ public class TranslationProvider extends FabricLanguageProvider {
      * @return clean and human-readable translated String
      */
     public static String cleanString(Identifier identifier) {
-        String[] words = Arrays.stream(identifier.getPath().split("/")).toList().getLast().split("_");
+        String[] words = List.of(identifier.getPath().split("/")).getLast().split("_");
         StringBuilder output = new StringBuilder();
         for (int i = 0; i < words.length; i++) {
             String word = words[i];
