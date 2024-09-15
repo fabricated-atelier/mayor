@@ -1,4 +1,6 @@
 {
+  "block.mayor.lumber_storage": "Lumber Storage",
+  "block.mayor.stone_storage": "Stone Storage",
   "building.buildings": "Buildings",
   "building.category": "Categories",
   "building.category.armorer": "Armorer",
@@ -184,6 +186,7 @@
   "commands.mayor.created_village": "Created at position %s",
   "commands.mayor.deleted_village": "Deleted %s at position %s",
   "commands.mayor.something_went_wrong": "Something went wrong!",
+  "commands.mayor.village_creation_failed": "Village creation failed at position %s!\nToo close to next village",
   "commands.mayor.village_get_level": "%s is level %s",
   "commands.mayor.village_get_name": "Village at %s is called %s",
   "commands.mayor.village_info": "%s level %s, %s villagers, %s iron golems, %s structures",
@@ -223,6 +226,6 @@
   "mayor.screen.villagers": "Villagers: %s",
   "mayor.village": "Village",
   "mayor.village.level_up": "%s Level Up",
-  "tag.item.mayor.lumber_storage_storable": "Lumber Storage",
-  "tag.item.mayor.stone_storage_storable": "Stone Storage"
+  "tag.item.mayor.lumber_storage_storable": "Lumber Storage Storable",
+  "tag.item.mayor.stone_storage_storable": "Stone Storage Storable"
 }

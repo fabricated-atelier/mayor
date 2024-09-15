@@ -1,11 +1,15 @@
 package io.fabricatedatelier.mayor.datagen;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.init.Blocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.util.Identifier;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 public class TranslationProvider extends FabricLanguageProvider {
@@ -15,8 +19,11 @@ public class TranslationProvider extends FabricLanguageProvider {
 
     @Override
     public void generateTranslations(RegistryWrapper.WrapperLookup registryLookup, TranslationBuilder translationBuilder) {
-        translationBuilder.add(TagProvider.ItemTags.LUMBER_STORAGE_STORABLE, "Lumber Storage");
-        translationBuilder.add(TagProvider.ItemTags.STONE_STORAGE_STORABLE, "Stone Storage");
+        translationBuilder.add(TagProvider.ItemTags.LUMBER_STORAGE_STORABLE, cleanString(TagProvider.ItemTags.LUMBER_STORAGE_STORABLE.id()));
+        translationBuilder.add(TagProvider.ItemTags.STONE_STORAGE_STORABLE, cleanString(TagProvider.ItemTags.STONE_STORAGE_STORABLE.id()));
+
+        translationBuilder.add(Blocks.LUMBER_STORAGE, cleanString(Registries.BLOCK.getId(Blocks.LUMBER_STORAGE)));
+        translationBuilder.add(Blocks.STONE_STORAGE, cleanString(Registries.BLOCK.getId(Blocks.STONE_STORAGE)));
 
         // Load an existing language file.
         try {
@@ -25,5 +32,32 @@ public class TranslationProvider extends FabricLanguageProvider {
         } catch (Exception e) {
             throw new RuntimeException("Failed to add existing language file!", e);
         }
+    }
+
+    /**
+     * Provides String clean up for translation purposes.<br>
+     * The process is as follows:
+     * <ol>
+     *     <li>get path of the given Identifier</li>
+     *     <li>remove everything before the last <code>/</code></li>
+     *     <li>replace <code>_</code> with space</li>
+     *     <li>capitalizes first char and every char after a space</li>
+     * </ol>
+     *
+     * @param identifier Identifier, which will be used to generate the translation
+     * @return clean and human-readable translated String
+     */
+    public static String cleanString(Identifier identifier) {
+        String[] words = Arrays.stream(identifier.getPath().split("/")).toList().getLast().split("_");
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            char capitalized = Character.toUpperCase(word.charAt(0));
+            output.append(capitalized).append(word.substring(1));
+            if (i < words.length - 1) {
+                output.append(" ");
+            }
+        }
+        return output.toString();
     }
 }

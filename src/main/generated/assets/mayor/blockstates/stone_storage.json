@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "position=center": {
+      "model": "mayor:block/lumber_center"
+    },
+    "position=east": {
+      "model": "mayor:block/lumber_east"
+    },
+    "position=north": {
+      "model": "mayor:block/lumber_north"
+    },
+    "position=north_east": {
+      "model": "mayor:block/lumber_north_east"
+    },
+    "position=north_west": {
+      "model": "mayor:block/lumber_north_west"
+    },
+    "position=single": {
+      "model": "mayor:block/lumber_single"
+    },
+    "position=south": {
+      "model": "mayor:block/lumber_south"
+    },
+    "position=south_east": {
+      "model": "mayor:block/lumber_south_east"
+    },
+    "position=south_west": {
+      "model": "mayor:block/lumber_south_west"
+    },
+    "position=west": {
+      "model": "mayor:block/lumber_west"
+    }
+  }
+}
