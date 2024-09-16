@@ -14,9 +14,6 @@ import java.util.Optional;
 public class KeyHelper {
 
     public static void rotateKey(MinecraftClient client, boolean rotateLeft) {
-//        new StructureRotatePacket(rotateLeft).sendPacket();
-
-        // Test for client only
         if (client.player != null) {
             MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
             mayorManager.setStructureRotation(StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), rotateLeft));
@@ -28,10 +25,7 @@ public class KeyHelper {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView()) {
-                    // Test for client only
                     mayorManager.setStructureCentered(!mayorManager.getStructureCentered());
-                    System.out.println("CENTER "+mayorManager.getStructureCentered());
-//                    new StructureCenterPacket(mayorManager.getStructureCentered()).sendPacket();
                 }
             }
         }
