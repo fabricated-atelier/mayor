@@ -3,7 +3,7 @@ package io.fabricatedatelier.mayor.mixin;
 import io.fabricatedatelier.mayor.access.SinglePoolElementAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.data.StructureXpLoader;
-import io.fabricatedatelier.mayor.init.Tags;
+import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.mixin.access.JigsawStructureAccess;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
@@ -49,7 +49,7 @@ public class StructureStartMixin {
     @Inject(method = "place", at = @At("HEAD"))
     private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info) {
         if (structure.getType().equals(StructureType.JIGSAW) && structure instanceof JigsawStructureAccess jigsawStructureAccess
-                && jigsawStructureAccess.getStartPool().isIn(Tags.StructurePools.VILLAGES)) {
+                && jigsawStructureAccess.getStartPool().isIn(TagProvider.StructurePoolTags.VILLAGES)) {
             MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
             BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
             if (!mayorVillageState.hasVillage(centerPos)) {

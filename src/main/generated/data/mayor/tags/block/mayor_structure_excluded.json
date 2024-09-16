@@ -1,14 +1,14 @@
 {
-  "replace": false,
   "values": [
     "minecraft:barrier",
     "minecraft:bedrock",
     "minecraft:command_block",
-    "minecraft:repeating_command_block",
     "minecraft:chain_command_block",
+    "minecraft:repeating_command_block",
     "minecraft:structure_block",
-    "minecraft:jigsaw",
     "minecraft:structure_void",
-    "minecraft:air"
+    "minecraft:end_portal",
+    "minecraft:end_gateway",
+    "minecraft:moving_piston"
   ]
 }

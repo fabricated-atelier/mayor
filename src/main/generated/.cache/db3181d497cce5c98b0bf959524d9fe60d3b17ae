@@ -1,2 +1,4 @@
-// 1.21.1	2024-09-16T16:13:17.2695548	Mayor/Tags for minecraft:block
+// 1.21.1	2024-09-16T18:13:34.0238848	Mayor/Tags for minecraft:block
 0356003b1a3231bec4332c233e96441d4e990e6f data\minecraft\tags\block\mineable\axe.json
+3b9bf814de7d66888e01f7ee3dc0276aba133b14 data\mayor\tags\block\mayor_structure_excluded.json
+cf68efcf0446582efa746d8277a1824a8a9cd20f data\mayor\tags\block\mayor_structure_replaceable.json

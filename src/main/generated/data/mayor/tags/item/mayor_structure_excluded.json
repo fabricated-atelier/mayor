@@ -1,5 +1,4 @@
 {
-  "replace": false,
   "values": [
     "minecraft:barrier",
     "minecraft:bedrock",
@@ -7,9 +6,8 @@
     "minecraft:repeating_command_block",
     "minecraft:chain_command_block",
     "minecraft:structure_block",
+    "minecraft:jigsaw",
     "minecraft:structure_void",
-    "minecraft:end_portal",
-    "minecraft:end_gateway",
-    "minecraft:moving_piston"
+    "minecraft:air"
   ]
 }
