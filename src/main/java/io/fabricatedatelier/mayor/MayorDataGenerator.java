@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor;
 
+import io.fabricatedatelier.mayor.datagen.BlockLootTableProvider;
 import io.fabricatedatelier.mayor.datagen.ModelProvider;
 import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.datagen.TranslationProvider;
@@ -13,6 +14,7 @@ public class MayorDataGenerator implements DataGeneratorEntrypoint {
 
 		pack.addProvider(ModelProvider::new);
 		pack.addProvider(TranslationProvider::new);
+		pack.addProvider(BlockLootTableProvider::new);
 		TagProvider.registerAll(pack);
 	}
 }
