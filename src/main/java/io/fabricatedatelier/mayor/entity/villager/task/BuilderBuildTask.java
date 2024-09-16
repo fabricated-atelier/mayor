@@ -60,7 +60,9 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
             }
             // Todo: Set closest building position
 
+
             this.currentTarget = findClosestTarget(serverWorld, villagerEntity, builder);
+            System.out.println("BUILDER BUILD TASK SHOULD RUN "+villagerEntity+ " : "+this.currentTarget);
         }
         return this.currentTarget != null;
 //        }

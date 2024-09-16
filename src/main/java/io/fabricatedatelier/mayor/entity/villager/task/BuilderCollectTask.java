@@ -8,6 +8,7 @@ import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
@@ -56,6 +57,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                    }
 //                }
 //            }
+
+        System.out.println("???");
+
         if (villagerEntity instanceof Builder builder) {
             if (builder.getVillageCenterPosition() != null && builder.getTargetPosition() != null && builder.getBuilderInventory().isEmpty()) {
 
@@ -72,6 +76,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                        villageData.getStorageOriginBlockPosList();
 
                         this.currentTarget = getTarget(serverWorld, villageData, constructionData);
+                        System.out.println("BUILDER COLLECT TASK: "+villagerEntity+ " : "+this.currentTarget);
                     }
                 }
                 // Todo: Find current target
@@ -96,9 +101,12 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             Item item = StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).values().stream().findFirst().get().getBlock().asItem();
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
                 if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
+                    if(villageContainerBlockEntity.contains(ItemVariant.of(item))){
+                        return villageData.getStorageOriginBlockPosList().get(i);
+                    }
                     // Find the correct one lul
                     // Todo: villageContainerBlockEntity contains item
-                    return villageData.getStorageOriginBlockPosList().get(i);
+
                     // Todo: Maybe get closest storage blockpos of the of the storage multiblock
 //                        break;
 //                    CowEntity
