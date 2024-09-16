@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.datagen;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.init.Blocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
@@ -20,7 +21,8 @@ public class TagProvider {
 
         @Override
         protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
-
+            getOrCreateTagBuilder(net.minecraft.registry.tag.BlockTags.AXE_MINEABLE)
+                    .add(Blocks.LUMBER_STORAGE, Blocks.STONE_STORAGE).setReplace(false);
         }
     }
 
