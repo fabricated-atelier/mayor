@@ -98,7 +98,6 @@ public class MayorCommands {
                 BlockPos pos = blockPos != null ? blockPos : source.getPlayer().getBlockPos();
                 VillageData villageData = mayorVillageState.createVillageData(pos);
                 if(villageData != null) {
-                    villageData.setBiomeCategory(StructureHelper.getBiomeCategory(source.getWorld().getBiome(pos)));
                     source.sendFeedback(() -> Text.translatable("commands.mayor.created_village", pos.toShortString()), true);
                 }else{
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_creation_failed", pos.toShortString()), false);

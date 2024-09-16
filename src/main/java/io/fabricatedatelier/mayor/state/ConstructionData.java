@@ -3,6 +3,8 @@ package io.fabricatedatelier.mayor.state;
 import net.minecraft.block.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.HashMap;
@@ -29,7 +31,7 @@ public class ConstructionData {
 
         this.blockMap = new HashMap<>();
         for (int i = 0; i < nbt.getInt("Origins"); i++) {
-            this.blockMap.put(NbtHelper.toBlockPos(nbt, "Origin" + i).get(), NbtHelper.toBlockState(null, nbt.getCompound("State" + i)));
+            this.blockMap.put(NbtHelper.toBlockPos(nbt, "Origins" + i).get(), NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), nbt.getCompound("State" + i)));
         }
     }
 
@@ -40,7 +42,7 @@ public class ConstructionData {
         nbt.putInt("Origins", this.blockMap.size());
         int count = 0;
         for (Map.Entry<BlockPos, BlockState> entry : this.blockMap.entrySet()) {
-            nbt.put("Origin" + count, NbtHelper.fromBlockPos(entry.getKey()));
+            nbt.put("Origins" + count, NbtHelper.fromBlockPos(entry.getKey()));
             nbt.put("State" + count, NbtHelper.fromBlockState(entry.getValue()));
             count++;
         }
@@ -55,7 +57,7 @@ public class ConstructionData {
         nbt.putInt("Origins", this.blockMap.size());
         int count = 0;
         for (Map.Entry<BlockPos, BlockState> entry : this.blockMap.entrySet()) {
-            nbt.put("Origin" + count, NbtHelper.fromBlockPos(entry.getKey()));
+            nbt.put("Origins" + count, NbtHelper.fromBlockPos(entry.getKey()));
             nbt.put("State" + count, NbtHelper.fromBlockState(entry.getValue()));
             count++;
         }

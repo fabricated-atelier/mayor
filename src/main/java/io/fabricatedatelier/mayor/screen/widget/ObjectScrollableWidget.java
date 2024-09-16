@@ -281,8 +281,12 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                             mayorScreen.getBuildingScrollableWidget().setObjects(objects, texts);
                             mayorScreen.getBuildingScrollableWidget().setScrollY(0);
                             mayorScreen.getBuildingScrollableWidget().setSelectedIndex(-1);
+
                             mayorScreen.getMayorManager().setMayorStructure(null);
                             mayorScreen.getRequiredItemScrollableWidget().setItemStacks(null);
+
+                            mayorScreen.getBuildButton().active = false;
+                            mayorScreen.getBuildButton().visible = false;
                         }
                     }
                 } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {

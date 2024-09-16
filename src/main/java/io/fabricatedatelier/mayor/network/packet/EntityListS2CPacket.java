@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.screen.MayorScreen;
 import io.fabricatedatelier.mayor.screen.MayorVillageScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -47,6 +48,15 @@ public record EntityListS2CPacket(List<Integer> entityList) implements CustomPay
                 }
             }
             mayorVillageScreen.getVillagerScrollableWidget().setObjects(objects, texts);
+        } else if (context.client().currentScreen instanceof MayorScreen mayorScreen) {
+//            List<Object> objects = new ArrayList<>();
+//            List<Text> texts = new ArrayList<>();
+//            for (int i = 0; i < this.entityList().size(); i++) {
+//                if (context.player().getWorld().getEntityById(this.entityList().get(i)) instanceof VillagerEntity villagerEntity) {
+//                    objects.add(villagerEntity);
+//                    texts.add(villagerEntity.getName());
+//                }
+//            }
         }
     }
 }

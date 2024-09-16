@@ -14,8 +14,15 @@ import java.util.List;
 public class InventoryUtil {
 
     public static List<ItemStack> getMissingItems(List<ItemStack> availableStacksList, List<ItemStack> requiredStacksList) {
-        List<ItemStack> availableStacks = new ArrayList<>(availableStacksList);
-        List<ItemStack> requiredStacks = new ArrayList<>(requiredStacksList);
+        List<ItemStack> availableStacks = new ArrayList<>();
+        List<ItemStack> requiredStacks = new ArrayList<>();
+
+        for (ItemStack stack : availableStacksList) {
+            availableStacks.add(stack.copy());
+        }
+        for (ItemStack stack : requiredStacksList) {
+            requiredStacks.add(stack.copy());
+        }
 
         for (ItemStack availableStack : availableStacks) {
             Iterator<ItemStack> requiredIterator = requiredStacks.iterator();

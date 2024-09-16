@@ -55,7 +55,6 @@ public class StructureStartMixin {
             if (!mayorVillageState.hasVillage(centerPos)) {
                 VillageData villageData = mayorVillageState.createVillageData(centerPos);
                 if (villageData != null) {
-                    villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.toServerWorld().getBiome(centerPos)));
                     this.centerPos = centerPos;
                 }
             }

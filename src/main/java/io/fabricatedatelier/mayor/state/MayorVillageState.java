@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.state;
 
 import java.util.*;
 
+import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -53,13 +54,14 @@ public class MayorVillageState extends PersistentState {
 
     @Nullable
     public VillageData createVillageData(BlockPos centerPos) {
-        for(BlockPos pos : this.villages.keySet()){
-            if(pos.isWithinDistance(centerPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(VillageHelper.VILLAGE_MAX_LEVEL)*1.5f)){
+        for (BlockPos pos : this.villages.keySet()) {
+            if (pos.isWithinDistance(centerPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(VillageHelper.VILLAGE_MAX_LEVEL) * 1.5f)) {
                 return null;
             }
         }
 
         VillageData villageData = new VillageData(centerPos);
+        villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.getBiome(centerPos)));
         this.villages.put(centerPos, villageData);
         this.markDirty();
         return villageData;

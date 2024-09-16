@@ -24,6 +24,8 @@
     "mayor.screen.available_items": "Available Items",
     "mayor.screen.structures_level": "Structures Lv. %s",
     "mayor.screen.villager_profession": "Profession: %s",
+    "mayor.screen.builder": "Available Builder: %s",
+    "mayor.screen.building_cost": "Building Cost:",
     "mayor.screen.category_values": "Category Values",
     "mayor.screen.no_structure_upgrade_available": "No Structure Upgrade Available",
     "mayor.screen.upgrade": "Upgrade",

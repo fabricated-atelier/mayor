@@ -35,6 +35,7 @@ import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
 import net.minecraft.structure.StructureTemplate.StructureBlockInfo;
 import net.minecraft.structure.StructureTemplateManager;
+import net.minecraft.text.Text;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
@@ -465,7 +466,11 @@ public class StructureHelper {
                     mayorManager.setMayorStructure(null);
                     mayorManager.setStructureOriginBlockPos(null);
                     return true;
+                }else{
+                    serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village"));
                 }
+            }else{
+                serverPlayerEntity.sendMessage(Text.translatable("commands.mayor.something_went_wrong"));
             }
         }
         return false;
@@ -511,7 +516,7 @@ public class StructureHelper {
                     return false;
                 }
             }
-            if (!mayorManager.playerEntity().isCreativeLevelTwoOp() && mayorManager.getMayorStructure().getLevel() <= mayorManager.getVillageData().getLevel()) {
+            if (!mayorManager.playerEntity().isCreativeLevelTwoOp() && mayorManager.getMayorStructure().getLevel() > mayorManager.getVillageData().getLevel()) {
                 return false;
             }
             BlockPos villageCenterPos = mayorManager.getVillageData().getCenterPos();
