@@ -12,13 +12,19 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
 public class Blocks {
-    public static final CameraDebugBlock CAMERA_DEBUG = register("camera_debug", new CameraDebugBlock(AbstractBlock.Settings.create()), true);
-    public static final LumberStorageBlock LUMBER_STORAGE = register("lumber_storage", new LumberStorageBlock(AbstractBlock.Settings.create()), false);
-    public static final StoneStorageBlock STONE_STORAGE = register("stone_storage", new StoneStorageBlock(AbstractBlock.Settings.create()), false);
+    public static final CameraDebugBlock CAMERA_DEBUG = register("camera_debug",
+            new CameraDebugBlock(AbstractBlock.Settings.create()), true);
+
+    public static final LumberStorageBlock LUMBER_STORAGE = register("lumber_storage",
+            new LumberStorageBlock(AbstractBlock.Settings.create().strength(1.5f, 2.0f)), false);
+
+    public static final StoneStorageBlock STONE_STORAGE = register("stone_storage",
+            new StoneStorageBlock(AbstractBlock.Settings.create().strength(1.5f, 2.0f)), false);
+
 
     /**
      * If you need a custom {@link BlockItem}, register it in the {@link Items} class with the corresponding Block entry.
-     * @param hasDefaultItem set to false, if you want no item or are registering a custom BlockItem for it.
+     * @param hasDefaultItem set to false, if you want no item or if you are registering a custom BlockItem for it.
      */
     private static <T extends Block> T register(String name, T block, boolean hasDefaultItem) {
         Registry.register(Registries.BLOCK, Mayor.identifierOf(name), block);
