@@ -5,7 +5,7 @@ import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
-import io.fabricatedatelier.mayor.init.Tags;
+import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
@@ -69,7 +69,7 @@ public class StructureHelper {
             }
             for (int i = 0; i < structureTemplateAccess.getBlockInfoLists().getFirst().getAll().size(); i++) {
                 StructureBlockInfo structureBlockInfo = structureTemplateAccess.getBlockInfoLists().getFirst().getAll().get(i);
-                if (structureBlockInfo.state().isAir() || structureBlockInfo.state().isIn(Tags.Blocks.MAYOR_STRUCTURE_EXCLUDED)) {
+                if (structureBlockInfo.state().isAir() || structureBlockInfo.state().isIn(MayorTags.Blocks.MAYOR_STRUCTURE_EXCLUDED)) {
                     // maybe sync air too?
                     continue;
                 }
@@ -222,7 +222,7 @@ public class StructureHelper {
                 continue;
             }
             ItemStack itemStack = new ItemStack(entry.getValue().getBlock().asItem());
-            if (itemStack.isIn(Tags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
+            if (itemStack.isIn(MayorTags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
                 continue;
             }
             if (requiredItemStacks.isEmpty()) {
@@ -263,7 +263,7 @@ public class StructureHelper {
                         continue;
                     }
                     ItemStack itemStack = new ItemStack(blockState.getBlock().asItem());
-                    if (itemStack.isIn(Tags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
+                    if (itemStack.isIn(MayorTags.Items.MAYOR_STRUCTURE_EXCLUDED)) {
                         continue;
                     }
                     if (itemStacks.isEmpty()) {
@@ -545,7 +545,7 @@ public class StructureHelper {
                 for (int u = blockBox.getMinY(); u <= blockBox.getMaxY(); u++) {
                     for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
                         BlockState state = mayorManager.playerEntity().getWorld().getBlockState(BlockPos.ofFloored(i, u, o));
-                        if (!state.isAir() && !state.isIn(Tags.Blocks.MAYOR_STRUCTURE_REPLACEABLE)) {
+                        if (!state.isAir() && !state.isIn(MayorTags.Blocks.MAYOR_STRUCTURE_REPLACEABLE)) {
                             return false;
                         }
                     }

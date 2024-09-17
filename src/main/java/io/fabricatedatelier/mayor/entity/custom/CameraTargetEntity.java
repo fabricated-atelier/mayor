@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.entity.custom;
 
-import io.fabricatedatelier.mayor.init.Entities;
+import io.fabricatedatelier.mayor.init.MayorEntities;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -23,7 +23,7 @@ public class CameraTargetEntity extends Entity {
     }
 
     public CameraTargetEntity(World world, @Nullable ServerPlayerEntity player) {
-        this(Entities.CAMERA_TARGET, world);
+        this(MayorEntities.CAMERA_TARGET, world);
         if (player == null) {
             setUser(null);
         } else {

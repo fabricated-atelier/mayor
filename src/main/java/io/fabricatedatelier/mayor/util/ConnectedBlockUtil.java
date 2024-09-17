@@ -23,7 +23,7 @@ public class ConnectedBlockUtil {
     }
 
     /**
-     * Generates the BoundingBox of BlockPos. It collects neighbor Blocks which are
+     * Generates the BoundingBox of BlockPos. It collects neighbor MayorBlocks which are
      * the same as the {@link #originalState starting pos Block} iteratively (DFS).
      *
      * @implNote No limit has been set yet, besides avoiding air blocks. Make sure that

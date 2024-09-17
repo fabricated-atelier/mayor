@@ -17,8 +17,8 @@ import java.util.Optional;
  * <p>
  * This camera handler makes use of an Orbit around a specific location, which is defined by the
  * {@link CameraTarget} Interface. This interface is implemented for
- * {@link io.fabricatedatelier.mayor.mixin.EntityMixin Entities} and
- * {@link io.fabricatedatelier.mayor.mixin.BlockEntityMixin BlockEntities} by default.
+ * {@link io.fabricatedatelier.mayor.mixin.EntityMixin MayorEntities} and
+ * {@link io.fabricatedatelier.mayor.mixin.BlockEntityMixin MayorBlockEntities} by default.
  * If you don't have access to those kind of objects, you can create a new instance of
  * {@link StaticCameraTarget StaticCameraTarget} and use this as a {@link CameraTarget}.
  * This will always stay on the specified target location.

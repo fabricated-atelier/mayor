@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.option.KeyBinding;
 
 @Environment(EnvType.CLIENT)
-public class KeyBindings {
+public class MayorKeyBindings {
 
     private static final String MAYOR_CATEGORY = "key.categories.mayor";
 

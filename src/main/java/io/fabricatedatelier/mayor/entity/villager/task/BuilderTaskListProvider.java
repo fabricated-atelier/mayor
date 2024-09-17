@@ -2,8 +2,7 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
-import io.fabricatedatelier.mayor.init.Entities;
-import io.fabricatedatelier.mayor.init.VillagerUtilities;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.*;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -13,7 +12,7 @@ public class BuilderTaskListProvider {
 
     public static ImmutableList<Pair<Integer, ? extends Task<? super VillagerEntity>>> createBuildingTasks(VillagerProfession profession, float speed) {
         VillagerWorkTask villagerWorkTask;
-        if (profession == VillagerUtilities.BUILDER) {
+        if (profession == MayorVillagerUtilities.BUILDER) {
             villagerWorkTask = new BuilderWorkTask();
         } else {
             return ImmutableList.of();

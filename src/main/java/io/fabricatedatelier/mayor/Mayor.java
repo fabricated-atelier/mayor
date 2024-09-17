@@ -13,18 +13,18 @@ public class Mayor implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Blocks.initialize();
-        Items.initialize();
-        Entities.initialize();
-        VillagerUtilities.initialize();
-        ItemGroups.initialize();
-        BlockEntities.initialize();
-        NetworkPayloads.initialize();
+        MayorBlocks.initialize();
+        MayorItems.initialize();
+        MayorEntities.initialize();
+        MayorVillagerUtilities.initialize();
+        MayorItemGroups.initialize();
+        MayorBlockEntities.initialize();
+        MayorNetworkPayloads.initialize();
         CustomC2SNetworking.initialize();
-        CommonEvents.initialize();
-        Loaders.initialize();
-        Tags.initialize();
-        Commands.initialize();
+        MayorCommonEvents.initialize();
+        MayorLoaders.initialize();
+        MayorTags.initialize();
+        MayorCommands.initialize();
 
         LOGGER.info("No sir, we only take Emeralds as payment...");
     }

@@ -11,13 +11,13 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-public class BlockEntities {
+public class MayorBlockEntities {
     public static final BlockEntityType<CameraDebugBlockEntity> CAMERA_DEBUG =
-            register("camera_debug", CameraDebugBlockEntity::new, Blocks.CAMERA_DEBUG);
+            register("camera_debug", CameraDebugBlockEntity::new, MayorBlocks.CAMERA_DEBUG);
 
     public static final BlockEntityType<VillageContainerBlockEntity> VILLAGE_STORAGE =
             registerWithStorage("lumber_storage", VillageContainerBlockEntity::new,
-                    Blocks.LUMBER_STORAGE, Blocks.STONE_STORAGE);
+                    MayorBlocks.LUMBER_STORAGE, MayorBlocks.STONE_STORAGE);
 
 
     private static <T extends BlockEntity> BlockEntityType<T> register(

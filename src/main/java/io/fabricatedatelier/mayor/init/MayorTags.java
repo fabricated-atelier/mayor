@@ -9,7 +9,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.structure.pool.StructurePool;
 
-public class Tags {
+public class MayorTags {
     public static class Items {
         public static TagKey<Item> MAYOR_STRUCTURE_EXCLUDED = createTag("mayor_structure_excluded");
 

@@ -6,7 +6,7 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
 
-public class NetworkPayloads {
+public class MayorNetworkPayloads {
     static {
         // C2S
         registerC2S(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);

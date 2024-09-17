@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.screen;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
@@ -273,7 +273,7 @@ public class MayorScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (KeyBindings.mayorViewSelectionBind.matchesKey(keyCode, scanCode) || KeyBindings.mayorViewBind.matchesKey(keyCode, scanCode)) {
+        if (MayorKeyBindings.mayorViewSelectionBind.matchesKey(keyCode, scanCode) || MayorKeyBindings.mayorViewBind.matchesKey(keyCode, scanCode)) {
             this.close();
             return true;
         }

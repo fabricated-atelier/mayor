@@ -45,7 +45,7 @@ public class LumberStorageBlock extends AbstractVillageContainerBlock {
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         ConnectedBlockUtil.BoundingBox boundingBox = new ConnectedBlockUtil.BoundingBox(world, pos, false);
-        Mayor.LOGGER.info("Connected Blocks: {}", ConnectedBlockUtil.connectedBlocksCount(boundingBox));
+        Mayor.LOGGER.info("Connected MayorBlocks: {}", ConnectedBlockUtil.connectedBlocksCount(boundingBox));
         Mayor.LOGGER.info("Min: {} | Max: {}", boundingBox.getMinPos(), boundingBox.getMaxPos());
         Mayor.LOGGER.info("Has Holes: {}", boundingBox.hasHoles());
         return super.onUse(state, world, pos, player, hit);

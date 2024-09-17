@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @SuppressWarnings("Convert2MethodRef")  // method references instead of lambdas cause issues when lazy initialisation
-public class ItemGroups {
+public class MayorItemGroups {
     public static final ItemGroupEntry MAYOR_ITEMS = new ItemGroupEntry("items", () -> Items.STICK);
-    public static final ItemGroupEntry MAYOR_BLOCKS = new ItemGroupEntry("blocks", () -> Blocks.CAMERA_DEBUG.asItem());
+    public static final ItemGroupEntry MAYOR_BLOCKS = new ItemGroupEntry("blocks", () -> MayorBlocks.CAMERA_DEBUG.asItem());
 
     public static void initialize() {
         ItemGroupEntry.ALL_GROUPS.forEach(entry -> entry.register());

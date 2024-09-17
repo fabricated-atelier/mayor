@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.datagen;
 
-import io.fabricatedatelier.mayor.init.Blocks;
+import io.fabricatedatelier.mayor.init.MayorBlocks;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricBlockLootTableProvider;
 import net.minecraft.registry.RegistryWrapper;
@@ -15,7 +15,7 @@ public class BlockLootTableProvider extends FabricBlockLootTableProvider {
 
     @Override
     public void generate() {
-        addDrop(Blocks.LUMBER_STORAGE, Blocks.LUMBER_STORAGE);
-        addDrop(Blocks.STONE_STORAGE, Blocks.STONE_STORAGE);
+        addDrop(MayorBlocks.LUMBER_STORAGE, MayorBlocks.LUMBER_STORAGE);
+        addDrop(MayorBlocks.STONE_STORAGE, MayorBlocks.STONE_STORAGE);
     }
 }

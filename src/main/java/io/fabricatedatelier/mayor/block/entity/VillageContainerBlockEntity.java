@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.block.entity;
 
 import io.fabricatedatelier.mayor.api.StorageCallback;
-import io.fabricatedatelier.mayor.init.BlockEntities;
+import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
@@ -44,7 +44,7 @@ public class VillageContainerBlockEntity extends BlockEntity implements HandledI
     private StorageCallback callback = null;
 
     public VillageContainerBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.VILLAGE_STORAGE, pos, state);
+        super(MayorBlockEntities.VILLAGE_STORAGE, pos, state);
     }
 
     public VillageContainerBlockEntity(BlockPos pos, BlockState state, TagKey<Item> insertableItems) {

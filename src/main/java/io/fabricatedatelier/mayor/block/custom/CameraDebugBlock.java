@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.CameraDebugBlockEntity;
-import io.fabricatedatelier.mayor.init.BlockEntities;
+import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import io.fabricatedatelier.mayor.camera.CameraHandler;
 import io.fabricatedatelier.mayor.camera.target.CameraTarget;
 import net.minecraft.block.BlockRenderType;
@@ -59,6 +59,6 @@ public class CameraDebugBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return validateTicker(type, BlockEntities.CAMERA_DEBUG, CameraDebugBlockEntity::tick);
+        return validateTicker(type, MayorBlockEntities.CAMERA_DEBUG, CameraDebugBlockEntity::tick);
     }
 }

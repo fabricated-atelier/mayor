@@ -19,7 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-public class Commands {
+public class MayorCommands {
 
     private static final SuggestionProvider<ServerCommandSource> VILLAGE_BLOCKPOS_PROVIDER = (context, builder) -> CommandSource.suggestMatching(
             MayorStateHelper.getVillages(context.getSource().getWorld()).stream().map(VillageData::getCenterPos).map(blockPos -> blockPos.toShortString().replace(",", "")), builder);

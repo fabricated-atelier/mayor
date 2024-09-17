@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.block.entity;
 
-import io.fabricatedatelier.mayor.init.BlockEntities;
+import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -17,7 +17,7 @@ public class CameraDebugBlockEntity extends BlockEntity {
     private int tick = -1;
 
     public CameraDebugBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntities.CAMERA_DEBUG, pos, state);
+        super(MayorBlockEntities.CAMERA_DEBUG, pos, state);
     }
 
     public int getTick() {

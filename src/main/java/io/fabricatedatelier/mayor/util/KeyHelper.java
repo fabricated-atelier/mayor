@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
@@ -24,7 +24,7 @@ public class KeyHelper {
     }
 
     public static void centerKey(MinecraftClient client) {
-        if (KeyBindings.mayorCenterKeyBind.wasPressed()) {
+        if (MayorKeyBindings.mayorCenterKeyBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView()) {
@@ -38,14 +38,14 @@ public class KeyHelper {
     }
 
     public static void heightKey(MinecraftClient client) {
-        if (KeyBindings.mayorUpwardKeyBind.wasPressed()) {
+        if (MayorKeyBindings.mayorUpwardKeyBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
                     mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().up());
                 }
             }
-        } else if (KeyBindings.mayorDownwardKeyBind.wasPressed()) {
+        } else if (MayorKeyBindings.mayorDownwardKeyBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
@@ -56,12 +56,12 @@ public class KeyHelper {
     }
 
     public static void viewKey(MinecraftClient client) {
-        if (KeyBindings.mayorViewBind.wasPressed()) {
+        if (MayorKeyBindings.mayorViewBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 new MayorViewPacket(!mayorManager.isInMajorView()).sendClientPacket();
             }
-        } else if (KeyBindings.mayorViewSelectionBind.wasPressed()) {
+        } else if (MayorKeyBindings.mayorViewSelectionBind.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
 

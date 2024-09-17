@@ -1,9 +1,9 @@
 package io.fabricatedatelier.mayor;
 
 import io.fabricatedatelier.mayor.block.entity.client.LumberStorageBlockEntityRenderer;
-import io.fabricatedatelier.mayor.init.ClientEvents;
-import io.fabricatedatelier.mayor.init.BlockEntities;
-import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.init.MayorClientEvents;
+import io.fabricatedatelier.mayor.init.MayorBlockEntities;
+import io.fabricatedatelier.mayor.init.MayorKeyBindings;
 import io.fabricatedatelier.mayor.network.CustomS2CNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -16,9 +16,9 @@ public class MayorClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         CustomS2CNetworking.initialize();
-        KeyBindings.initialize();
-        ClientEvents.initialize();
+        MayorKeyBindings.initialize();
+        MayorClientEvents.initialize();
 
-        BlockEntityRendererFactories.register(BlockEntities.VILLAGE_STORAGE, context -> new LumberStorageBlockEntityRenderer<>());
+        BlockEntityRendererFactories.register(MayorBlockEntities.VILLAGE_STORAGE, context -> new LumberStorageBlockEntityRenderer<>());
     }
 }

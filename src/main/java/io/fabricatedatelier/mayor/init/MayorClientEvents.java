@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 
 @Environment(EnvType.CLIENT)
-public class ClientEvents {
+public class MayorClientEvents {
 
     public static void initialize() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

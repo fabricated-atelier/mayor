@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.init.KeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBindings;
 import io.fabricatedatelier.mayor.util.KeyHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -35,11 +35,11 @@ public class MinecraftClientMixin {
             if (this.majorKeyBindTicks > 0) {
                 this.majorKeyBindTicks--;
                 info.cancel();
-            } else if (KeyBindings.mayorRotateLeftKeyBind.isPressed()) {
+            } else if (MayorKeyBindings.mayorRotateLeftKeyBind.isPressed()) {
                 KeyHelper.rotateKey((MinecraftClient) (Object) this, true);
                 this.majorKeyBindTicks = 5;
                 info.cancel();
-            } else if (KeyBindings.mayorRotateRightKeyBind.isPressed()) {
+            } else if (MayorKeyBindings.mayorRotateRightKeyBind.isPressed()) {
                 KeyHelper.rotateKey((MinecraftClient) (Object) this, false);
                 this.majorKeyBindTicks = 5;
                 info.cancel();

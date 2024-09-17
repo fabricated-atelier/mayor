@@ -8,7 +8,7 @@ import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
-public class Entities {
+public class MayorEntities {
     public static final EntityType<CameraTargetEntity> CAMERA_TARGET = register("camera_target",
             EntityType.Builder.<CameraTargetEntity>create(CameraTargetEntity::new, SpawnGroup.MISC)
                     .dimensions(0.5f, 0.5f)
