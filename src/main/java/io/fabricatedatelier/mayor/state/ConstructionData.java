@@ -48,7 +48,6 @@ public class ConstructionData {
         }
     }
 
-    @Deprecated
     public NbtCompound writeDataToNbt() {
         NbtCompound nbt = new NbtCompound();
         nbt.put("Origin", NbtHelper.fromBlockPos(this.bottomCenterPos));

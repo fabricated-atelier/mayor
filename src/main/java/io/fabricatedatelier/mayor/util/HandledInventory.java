@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.Direction;
@@ -114,9 +115,9 @@ public interface HandledInventory extends SidedInventory {
         return stack;
     }
 
-    default boolean contains(ItemVariant item) {
+    default boolean contains(Item item) {
         for (ItemStack stack : this.getItems()) {
-            if (stack.getItem().equals(item)) return true;
+            if (stack.isOf(item)) return true;
         }
         return false;
     }

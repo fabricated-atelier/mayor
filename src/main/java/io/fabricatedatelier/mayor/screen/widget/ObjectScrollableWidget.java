@@ -295,6 +295,9 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty()) {
                         mayorScreen.getBuildButton().active = true;
                         mayorScreen.getBuildButton().visible = true;
+                    }else{
+                        mayorScreen.getBuildButton().active = false;
+                        mayorScreen.getBuildButton().visible = false;
                     }
                 }
             } else if (this.parentScreen instanceof MayorVillageScreen mayorVillageScreen) {

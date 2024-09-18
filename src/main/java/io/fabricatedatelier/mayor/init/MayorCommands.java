@@ -131,7 +131,7 @@ public class MayorCommands {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_info", villageData.getName(), villageData.getLevel(), villageData.getVillagers().size(), villageData.getIronGolems().size(), villageData.getStructures().size()), false);
                     if (villageData.getMayorPlayerUuid() != null) {
                         if (source.getServer().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()) != null) {
-                            source.sendFeedback(() -> Text.translatable("commands.mayor.village_mayor_info", villageData.getName(), villageData.getMayorPlayerUuid(), source.getServer().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()).getName()), false);
+                            source.sendFeedback(() -> Text.translatable("commands.mayor.village_mayor_info", villageData.getName(), source.getServer().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()).getName().getString()), false);
                         }
                     } else {
                         source.sendFeedback(() -> Text.translatable("commands.mayor.village_no_mayor_info", villageData.getName()), false);

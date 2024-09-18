@@ -5,17 +5,26 @@ import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
+import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.VillagerUtilities;
+import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.brain.*;
+import net.minecraft.entity.ai.brain.Activity;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleState;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -28,11 +37,11 @@ import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.village.VillagerData;
-import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,26 +50,74 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
+import java.util.Set;
 
 @Mixin(VillagerEntity.class)
 public abstract class VillagerEntityMixin extends MerchantEntity implements Builder {
 
-
     @Nullable
     @Unique
     private BlockPos villageCenterPos = null;
-    @Nullable
     @Unique
-    private BlockPos targetPosition = null;
+    private static final TrackedData<BlockPos> TARGET_POS = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
     @Unique
     private final SimpleInventory builderInventory = new SimpleInventory(27);
 
 
     public VillagerEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
         super(entityType, world);
+    }
+
+    @Inject(method = "initDataTracker", at = @At("TAIL"))
+    protected void initDataTrackerMixin(DataTracker.Builder builder, CallbackInfo info) {
+        builder.add(TARGET_POS, BlockPos.ORIGIN);
+    }
+
+
+    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
+    private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
+        writeBuilderInventory(nbt, this.getRegistryManager());
+        if (this.villageCenterPos != null) {
+            nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos));
+        }
+        nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.dataTracker.get(TARGET_POS)));
+    }
+
+    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+    private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
+        readBuilderInventory(nbt, this.getRegistryManager());
+        this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").orElse(null);
+        this.dataTracker.set(TARGET_POS, NbtHelper.toBlockPos(nbt, "TargetPosition").orElse(BlockPos.ORIGIN));
+    }
+
+    @Inject(method = "onDeath", at = @At("TAIL"))
+    private void onDeathMixin(DamageSource damageSource, CallbackInfo info) {
+        if (!this.getWorld().isClient()) {
+            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+                ItemScatterer.spawn(this.getWorld(), this.getBlockPos(), this.builderInventory);
+            }
+            if (this.villageCenterPos != null) {
+                MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState((ServerWorld) this.getWorld());
+                if (mayorVillageState.getVillageData(this.villageCenterPos) != null) {
+                    MayorStateHelper.updateVillageUuids((ServerWorld) this.getWorld(), this.villageCenterPos, this);
+                    VillageData villageData = mayorVillageState.getVillageData(this.villageCenterPos);
+                    if (VillageHelper.getTasklessBuildingVillagerBuilder(villageData, (ServerWorld) this.getWorld()) instanceof Builder builder) {
+                        builder.setTargetPosition(this.dataTracker.get(TARGET_POS));
+                        builder.setVillageCenterPosition(this.villageCenterPos);
+                    } else {
+                        villageData.getConstructions().remove(this.dataTracker.get(TARGET_POS));
+                        // Todo: Find new villager to build structure if this villager hat a task to build
+                        // Send info to mayor that it got removed
+                    }
+
+                    mayorVillageState.markDirty();
+                }
+            }
+
+
+        }
     }
 
     @Inject(method = "initialize", at = @At("TAIL"))
@@ -92,46 +149,12 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         }
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
-    private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        writeBuilderInventory(nbt, this.getRegistryManager());
-        if (this.villageCenterPos != null) {
-            nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos));
-        }
-        if (this.targetPosition != null) {
-            nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.targetPosition));
-        }
-    }
-
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
-    private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        readBuilderInventory(nbt, this.getRegistryManager());
-        this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").orElse(null);
-        this.targetPosition = NbtHelper.toBlockPos(nbt, "TargetPosition").orElse(null);
-    }
-
-    @Inject(method = "onDeath", at = @At("TAIL"))
-    private void onDeathMixin(DamageSource damageSource, CallbackInfo info) {
-        if (!this.getWorld().isClient()) {
-            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-                ItemScatterer.spawn(this.getWorld(), this.getBlockPos(), this.builderInventory);
-            }
-            // Todo: Find new villager to build structure if this villager hat a task to build
-        }
-    }
-
-    @Inject(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;)V", ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void initBrainMixin(Brain<VillagerEntity> brain, CallbackInfo info, VillagerProfession villagerProfession) {
-//        brain.setTaskList(Activity.WORK, BuilderTaskListProvider.createBuildingTasks(villagerProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
-    }
-
-
-    @WrapOperation(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;)V", ordinal = 1))
-    private void initBrainMixin(Brain<VillagerEntity> instance, Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<? super VillagerEntity>>> indexedTasks, Operation<Void> original) {
+    @WrapOperation(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;Ljava/util/Set;)V", ordinal = 0))
+    private void initBrainMixin(Brain<VillagerEntity> instance, Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<? super VillagerEntity>>> indexedTasks, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> requiredMemories, Operation<Void> original) {
         if (this.getVillagerData().getProfession().equals(VillagerUtilities.BUILDER)) {
-            instance.setTaskList(Activity.WORK, BuilderTaskListProvider.createBuildingTasks(null, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
+            instance.setTaskList(Activity.WORK, BuilderTaskListProvider.createBuildingTasks(), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
         } else {
-            original.call(instance, activity, indexedTasks);
+            original.call(instance, activity, indexedTasks, requiredMemories);
         }
     }
 
@@ -149,13 +172,18 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     }
 
     @Override
-    public BlockPos getTargetPosition() {
-        return this.targetPosition;
+    public boolean hasTargetPosition() {
+        return !this.dataTracker.get(TARGET_POS).equals(BlockPos.ORIGIN);
     }
 
     @Override
-    public void setTargetPosition(BlockPos targetPosition) {
-        this.targetPosition = targetPosition;
+    public BlockPos getTargetPosition() {
+        return this.dataTracker.get(TARGET_POS);
+    }
+
+    @Override
+    public void setTargetPosition(@Nullable BlockPos targetPosition) {
+        this.dataTracker.set(TARGET_POS, targetPosition != null ? targetPosition : BlockPos.ORIGIN);
     }
 
     @Override

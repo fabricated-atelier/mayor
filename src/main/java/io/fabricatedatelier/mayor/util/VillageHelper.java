@@ -24,7 +24,7 @@ public class VillageHelper {
         for (int i = 0; i < villageData.getVillagers().size(); i++) {
             if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
                 if (villagerEntity instanceof Builder builder) {
-                    if (builder.getTargetPosition() == null) {
+                    if (!builder.hasTargetPosition()) {
                         return true;
                     }
                 }
@@ -38,7 +38,7 @@ public class VillageHelper {
         for (int i = 0; i < villageData.getVillagers().size(); i++) {
             if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
                 if (villagerEntity instanceof Builder builder) {
-                    if (builder.getTargetPosition() == null) {
+                    if (!builder.hasTargetPosition()) {
                         return builder;
                     }
                 }
@@ -52,7 +52,7 @@ public class VillageHelper {
         for (int i = 0; i < villageData.getVillagers().size(); i++) {
             if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
                 if (villagerEntity instanceof Builder builder) {
-                    if (builder.getTargetPosition() == null) {
+                    if (!builder.hasTargetPosition()) {
                         return villagerEntity;
                     }
                 }

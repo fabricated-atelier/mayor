@@ -210,6 +210,8 @@
   "key.mayor.structure_upward": "Upward Structure",
   "mayor.screen.available_items": "Available Items",
   "mayor.screen.build": "Build",
+  "mayor.screen.builder": "Available Builder: %s",
+  "mayor.screen.building_cost": "Building Cost:",
   "mayor.screen.building_value": "%s / %s",
   "mayor.screen.category_values": "Category Values",
   "mayor.screen.iron_golems": "Iron Golems: %s",

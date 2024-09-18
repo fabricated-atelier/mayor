@@ -56,7 +56,9 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
 
     public void handlePacket(ClientPlayNetworking.Context context) {
         MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-        mayorManager.setMajorView(this.mayorView);
+        if(mayorManager.getVillageData() != null) {
+            mayorManager.setMajorView(this.mayorView);
+        }
 
 //        if (this.mayorView) {
 //            mayorManager.setOldPerspective(context.client().options.getPerspective());
@@ -94,7 +96,7 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
                     }
                     new MayorStructuresPacket(new MayorStructuresPacket.MayorStructureDatas(list.size(), list)).sendPacket(context.player());
                 }
-                new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures()).sendPacket(context.player());
+                new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures(), villageData.getConstructions()).sendPacket(context.player());
             }
         } else {
             context.player().setCameraEntity(null);

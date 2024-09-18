@@ -8,6 +8,7 @@ import io.fabricatedatelier.mayor.access.BuiltinModelItemRendererAccess;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.mixin.access.BlockRenderManagerAccess;
+import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.StructureData;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.block.BlockRenderType;
@@ -16,8 +17,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 
 public class RenderUtil {
@@ -42,35 +45,50 @@ public class RenderUtil {
         MinecraftClient client = MinecraftClient.getInstance();
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
 
-        if (mayorManager.isInMajorView() && mayorManager.getMayorStructure() != null) {
-            BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
-
-            BlockPos origin = mayorManager.getStructureOriginBlockPos();
-            if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {
-                Map<BlockPos, BlockState> blockMap = mayorManager.getMayorStructure().getBlockMap();
-
-
-                if (origin == null) {
-                    origin = blockHitResult.getBlockPos();
+        if (mayorManager.isInMajorView()) {
+            if (mayorManager.getVillageData() != null && !mayorManager.getVillageData().getConstructions().isEmpty()) {
+                for (Map.Entry<BlockPos, ConstructionData> entry : mayorManager.getVillageData().getConstructions().entrySet()) {
+                    if (client.worldRenderer.isRenderingReady(entry.getKey())) {
+                        // Todo: Maybe change this
+                        BlockBox box = entry.getValue().getStructureData().getBlockBox();
+                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMinX(), box.getMinY(), box.getMinZ(), 0,0,0);
+                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMinX()+1, box.getMinY(), box.getMinZ(), 0,0,0);
+                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMinX(), box.getMinY(), box.getMinZ()+1, 0,0,0);
+                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMaxX(), box.getMaxY(), box.getMaxZ(), 0,0,0);
+                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMaxX()-1, box.getMaxY(), box.getMaxZ(), 0,0,0);
+                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMaxX(), box.getMaxY(), box.getMaxZ()-1, 0,0,0);
+                    }
                 }
+            }
+            if (mayorManager.getMayorStructure() != null) {
+                BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
+                BlockPos origin = mayorManager.getStructureOriginBlockPos();
+                if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {
+                    Map<BlockPos, BlockState> blockMap = mayorManager.getMayorStructure().getBlockMap();
 
-                context.matrixStack().push();
-                context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
 
-                boolean canBuildStructure = StructureHelper.canPlaceStructure(mayorManager);
-                for (Map.Entry<BlockPos, BlockState> entry : blockMap.entrySet()) {
-                    BlockPos pos = entry.getKey();
-                    if (mayorManager.getStructureCentered()) {
-                        pos = pos.add(-mayorManager.getMayorStructure().getSize().getX() / 2, 0, -mayorManager.getMayorStructure().getSize().getZ() / 2);
+                    if (origin == null) {
+                        origin = blockHitResult.getBlockPos();
                     }
 
-                    pos = pos.rotate(mayorManager.getStructureRotation());
-                    BlockState state = entry.getValue().rotate(mayorManager.getStructureRotation());
+                    context.matrixStack().push();
+                    context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
 
-                    renderBlock(client, context.matrixStack(), context.consumers(), origin.add(pos), state, canBuildStructure);
+                    boolean canBuildStructure = StructureHelper.canPlaceStructure(mayorManager);
+                    for (Map.Entry<BlockPos, BlockState> entry : blockMap.entrySet()) {
+                        BlockPos pos = entry.getKey();
+                        if (mayorManager.getStructureCentered()) {
+                            pos = pos.add(-mayorManager.getMayorStructure().getSize().getX() / 2, 0, -mayorManager.getMayorStructure().getSize().getZ() / 2);
+                        }
+
+                        pos = pos.rotate(mayorManager.getStructureRotation());
+                        BlockState state = entry.getValue().rotate(mayorManager.getStructureRotation());
+
+                        renderBlock(client, context.matrixStack(), context.consumers(), origin.add(pos), state, canBuildStructure);
+                    }
+
+                    context.matrixStack().pop();
                 }
-
-                context.matrixStack().pop();
             }
         }
     }

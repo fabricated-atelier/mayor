@@ -38,7 +38,8 @@ public interface Builder {
 
     void setVillageCenterPosition(@Nullable BlockPos villageCenterPosition);
 
-    @Nullable
+    boolean hasTargetPosition();
+
     BlockPos getTargetPosition();
 
     void setTargetPosition(@Nullable BlockPos targetPosition);

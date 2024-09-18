@@ -55,6 +55,8 @@ public class MayorScreen extends Screen {
 
     private ButtonWidget buildButton;
 
+    private int availableBuilder = 0;
+
     private int levelX = 0;
     private int levelY = 0;
 
@@ -164,7 +166,7 @@ public class MayorScreen extends Screen {
                 this.buildButton.active = true;
             }
         }
-        if (!mayorManager.getVillageData().getVillagers().isEmpty()) {
+        if (this.mayorManager.getVillageData() != null && !this.mayorManager.getVillageData().getVillagers().isEmpty()) {
             new EntityListC2SPacket(mayorManager.getVillageData().getVillagers()).sendPacket();
         }
     }
@@ -189,25 +191,6 @@ public class MayorScreen extends Screen {
 
             renderCustomBackground(context, villageBackgroundX, villageBackgroundY, maxWidth, 47);
 
-//            // top left
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4, villageBackgroundY, 25, 0, 7, 7, 128, 128);
-//            // top middle
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY, maxWidth - 7, 7, 32, 0, 7, 7, 128, 128);
-//            // top right
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY, 39, 0, 7, 7, 128, 128);
-//            // middle left
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4, villageBackgroundY + 7, 7, 40, 25, 7, 7, 7, 128, 128);
-//            // middle middle
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + 7, maxWidth - 7, 40, 32, 7, 7, 7, 128, 128);
-//            // middle right
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + 7, 7, 40, 39, 7, 7, 7, 128, 128);
-//            // bottom left
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4, villageBackgroundY + 47, 25, 14, 7, 7, 128, 128);
-//            // bottom middle
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7, villageBackgroundY + 47, maxWidth - 7, 7, 32, 14, 7, 7, 128, 128);
-//            // bottom right
-//            context.drawTexture(VILLAGE, villageBackgroundX - 4 + 7 + maxWidth - 7, villageBackgroundY + 47, 39, 14, 7, 7, 128, 128);
-
             String name = mayorManager.getVillageData().getName();
             int villageLeft = villageMiddleX - this.textRenderer.getWidth(name) / 2;
 
@@ -216,7 +199,6 @@ public class MayorScreen extends Screen {
             context.drawTexture(VILLAGE, villageLeft - 6 + 10 + this.textRenderer.getWidth(name) - 9, villageY, 15, 0, 10, 23, 128, 128);
             context.drawText(this.textRenderer, name, villageLeft, villageY + 8, Colors.WHITE, false);
 
-            // Text level = Text.translatable("mayor.screen.level", mayorManager.getVillageData().getLevel());
             boolean longVillageName = this.textRenderer.getWidth(name) > 50;
             this.levelX = villageBackgroundX + (longVillageName ? -13 : maxWidth - 7);
             this.levelY = villageY + 6 + (longVillageName ? 57 : 0);
@@ -255,7 +237,7 @@ public class MayorScreen extends Screen {
             if (this.buildButton.visible) {
                 renderCustomBackground(context, this.width / 2 - 50, this.height / 2 - 30, 100, 60);
 
-                Text builder = Text.translatable("mayor.screen.builder", 10);//mayorManager.getVillageData().getVillagers().size()
+                Text builder = Text.translatable("mayor.screen.builder", this.getAvailableBuilder());
                 context.drawText(this.textRenderer, builder, this.width / 2 - this.textRenderer.getWidth(builder) / 2, this.height / 2 - 20, Colors.GRAY, false);
 
                 int buildingCost = 10;
@@ -361,7 +343,15 @@ public class MayorScreen extends Screen {
     }
 
     public ButtonWidget getBuildButton() {
-        return buildButton;
+        return this.buildButton;
+    }
+
+    public void setAvailableBuilder(int availableBuilder) {
+        this.availableBuilder = availableBuilder;
+    }
+
+    public int getAvailableBuilder() {
+        return this.availableBuilder;
     }
 
     public List<ItemStack> getAvailableStacks() {
