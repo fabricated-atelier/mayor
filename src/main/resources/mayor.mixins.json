@@ -7,17 +7,13 @@
     "BlockItemMixin",
     "CarvedPumpkinBlockMixin",
     "EntityMixin",
-    "FindPointOfInterestTaskMixin",
-    "GoToWorkTaskMixin",
     "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
     "ServerWorldMixin",
     "SinglePoolElementMixin",
     "StructureStartMixin",
     "StructureTemplateMixin",
-    "TakeJobSiteTaskMixin",
     "VillagerEntityMixin",
-    "VillagerTaskListProviderMixin",
     "access.JigsawStructureAccess"
   ],
   "injectors": {
