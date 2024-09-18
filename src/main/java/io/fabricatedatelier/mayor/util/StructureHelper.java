@@ -442,7 +442,7 @@ public class StructureHelper {
                         mayorManager.getVillageData().addStructure(structureData);
                         VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         // Sync village data to show structure name on hud
-                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures()).sendPacket(serverPlayerEntity);
+                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions()).sendPacket(serverPlayerEntity);
                     } else {
                         Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center));
@@ -454,7 +454,7 @@ public class StructureHelper {
                         mayorManager.getVillageData().addConstruction(constructionData);
 //                        }
 
-                        System.out.println("ASSIGNED "+builder);
+                        System.out.println("ASSIGNED " + builder);
                         //                        // Todo: Assign villager to build this mayorStructure here
 //                        // add info to villageData that this building is in construction
 //                        // remove using items of available items, put in extra inventory for villager to use
@@ -466,10 +466,13 @@ public class StructureHelper {
                     mayorManager.setMayorStructure(null);
                     mayorManager.setStructureOriginBlockPos(null);
                     return true;
-                }else{
+                } else {
+                    serverPlayerEntity.sendMessage(Text.of("TEST: "+(( VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())))));
+                    //InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty() && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
+//                    serverPlayerEntity.sendMessage(Text.of(mayorManager.getVillageData().getMayorPlayerUuid().toString()+ " : "+(serverPlayerEntity.getUuid().toString())+ " : "+(mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid()))));
                     serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village"));
                 }
-            }else{
+            } else {
                 serverPlayerEntity.sendMessage(Text.translatable("commands.mayor.something_went_wrong"));
             }
         }

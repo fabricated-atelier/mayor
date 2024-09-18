@@ -11,6 +11,7 @@ import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
+import net.minecraft.entity.ai.brain.task.FarmerWorkTask;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -35,6 +36,9 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected boolean shouldRun(ServerWorld serverWorld, VillagerEntity villagerEntity) {
+//        FarmerWorkTask
+
+        System.out.println("SHOULD RUN BUILDER TASK");
 //        if (!serverWorld.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
 //            return false;
 //        } else

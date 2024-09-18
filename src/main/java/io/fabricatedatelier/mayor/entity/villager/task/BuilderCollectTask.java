@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
+import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.state.ConstructionData;
@@ -33,7 +34,18 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //    private final BlockPos targetPosition = BlockPos.ORIGIN;
 
     public BuilderCollectTask() {
-        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
+     //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
+       // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
+        super(ImmutableMap.of(),200);
+    }
+
+    @Override
+    protected boolean hasRequiredMemoryState(VillagerEntity entity) {
+        boolean test =
+         super.hasRequiredMemoryState(entity);
+//        System.out.println("LOL TEST "+test);
+//        Mayor.LOGGER.warn("LOL");
+        return test;
     }
 
     @Override
@@ -58,10 +70,10 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                }
 //            }
 
-        System.out.println("???");
+//        System.out.println("???");
 
         if (villagerEntity instanceof Builder builder) {
-            if (builder.getVillageCenterPosition() != null && builder.getTargetPosition() != null && builder.getBuilderInventory().isEmpty()) {
+            if (builder.getVillageCenterPosition() != null && builder.hasTargetPosition() && builder.getBuilderInventory().isEmpty()) {
 
                 // Todo: Set the needed target Position here
                 // this is the needed position of the abstract village container block with the correct items
@@ -101,7 +113,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             Item item = StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).values().stream().findFirst().get().getBlock().asItem();
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
                 if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
-                    if(villageContainerBlockEntity.contains(ItemVariant.of(item))){
+                    if(villageContainerBlockEntity.contains(item)){
                         return villageData.getStorageOriginBlockPosList().get(i);
                     }
                     // Find the correct one lul
@@ -145,9 +157,13 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //    }
     @Override
     protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+        System.out.println("RUN");
         if (l > this.nextResponseTime && this.currentTarget != null) {
+            System.out.println("SET TARGETS");
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
+
+            //SECONDARY_JOB_SITE
         }
     }
 
@@ -157,10 +173,12 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
         this.ticksRan = 0;
         this.nextResponseTime = l + 40L;
+        System.out.println("FINISH");
     }
 
     @Override
     protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+//        System.out.println("KEEP");
         if (this.currentTarget == null || this.currentTarget.isWithinDistance(villagerEntity.getPos(), 1.0)) {
             if (this.currentTarget != null && l > this.nextResponseTime) {
                 BlockState blockState = serverWorld.getBlockState(this.currentTarget);
@@ -217,6 +235,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                }
                 if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
                     stop(serverWorld, villagerEntity, l);
+                    System.out.println("STOP");
                 }
             }
 
@@ -227,9 +246,11 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
         if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
+            System.out.println("OOOOOOOOOOO "+builder.getBuilderInventory());
             return false;
         }
         // Todo: Tweak should keep RUnning until the vill has stored some things in its inventory
+//        System.out.println("SHOULD KEEP RUNNING "+this.ticksRan);
         return this.ticksRan < 2000;
     }
 }
