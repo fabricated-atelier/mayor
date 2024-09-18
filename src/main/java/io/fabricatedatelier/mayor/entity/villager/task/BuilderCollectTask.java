@@ -16,10 +16,13 @@ import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
+import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.poi.PointOfInterestType;
 import org.jetbrains.annotations.Nullable;
 
 public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
@@ -34,15 +37,15 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //    private final BlockPos targetPosition = BlockPos.ORIGIN;
 
     public BuilderCollectTask() {
-     //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
-       // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
-        super(ImmutableMap.of(),200);
+        //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
+        // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
+        super(ImmutableMap.of(), 200);
     }
 
     @Override
     protected boolean hasRequiredMemoryState(VillagerEntity entity) {
         boolean test =
-         super.hasRequiredMemoryState(entity);
+                super.hasRequiredMemoryState(entity);
 //        System.out.println("LOL TEST "+test);
 //        Mayor.LOGGER.warn("LOL");
         return test;
@@ -72,30 +75,24 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
 //        System.out.println("???");
 
+//        "#minecraft:doors",
+//                "minecraft:glass_pane",
+//                "#minecraft:beds",
+//                "minecraft:torch",
+//                "#minecraft:stairs"
+
         if (villagerEntity instanceof Builder builder) {
             if (builder.getVillageCenterPosition() != null && builder.hasTargetPosition() && builder.getBuilderInventory().isEmpty()) {
-
-                // Todo: Set the needed target Position here
-                // this is the needed position of the abstract village container block with the correct items
                 MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
                 if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
                     VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
                     if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
                         ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
-//                        constructionData.getStructureData().
-//                        constructionData.getBlockMap();
 
-//                        villageData.getStorageOriginBlockPosList();
-
-                        this.currentTarget = getTarget(serverWorld, villageData, constructionData);
-                        System.out.println("BUILDER COLLECT TASK: "+villagerEntity+ " : "+this.currentTarget);
+                        this.currentTarget = getTarget(serverWorld, villagerEntity, villageData, constructionData);
+                        System.out.println("BUILDER COLLECT TASK: " + villagerEntity + " : " + this.currentTarget);
                     }
                 }
-                // Todo: Find current target
-//                return builder.getBuilderInventory().isEmpty();
-
-
-//                mayorVillageState.
 
                 return this.currentTarget != null;
             }
@@ -103,8 +100,13 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         return false;
     }
 
+    private static boolean canReachSite(PathAwareEntity entity, BlockPos pos) {
+        Path path = entity.getNavigation().findPathTo(pos, 128);
+        return path != null && path.reachesTarget();
+    }
+
     @Nullable
-    private BlockPos getTarget(ServerWorld serverWorld, VillageData villageData, ConstructionData constructionData) {
+    private BlockPos getTarget(ServerWorld serverWorld, VillagerEntity villagerEntity, VillageData villageData, ConstructionData constructionData) {
         if (villageData.getStorageOriginBlockPosList().size() <= 0) {
             return null;
         }
@@ -113,15 +115,21 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             Item item = StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).values().stream().findFirst().get().getBlock().asItem();
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
                 if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
-                    if(villageContainerBlockEntity.contains(item)){
-                        return villageData.getStorageOriginBlockPosList().get(i);
+                    if (villageContainerBlockEntity.contains(item)) {
+                        if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && canReachSite(villagerEntity, villageContainerBlockEntity.getStructureOriginPos().get())) {
+                            return villageContainerBlockEntity.getStructureOriginPos().get();
+                        } else {
+                            for (BlockPos pos : villageContainerBlockEntity.getConnectedBlocks()) {
+                                if (canReachSite(villagerEntity, pos)) {
+                                    return pos;
+                                }
+                            }
+                        }
+                        return null;
                     }
-                    // Find the correct one lul
-                    // Todo: villageContainerBlockEntity contains item
 
                     // Todo: Maybe get closest storage blockpos of the of the storage multiblock
 //                        break;
-//                    CowEntity
                 }
             }
         }
@@ -246,7 +254,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
         if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
-            System.out.println("OOOOOOOOOOO "+builder.getBuilderInventory());
+            System.out.println("OOOOOOOOOOO " + builder.getBuilderInventory());
             return false;
         }
         // Todo: Tweak should keep RUnning until the vill has stored some things in its inventory

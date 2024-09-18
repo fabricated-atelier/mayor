@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
-import io.fabricatedatelier.mayor.init.VillagerUtilities;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
 import io.fabricatedatelier.mayor.screen.MayorVillageScreen;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -53,7 +53,7 @@ public record EntityListS2CPacket(List<Integer> entityList) implements CustomPay
         } else if (context.client().currentScreen instanceof MayorScreen mayorScreen) {
             int availableBuilder = 0;
             for (int i = 0; i < this.entityList().size(); i++) {
-                if (context.player().getWorld().getEntityById(this.entityList().get(i)) instanceof VillagerEntity villagerEntity && villagerEntity.getVillagerData().getProfession().equals(VillagerUtilities.BUILDER) && villagerEntity instanceof Builder builder && !builder.hasTargetPosition()) {
+                if (context.player().getWorld().getEntityById(this.entityList().get(i)) instanceof VillagerEntity villagerEntity && villagerEntity.getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && villagerEntity instanceof Builder builder && !builder.hasTargetPosition()) {
                     availableBuilder++;
                 }
             }

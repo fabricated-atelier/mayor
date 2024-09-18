@@ -7,7 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
-import io.fabricatedatelier.mayor.init.VillagerUtilities;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
@@ -131,7 +131,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @WrapOperation(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;Ljava/util/Set;)V", ordinal = 0))
     private void initBrainMixin(Brain<VillagerEntity> instance, Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<? super VillagerEntity>>> indexedTasks, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> requiredMemories, Operation<Void> original) {
-        if (this.getVillagerData().getProfession().equals(VillagerUtilities.BUILDER)) {
+        if (this.getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER)) {
             instance.setTaskList(Activity.WORK, BuilderTaskListProvider.createBuildingTasks(), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
         } else {
             original.call(instance, activity, indexedTasks, requiredMemories);
@@ -143,10 +143,10 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         if (this.getWorld() instanceof ServerWorld serverWorld) {
             VillagerData villagerData3 = this.getVillagerData();
             if (villagerData3.getProfession().equals(VillagerProfession.NONE)) {
-                if (villagerData.getProfession().equals(VillagerUtilities.BUILDER)) {
+                if (villagerData.getProfession().equals(MayorVillagerUtilities.BUILDER)) {
                     VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, true);
                 }
-            } else if (villagerData3.getProfession().equals(VillagerUtilities.BUILDER) && !villagerData.getProfession().equals(VillagerUtilities.BUILDER)) {
+            } else if (villagerData3.getProfession().equals(MayorVillagerUtilities.BUILDER) && !villagerData.getProfession().equals(MayorVillagerUtilities.BUILDER)) {
                 VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
             }
         }

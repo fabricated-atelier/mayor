@@ -2,8 +2,6 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
-import io.fabricatedatelier.mayor.init.Entities;
-import io.fabricatedatelier.mayor.init.VillagerUtilities;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.*;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -45,6 +43,8 @@ public class BuilderTaskListProvider {
                         Pair.of(8, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
                         Pair.of(99, ScheduleActivityTask.create()
         ));
+
+                // 0 is more important than higher integers
 
 //                WalkHomeTask
     }
