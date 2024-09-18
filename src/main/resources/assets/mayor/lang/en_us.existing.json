@@ -10,6 +10,8 @@
 
     "entity.minecraft.villager.builder": "Builder",
 
+    "block.mayor.construction_table": "Construction Table",
+
     "mayor.village": "Village",
     "mayor.village.level_up": "%s Level Up",
 

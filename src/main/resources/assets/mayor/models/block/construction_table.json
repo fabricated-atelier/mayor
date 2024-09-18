@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "mayor:block/construction_table_top_bottom",
+    "east": "mayor:block/construction_table_side",
+    "north": "mayor:block/construction_table_front",
+    "particle": "mayor:block/construction_table_top_bottom",
+    "south": "mayor:block/construction_table_side",
+    "up": "mayor:block/construction_table_top_bottom",
+    "west": "mayor:block/construction_table_front"
+  }
+}

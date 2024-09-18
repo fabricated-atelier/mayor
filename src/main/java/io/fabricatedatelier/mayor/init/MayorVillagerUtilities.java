@@ -27,11 +27,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
-public class MayorVillagerUtilities {
+public class VillagerUtilities {
 
     public static final RegistryKey<PointOfInterestType> BUILDER_POI_KEY = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE, Mayor.identifierOf("builder"));
 
-    public static final PointOfInterestType BUILDER_POI = PointOfInterestHelper.register(Mayor.identifierOf("builder"), 1, 1, MayorBlocks.CAMERA_DEBUG);
+    public static final PointOfInterestType BUILDER_POI = PointOfInterestHelper.register(Mayor.identifierOf("builder"), 1, 1, Blocks.CONSTRUCTION_TABLE);
 
     public static final VillagerProfession BUILDER = register("builder", entry -> entry.value().equals(BUILDER_POI), entry -> entry.value().equals(BUILDER_POI), ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_MASON);
 
@@ -44,7 +44,7 @@ public class MayorVillagerUtilities {
 //    VillagerClothingFeatureRenderer
 //    public static final RegistryKey<PointOfInterestType> BUILDER_POI_KEY = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE,  Identifier.ofVanilla("builder"));
 //
-//    public static final PointOfInterestType BUILDER_POI = PointOfInterestHelper.register( Identifier.ofVanilla("builder"), 1, 1, MayorBlocks.CAMERA_DEBUG);
+//    public static final PointOfInterestType BUILDER_POI = PointOfInterestHelper.register( Identifier.ofVanilla("builder"), 1, 1, Blocks.CAMERA_DEBUG);
 //
 //    public static final VillagerProfession BUILDER = register("builder", entry -> entry.value().equals(BUILDER_POI), entry -> entry.value().equals(BUILDER_POI), ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_MASON);
 //
@@ -116,7 +116,7 @@ public class MayorVillagerUtilities {
 ////            System.out.println(iterator.next());
 //        }
 
-//        System.out.println(PointOfInterestTypes.isPointOfInterest(MayorBlocks.CAMERA_DEBUG.getDefaultState())+ " : "+PointOfInterestTypes.getTypeForState(MayorBlocks.CAMERA_DEBUG.getDefaultState()));
+//        System.out.println(PointOfInterestTypes.isPointOfInterest(Blocks.CAMERA_DEBUG.getDefaultState())+ " : "+PointOfInterestTypes.getTypeForState(Blocks.CAMERA_DEBUG.getDefaultState()));
     }
 
     private static class SimpleTradeFactory implements TradeOffers.Factory {

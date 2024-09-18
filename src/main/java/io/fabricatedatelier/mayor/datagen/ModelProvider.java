@@ -36,6 +36,9 @@ public class ModelProvider extends FabricModelProvider {
 
         itemModelGenerator.register(MayorBlocks.STONE_STORAGE.asItem(),   //TODO: use different model?
                 new Model(Optional.of(Mayor.identifierOf("block/lumber_single")), Optional.empty()));
+
+        itemModelGenerator.register(Blocks.CONSTRUCTION_TABLE.asItem(),
+                new Model(Optional.of(Mayor.identifierOf("block/construction_table")), Optional.empty()));
     }
 
     private BlockStateVariantMap createMultiBlockStructureMap(String name) {
