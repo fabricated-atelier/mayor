@@ -2,6 +2,8 @@ package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
+import io.fabricatedatelier.mayor.state.ConstructionData;
+import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -47,18 +49,45 @@ public class VillageHelper {
         return null;
     }
 
-    @Nullable
-    public static VillagerEntity getTasklessBuildingVillager(VillageData villageData, ServerWorld serverWorld) {
-        for (int i = 0; i < villageData.getVillagers().size(); i++) {
-            if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
-                if (villagerEntity instanceof Builder builder) {
-                    if (!builder.hasTargetPosition()) {
-                        return villagerEntity;
-                    }
-                }
+    // Todo: Find new villager to build structure if this villager hat a task to build
+    public static void updateBuildingVillagerBuilder(ServerWorld serverWorld, Builder builder, boolean freshBuilder) {
+        if (builder.getVillageCenterPosition() == null) {
+            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, builder.getVillagerEntity().getBlockPos());
+            if (villageData != null) {
+                builder.setVillageCenterPosition(villageData.getCenterPos());
             }
         }
-        return null;
+
+        if (builder.getVillageCenterPosition() != null) {
+            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
+
+            if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
+                VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+                if (freshBuilder) {
+                    for (ConstructionData constructionData : villageData.getConstructions().values()) {
+                        if (constructionData.getVillagerUuid() == null) {
+                            constructionData.setVillagerUuid(builder.getVillagerEntity().getUuid());
+                            builder.setTargetPosition(constructionData.getBottomCenterPos());
+                            builder.setVillageCenterPosition(villageData.getCenterPos());
+                            break;
+                        }
+                    }
+                } else {
+                    if (!builder.getVillagerEntity().isAlive()) {
+                        MayorStateHelper.updateVillageUuids(serverWorld, builder.getVillageCenterPosition(), builder.getVillagerEntity());
+                    }
+                    if (VillageHelper.getTasklessBuildingVillagerBuilder(villageData, serverWorld) instanceof Builder newBuilder) {
+                        newBuilder.setTargetPosition(builder.getTargetPosition());
+                        newBuilder.setVillageCenterPosition(builder.getVillageCenterPosition());
+                        villageData.getConstructions().get(builder.getTargetPosition()).setVillagerUuid(newBuilder.getVillagerEntity().getUuid());
+                    } else {
+                        villageData.getConstructions().get(builder.getTargetPosition()).setVillagerUuid(null);
+                    }
+                    builder.setTargetPosition(null);
+                }
+                mayorVillageState.markDirty();
+            }
+        }
     }
 
     public static void tryLevelUpVillage(VillageData villageData, ServerWorld serverWorld) {

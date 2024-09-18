@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.entity.villager.access;
 
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -8,6 +9,8 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public interface Builder {
+
+    VillagerEntity getVillagerEntity();
 
     SimpleInventory getBuilderInventory();
 

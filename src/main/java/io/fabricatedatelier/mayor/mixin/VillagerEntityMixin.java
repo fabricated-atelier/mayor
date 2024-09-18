@@ -5,11 +5,9 @@ import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
-import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.VillagerUtilities;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
@@ -37,11 +35,11 @@ import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.village.VillagerData;
+import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -94,29 +92,11 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Inject(method = "onDeath", at = @At("TAIL"))
     private void onDeathMixin(DamageSource damageSource, CallbackInfo info) {
-        if (!this.getWorld().isClient()) {
-            if (this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-                ItemScatterer.spawn(this.getWorld(), this.getBlockPos(), this.builderInventory);
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            if (serverWorld.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+                ItemScatterer.spawn(serverWorld, this.getBlockPos(), this.builderInventory);
             }
-            if (this.villageCenterPos != null) {
-                MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState((ServerWorld) this.getWorld());
-                if (mayorVillageState.getVillageData(this.villageCenterPos) != null) {
-                    MayorStateHelper.updateVillageUuids((ServerWorld) this.getWorld(), this.villageCenterPos, this);
-                    VillageData villageData = mayorVillageState.getVillageData(this.villageCenterPos);
-                    if (VillageHelper.getTasklessBuildingVillagerBuilder(villageData, (ServerWorld) this.getWorld()) instanceof Builder builder) {
-                        builder.setTargetPosition(this.dataTracker.get(TARGET_POS));
-                        builder.setVillageCenterPosition(this.villageCenterPos);
-                    } else {
-                        villageData.getConstructions().remove(this.dataTracker.get(TARGET_POS));
-                        // Todo: Find new villager to build structure if this villager hat a task to build
-                        // Send info to mayor that it got removed
-                    }
-
-                    mayorVillageState.markDirty();
-                }
-            }
-
-
+            VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
         }
     }
 
@@ -158,6 +138,20 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         }
     }
 
+    @Inject(method = "setVillagerData", at = @At("HEAD"))
+    private void setVillagerDataMixin(VillagerData villagerData, CallbackInfo info) {
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            VillagerData villagerData3 = this.getVillagerData();
+            if (villagerData3.getProfession().equals(VillagerProfession.NONE)) {
+                if (villagerData.getProfession().equals(VillagerUtilities.BUILDER)) {
+                    VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, true);
+                }
+            } else if (villagerData3.getProfession().equals(VillagerUtilities.BUILDER) && !villagerData.getProfession().equals(VillagerUtilities.BUILDER)) {
+                VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
+            }
+        }
+    }
+
     @Shadow
     public abstract VillagerData getVillagerData();
 
@@ -189,5 +183,10 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Override
     public SimpleInventory getBuilderInventory() {
         return this.builderInventory;
+    }
+
+    @Override
+    public VillagerEntity getVillagerEntity() {
+        return (VillagerEntity) (Object) this;
     }
 }
