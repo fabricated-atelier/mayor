@@ -89,7 +89,7 @@ public class VillageData {
         nbt.putInt("Level", this.level);
         nbt.putString("Name", this.name);
         nbt.putLong("Age", this.age);
-        nbt.putBoolean("HasMayjor", this.mayorPlayerUuid != null);
+        nbt.putBoolean("HasMayor", this.mayorPlayerUuid != null);
         if (this.mayorPlayerUuid != null) {
             nbt.putUuid("MayorUuid", this.mayorPlayerUuid);
             nbt.putLong("MayorPlayTime", this.mayorPlayerTime);
