@@ -35,11 +35,11 @@ public class MinecraftClientMixin {
             if (this.majorKeyBindTicks > 0) {
                 this.majorKeyBindTicks--;
                 info.cancel();
-            } else if (MayorKeyBindings.mayorRotateLeftKeyBind.isPressed()) {
+            } else if (MayorKeyBindings.rotateLeft.isPressed()) {
                 KeyHelper.rotateKey((MinecraftClient) (Object) this, true);
                 this.majorKeyBindTicks = 5;
                 info.cancel();
-            } else if (MayorKeyBindings.mayorRotateRightKeyBind.isPressed()) {
+            } else if (MayorKeyBindings.rotateRight.isPressed()) {
                 KeyHelper.rotateKey((MinecraftClient) (Object) this, false);
                 this.majorKeyBindTicks = 5;
                 info.cancel();

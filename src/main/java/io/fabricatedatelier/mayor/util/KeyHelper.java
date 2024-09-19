@@ -21,7 +21,7 @@ public class KeyHelper {
     }
 
     public static void centerKey(MinecraftClient client) {
-        if (MayorKeyBindings.mayorCenterKeyBind.wasPressed()) {
+        if (MayorKeyBindings.targetToCenter.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView()) {
@@ -32,14 +32,14 @@ public class KeyHelper {
     }
 
     public static void heightKey(MinecraftClient client) {
-        if (MayorKeyBindings.mayorUpwardKeyBind.wasPressed()) {
+        if (MayorKeyBindings.upward.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
                     mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().up());
                 }
             }
-        } else if (MayorKeyBindings.mayorDownwardKeyBind.wasPressed()) {
+        } else if (MayorKeyBindings.downward.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
@@ -50,12 +50,12 @@ public class KeyHelper {
     }
 
     public static void viewKey(MinecraftClient client) {
-        if (MayorKeyBindings.mayorViewBind.wasPressed()) {
+        if (MayorKeyBindings.mayorView.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
                 new MayorViewPacket(!mayorManager.isInMajorView()).sendClientPacket();
             }
-        } else if (MayorKeyBindings.mayorViewSelectionBind.wasPressed()) {
+        } else if (MayorKeyBindings.mayorViewSelection.wasPressed()) {
             if (client.player != null) {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
 

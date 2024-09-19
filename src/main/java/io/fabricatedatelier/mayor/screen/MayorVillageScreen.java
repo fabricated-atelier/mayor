@@ -198,7 +198,7 @@ public class MayorVillageScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (MayorKeyBindings.mayorViewSelectionBind.matchesKey(keyCode, scanCode) || MayorKeyBindings.mayorViewBind.matchesKey(keyCode, scanCode) || this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
+        if (MayorKeyBindings.mayorViewSelection.matchesKey(keyCode, scanCode) || MayorKeyBindings.mayorView.matchesKey(keyCode, scanCode) || this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
             this.client.setScreen(new MayorScreen(this.mayorManager));
             return true;
         }

@@ -24,7 +24,7 @@ public class KeyBindingMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         if (key.getCode() == 81 || key.getCode() == 69) {
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
-                if ((key.getCode() == 81 && MayorKeyBindings.mayorRotateLeftKeyBind.isDefault()) || (key.getCode() == 69 && MayorKeyBindings.mayorRotateRightKeyBind.isDefault())) {
+                if ((key.getCode() == 81 && MayorKeyBindings.rotateLeft.isDefault()) || (key.getCode() == 69 && MayorKeyBindings.rotateRight.isDefault())) {
                     info.cancel();
                 }
             }
@@ -43,11 +43,11 @@ public class KeyBindingMixin {
         if (key.getCode() == 81 || key.getCode() == 69) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
-                if (key.getCode() == 81 && MayorKeyBindings.mayorRotateLeftKeyBind.isDefault()) {
-                    MayorKeyBindings.mayorRotateLeftKeyBind.setPressed(pressed);
+                if (key.getCode() == 81 && MayorKeyBindings.rotateLeft.isDefault()) {
+                    MayorKeyBindings.rotateLeft.setPressed(pressed);
                     info.cancel();
-                } else if (key.getCode() == 69 && MayorKeyBindings.mayorRotateRightKeyBind.isDefault()) {
-                    MayorKeyBindings.mayorRotateRightKeyBind.setPressed(pressed);
+                } else if (key.getCode() == 69 && MayorKeyBindings.rotateRight.isDefault()) {
+                    MayorKeyBindings.rotateRight.setPressed(pressed);
                     info.cancel();
                 }
             }
