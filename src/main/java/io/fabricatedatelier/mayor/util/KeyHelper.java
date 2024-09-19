@@ -14,78 +14,62 @@ import java.util.Optional;
 public class KeyHelper {
 
     public static void rotateKey(MinecraftClient client, boolean rotateLeft) {
-        if (client.player != null) {
-            MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-            mayorManager.setStructureRotation(StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), rotateLeft));
-        }
+        if (client.player == null) return;
+        MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+
+        mayorManager.setStructureRotation(StructureHelper.getRotatedStructureRotation(mayorManager.getStructureRotation(), rotateLeft));
     }
 
     public static void centerKey(MinecraftClient client) {
+        if (client.player == null) return;
+        MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+        if (!mayorManager.isInMajorView()) return;
+
         if (MayorKeyBindings.targetToCenter.wasPressed()) {
-            if (client.player != null) {
-                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                if (client.player != null && mayorManager.isInMajorView()) {
-                    mayorManager.setStructureCentered(!mayorManager.getStructureCentered());
-                }
-            }
+            mayorManager.setStructureCentered(!mayorManager.getStructureCentered());
         }
     }
 
     public static void heightKey(MinecraftClient client) {
+        if (client.player == null) return;
+        MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+        if (!mayorManager.isInMajorView() || mayorManager.getStructureOriginBlockPos() == null) return;
+
         if (MayorKeyBindings.upward.wasPressed()) {
-            if (client.player != null) {
-                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
-                    mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().up());
-                }
-            }
-        } else if (MayorKeyBindings.downward.wasPressed()) {
-            if (client.player != null) {
-                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                if (client.player != null && mayorManager.isInMajorView() && mayorManager.getStructureOriginBlockPos() != null) {
-                    mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().down());
-                }
-            }
+            mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().up());
+            return;
+        }
+        if (MayorKeyBindings.downward.wasPressed()) {
+            mayorManager.setStructureOriginBlockPos(mayorManager.getStructureOriginBlockPos().down());
         }
     }
 
     public static void viewKey(MinecraftClient client) {
-        if (MayorKeyBindings.mayorView.wasPressed()) {
-            if (client.player != null) {
-                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-                new MayorViewPacket(!mayorManager.isInMajorView()).sendClientPacket();
-            }
-        } else if (MayorKeyBindings.mayorViewSelection.wasPressed()) {
-            if (client.player != null) {
-                MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+        if (client.player == null) return;
+        MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
 
-                if (mayorManager.isInMajorView()) {
-                    if (client.currentScreen instanceof MayorScreen) {
-                        client.setScreen(null);
-                    } else {
-                        client.setScreen(new MayorScreen(mayorManager));
-                    }
-                }
-            }
+        if (MayorKeyBindings.mayorView.wasPressed()) {
+            new MayorViewPacket(!mayorManager.isInMajorView()).sendClientPacket();
+            return;
+        }
+        if (MayorKeyBindings.mayorViewSelection.wasPressed() && mayorManager.isInMajorView()) {
+            if (client.currentScreen instanceof MayorScreen) client.setScreen(null);
+            else client.setScreen(new MayorScreen(mayorManager));
         }
     }
 
     public static void useKey(MinecraftClient client) {
-        if (client.options.useKey.wasPressed() && client.player != null) {
-            MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
-            if (mayorManager.isInMajorView() && !(client.currentScreen instanceof MayorScreen)) {
-                if (mayorManager.getStructureOriginBlockPos() == null) {
-                    Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(client.player));
-                    if (hitResult.isPresent()) {
-                        Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
-                        if (origin.isPresent()) {
-                            mayorManager.setStructureOriginBlockPos(origin.get());
-                        }
-                    }
-                } else {
-                    mayorManager.setStructureOriginBlockPos(null);
-                }
-            }
+        if (!client.options.useKey.wasPressed() || client.player == null) return;
+        MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
+        if (!mayorManager.isInMajorView() || client.currentScreen instanceof MayorScreen) return;
+        if (mayorManager.getStructureOriginBlockPos() != null) {
+            mayorManager.setStructureOriginBlockPos(null);
+            return;
+        }
+        Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(client.player));
+        if (hitResult.isPresent()) {
+            Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
+            origin.ifPresent(mayorManager::setStructureOriginBlockPos);
         }
     }
 }
