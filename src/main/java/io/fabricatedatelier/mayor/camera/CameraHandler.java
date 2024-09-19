@@ -31,6 +31,7 @@ import java.util.Optional;
 @SuppressWarnings("UnusedReturnValue")
 public class CameraHandler {
     public static final int FULL_ORBIT_TICK_DURATION = 8000;
+    public static final int TICKS_UNTIL_IDLE_FINISHED = 800;
 
     private static CameraHandler instance;
 
@@ -41,7 +42,8 @@ public class CameraHandler {
 
     private float normalizedOrbitProgress = 0;
     private float height = 5, distance = 10;
-    private int tick = 0;
+    private int ticksSinceLastInteraction = 0;
+    private int tick = ticksSinceLastInteraction;
 
     private final FadeTransition startFadeTransition, endFadeTransition;
 
@@ -167,12 +169,25 @@ public class CameraHandler {
         this.tick = tick;
     }
 
+    public int getTicksSinceLastInteraction() {
+        return this.ticksSinceLastInteraction;
+    }
+
+    public void setTicksSinceLastInteraction(int ticksSinceLastInteraction) {
+        this.ticksSinceLastInteraction = ticksSinceLastInteraction;
+    }
+
+
     public void tick() {
         if (isFinished()) {
             instance = null;
             return;
         }
-        this.setTick(this.getTick() + 1);
+        this.setTicksSinceLastInteraction(this.getTicksSinceLastInteraction() + 1);
+        if (this.getTicksSinceLastInteraction() >= TICKS_UNTIL_IDLE_FINISHED) {
+            this.setTick(this.getTick() + 1);
+        }
+
         if (!hasTarget()) return;
         if (getStartTransition().isRunning()) {
             getStartTransition().tick();
@@ -188,8 +203,8 @@ public class CameraHandler {
 
     public void updateCameraPos() {
         if (this.getTarget().isEmpty()) return;
-        float progressAngle = MathHelper.lerp(this.getNormalizedOrbitProgress(), 0f, 360f);
 
+        float progressAngle = MathHelper.lerp(this.getNormalizedOrbitProgress(), 0f, 360f);
         Vec3d targetPos = this.getTarget().get().mayor$getTargetPosition();
         double x = targetPos.x + this.getDistance() * Math.cos(Math.toRadians(progressAngle));
         double y = targetPos.y + this.getHeight();
@@ -199,13 +214,11 @@ public class CameraHandler {
 
     public void updateCameraRotations() {
         if (this.getTarget().isEmpty() || this.getTarget().get().mayor$getTargetPosition() == null) return;
+
         double pitchInRad = Math.asin(getHeight() / getHorizontalDistance());
-
         this.setPitch(Math.toDegrees(pitchInRad));
-
         double deltaX = getTarget().get().mayor$getTargetPosition().x - this.getCameraPos().x;
         double deltaZ = getTarget().get().mayor$getTargetPosition().z - this.getCameraPos().z;
-
         double yawInRad = MathHelper.atan2(deltaZ, deltaX);
         this.setYaw(Math.toDegrees(yawInRad) - 90);
     }
@@ -216,6 +229,10 @@ public class CameraHandler {
     }
 
     public void handleMouseMovement(double deltaX, double deltaY) {
+        double idleThreshold = 2.7;
 
+        if (Math.abs(deltaX) + Math.abs(deltaY) > idleThreshold) {
+            this.ticksSinceLastInteraction = 0;
+        }
     }
 }
