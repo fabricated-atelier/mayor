@@ -22,7 +22,7 @@ public class MayorClientEvents {
         HudRenderCallback.EVENT.register((drawContext, tickCounter) -> {
             RenderUtil.renderMayorHud(drawContext);
             CameraHandler camera = CameraHandler.getInstance();
-            if (!camera.hasTarget()) return;
+            if (camera.getTarget().isEmpty()) return;
             if (camera.getStartTransition().isRunning()) {
                 camera.getStartTransition().renderOverlay(drawContext);
             }

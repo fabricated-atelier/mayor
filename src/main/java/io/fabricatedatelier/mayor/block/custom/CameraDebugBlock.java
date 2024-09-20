@@ -2,9 +2,10 @@ package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.CameraDebugBlockEntity;
+import io.fabricatedatelier.mayor.camera.mode.OrbitMode;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import io.fabricatedatelier.mayor.camera.CameraHandler;
-import io.fabricatedatelier.mayor.camera.target.CameraTarget;
+import io.fabricatedatelier.mayor.camera.util.CameraTarget;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -29,7 +30,7 @@ public class CameraDebugBlock extends BlockWithEntity {
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         player.sendMessage(Text.literal("Used Block"), true);
         if (world instanceof ClientWorld clientWorld && clientWorld.getBlockEntity(pos) instanceof CameraTarget target) {
-            CameraHandler.getInstance().setTarget(target);
+             CameraHandler.getInstance().setTarget(target).setMode(new OrbitMode());
         }
         return ActionResult.SUCCESS;
     }

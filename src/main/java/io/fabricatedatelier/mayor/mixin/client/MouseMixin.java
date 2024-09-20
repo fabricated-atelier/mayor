@@ -26,7 +26,7 @@ public class MouseMixin {
         double delta = (mouseScrolled ? Math.signum(horizontal) : vertical) * options.getMouseWheelSensitivity().getValue();
 
         if (player == null) return;
-        if (!CameraHandler.getInstance().hasTarget()) return;
+        if (CameraHandler.getInstance().getTarget().isEmpty()) return;
         CameraHandler.getInstance().handleScroll(delta);
         ci.cancel();
     }

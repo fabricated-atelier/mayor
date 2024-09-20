@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin;
 
-import io.fabricatedatelier.mayor.camera.target.CameraTarget;
+import io.fabricatedatelier.mayor.camera.util.CameraTarget;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;

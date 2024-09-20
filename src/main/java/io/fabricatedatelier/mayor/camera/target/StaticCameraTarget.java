@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor.camera.target;
 
+import io.fabricatedatelier.mayor.camera.util.CameraTarget;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;

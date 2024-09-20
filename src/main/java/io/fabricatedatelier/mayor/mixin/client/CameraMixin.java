@@ -30,23 +30,18 @@ public abstract class CameraMixin {
         if (!(focusedEntity instanceof ClientPlayerEntity clientPlayer)) return;
         CameraHandler camera = CameraHandler.getInstance();
 
-        if (!camera.hasTarget()) {
+        if (camera.getTarget().isEmpty()) {
             return;
         }
         if (clientPlayer.isSneaking()) {
             camera.end();
         }
 
-        camera.getTarget().ifPresent(target -> {
+        camera.getMode().ifPresent(cameraMode -> {
+            if (cameraMode.needsTarget() && camera.getTarget().isEmpty()) return;
             camera.tick();
-
-            float normalizedProgress = (float) camera.getTick() / CameraHandler.FULL_ORBIT_TICK_DURATION;
-            camera.setNormalizedOrbitProgress(normalizedProgress);
-            camera.updateCameraPos();
-            camera.updateCameraRotations();
             this.setPos(camera.getCameraPos());
             this.setRotation((float) camera.getYaw(), (float) camera.getPitch());
-            if (camera.getTick() >= CameraHandler.FULL_ORBIT_TICK_DURATION) camera.setTick(0);
         });
     }
 }

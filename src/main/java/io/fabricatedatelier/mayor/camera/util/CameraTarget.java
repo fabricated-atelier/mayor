@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.camera.target;
+package io.fabricatedatelier.mayor.camera.util;
 
 import net.minecraft.util.math.Vec3d;
 
