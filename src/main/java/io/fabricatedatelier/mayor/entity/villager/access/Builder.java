@@ -1,7 +1,6 @@
 package io.fabricatedatelier.mayor.entity.villager.access;
 
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -14,28 +13,6 @@ public interface Builder {
     VillagerEntity getVillagerEntity();
 
     BuilderInventory getBuilderInventory();
-
-//    static void pickUpItem(MobEntity entity, BuilderInventory builderInventory, ItemEntity item) {
-//        ItemStack itemStack = item.getStack();
-//        if (entity.canGather(itemStack)) {
-//            SimpleInventory simpleInventory = builderInventory.getBuilderInventory();
-//            boolean bl = simpleInventory.canInsert(itemStack);
-//            if (!bl) {
-//                return;
-//            }
-//
-//            entity.triggerItemPickedUpByEntityCriteria(item);
-//            int i = itemStack.getCount();
-//            ItemStack itemStack2 = simpleInventory.addStack(itemStack);
-//            entity.sendPickup(item, i - itemStack2.getCount());
-//            if (itemStack2.isEmpty()) {
-//                item.discard();
-//            } else {
-//                itemStack.setCount(itemStack2.getCount());
-//            }
-//        }
-//    }
-
 
     @Nullable
     BlockPos getVillageCenterPosition();
@@ -50,7 +27,7 @@ public interface Builder {
 
     ItemStack getCarryItemStack();
 
-    public void setCarryItemStack(ItemStack itemStack);
+    void setCarryItemStack(ItemStack itemStack);
 
     default void readBuilderInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
         if (nbt.contains("BuilderInventory", NbtElement.LIST_TYPE)) {
