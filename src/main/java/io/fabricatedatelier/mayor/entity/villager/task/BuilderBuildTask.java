@@ -6,6 +6,7 @@ import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
@@ -13,11 +14,18 @@ import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.FarmerWorkTask;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
+import net.minecraft.entity.ai.pathing.Path;
+import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
     //    private static final int MAX_RUN_TIME = 200;
@@ -30,15 +38,19 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
 //    private final BlockPos targetPosition = BlockPos.ORIGIN;
 
+    //    private MayorVillageState mayorVillageState = null;
+//    private VillageData villageData = null;
+    private ConstructionData constructionData = null;
+
     public BuilderBuildTask() {
-        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
-    }
+        super(ImmutableMap.of());
+    }//MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT
 
     @Override
     protected boolean shouldRun(ServerWorld serverWorld, VillagerEntity villagerEntity) {
 //        FarmerWorkTask
 
-        System.out.println("SHOULD RUN BUILDER TASK");
+//        System.out.println("SHOULD RUN BUILDER TASK");
 //        if (!serverWorld.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
 //            return false;
 //        } else
@@ -58,141 +70,137 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 //                    }
 //                }
 //            }
-        if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null) {
+        if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null && builder.hasTargetPosition()) {
             if (builder.getBuilderInventory().isEmpty()) {
                 return false;
             }
             // Todo: Set closest building position
-
-
-            this.currentTarget = findClosestTarget(serverWorld, villagerEntity, builder);
-            System.out.println("BUILDER BUILD TASK SHOULD RUN "+villagerEntity+ " : "+this.currentTarget);
+            if (this.constructionData == null) {
+                if (MayorStateHelper.getMayorVillageState(serverWorld) != null) {
+                    VillageData villageData = MayorStateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                    if (villageData != null) {
+                        if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(builder.getTargetPosition())) {
+                            this.constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+                        }
+                    }
+                }
+            }
+            if (this.constructionData != null) {
+                this.currentTarget = findClosestTarget(serverWorld, villagerEntity, builder);
+            }
         }
         return this.currentTarget != null;
-//        }
+    }
+
+    private List<BlockPos> getPossibleMiddleTargetBlockPoses(ServerWorld serverWorld, BlockBox blockBox) {
+        List<BlockPos> blockPosList = new ArrayList<>();
+        int middleX = blockBox.getMinX() + (blockBox.getMaxX() - blockBox.getMinX()) / 2;
+        int middleZ = blockBox.getMinZ() + (blockBox.getMaxZ() - blockBox.getMinZ()) / 2;
+
+        BlockPos pos;
+
+        pos = getAirPos(serverWorld, middleX, blockBox.getMinZ(), blockBox.getMinY(), blockBox.getMaxY());
+        if (pos != null) {
+            blockPosList.add(pos);
+        }
+        pos = getAirPos(serverWorld, middleX, blockBox.getMaxZ(), blockBox.getMinY(), blockBox.getMaxY());
+        if (pos != null) {
+            blockPosList.add(pos);
+        }
+        pos = getAirPos(serverWorld, blockBox.getMinX(), middleZ, blockBox.getMinY(), blockBox.getMaxY());
+        if (pos != null) {
+            blockPosList.add(pos);
+        }
+        pos = getAirPos(serverWorld, blockBox.getMaxX(), middleZ, blockBox.getMinY(), blockBox.getMaxY());
+        if (pos != null) {
+            blockPosList.add(pos);
+        }
+
+        return blockPosList;
     }
 
     @Nullable
-    private BlockPos findClosestTarget(ServerWorld serverWorld, VillagerEntity villagerEntity, Builder builder) {
-        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
-        if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
-            VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
-            if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
-                ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
-
-                BlockPos pos = null;
-                for (int i = constructionData.getStructureData().getBlockBox().getMinX(); i < constructionData.getStructureData().getBlockBox().getMaxX(); i++) {
-                    for (int u = constructionData.getStructureData().getBlockBox().getMinZ(); u < constructionData.getStructureData().getBlockBox().getMaxZ(); u++) {
-                        BlockPos checkPos = BlockPos.ofFloored(i, constructionData.getStructureData().getBlockBox().getMinY(), u);
-                        if (pos != null && checkPos.getSquaredDistance(villagerEntity.getPos()) > pos.getSquaredDistance(villagerEntity.getPos())) {
-                            continue;
-                        }
-                        pos = checkPos;
-                    }
-                }
-                if (pos != null) {
-                    for (int i = 0; i < 4; i++) {
-                        if (!constructionData.getStructureData().getBlockBox().contains(pos.offset(Direction.fromHorizontal(i)))) {
-
-                            // TEST Todo: Lol pos check
-                            System.out.println("TEST " + serverWorld.getBlockState(pos.offset(Direction.fromHorizontal(i))));
-
-                            return pos.offset(Direction.fromHorizontal(i));
-                        }
-                    }
-                }
-
+    private BlockPos getAirPos(ServerWorld serverWorld, int x, int z, int minY, int maxY) {
+        for (int i = minY; i < maxY; i++) {
+            BlockPos pos = new BlockPos(x, i, z);
+            if (serverWorld.getBlockState(pos).isAir()) {
+                return pos;
             }
         }
         return null;
     }
 
 
-    //    @Nullable
-//    private BlockPos chooseRandomTarget(ServerWorld world) {
-//        return this.targetPositions.isEmpty() ? null : (BlockPos)this.targetPositions.get(world.getRandom().nextInt(this.targetPositions.size()));
-//    }
-//
-//    private boolean isSuitableTarget(BlockPos pos, ServerWorld world) {
-//        BlockState blockState = world.getBlockState(pos);
-//        Block block = blockState.getBlock();
-//        Block block2 = world.getBlockState(pos.down()).getBlock();
-//        return block instanceof CropBlock && ((CropBlock)block).isMature(blockState) || blockState.isAir() && block2 instanceof FarmlandBlock;
-//    }
+    @Nullable
+    private BlockPos findClosestTarget(ServerWorld serverWorld, VillagerEntity villagerEntity, Builder builder) {
+        if (this.constructionData != null) {
+//            VillageData villageData = this.mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+//            if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
+//                ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+
+            BlockBox blockBox = this.constructionData.getStructureData().getBlockBox();
+
+            BlockPos targetPos = null;
+            for (BlockPos pos : getPossibleMiddleTargetBlockPoses(serverWorld, blockBox)) {
+                if (canReachSite(villagerEntity, pos)) {
+                    if (targetPos != null) {
+                        if (pos.getSquaredDistance(villagerEntity.getPos()) < targetPos.getSquaredDistance(villagerEntity.getPos())) {
+                            targetPos = pos;
+                        }
+                    } else {
+                        targetPos = pos;
+                    }
+                }
+            }
+            System.out.println("BUILD TARGET: " + targetPos + " : " + builder.getBuilderInventory().isEmpty() + " : " + builder.getBuilderInventory().getHeldStacks());
+            return targetPos;
+        }
+        return null;
+    }
+
+    private static boolean canReachSite(PathAwareEntity entity, BlockPos pos) {
+        Path path = entity.getNavigation().findPathTo(pos, 256);
+        return path != null && path.reachesTarget();
+    }
+
     @Override
-    protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-        if (l > this.nextResponseTime && this.currentTarget != null) {
+    protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+        if (time > this.nextResponseTime && this.currentTarget != null) {
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
+
+            System.out.println("RUN: " + this.currentTarget);
         }
     }
 
     @Override
-    protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+    protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         villagerEntity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
         this.ticksRan = 0;
-        this.nextResponseTime = l + 40L;
+        this.nextResponseTime = time + 40L;
+        System.out.println("END BUILD");
     }
 
+
     @Override
-    protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-        if (this.currentTarget == null || this.currentTarget.isWithinDistance(villagerEntity.getPos(), 1.0)) {
-            if (this.currentTarget != null && l > this.nextResponseTime) {
-                BlockState blockState = serverWorld.getBlockState(this.currentTarget);
-//                Block block = blockState.getBlock();
-//                Block block2 = serverWorld.getBlockState(this.currentTarget.down()).getBlock();
-//                MayorBlockEntities
-                System.out.println("KEEP RUNNING " + villagerEntity + " : " + l);
-//                if (block instanceof CropBlock && ((CropBlock)block).isMature(blockState)) {
-//                    serverWorld.breakBlock(this.currentTarget, true, villagerEntity);
-//                }
+    protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+        if (this.currentTarget != null) {
+            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1 && villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
+                MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
+                VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+                if (villageData != null && villageData.getConstructions().get(builder.getTargetPosition()) != null) {
 
-//                if (blockState.isAir() && block2 instanceof FarmlandBlock && villagerEntity.hasSeedToPlant()) {
-//                    SimpleInventory simpleInventory = villagerEntity.getInventory();
-//
-//                    for (int i = 0; i < simpleInventory.size(); i++) {
-//                        ItemStack itemStack = simpleInventory.getStack(i);
-//                        boolean bl = false;
-//                        if (!itemStack.isEmpty() && itemStack.isIn(ItemTags.VILLAGER_PLANTABLE_SEEDS) && itemStack.getItem() instanceof BlockItem blockItem) {
-//                            BlockState blockState2 = blockItem.getBlock().getDefaultState();
-//                            serverWorld.setBlockState(this.currentTarget, blockState2);
-//                            serverWorld.emitGameEvent(GameEvent.BLOCK_PLACE, this.currentTarget, GameEvent.Emitter.of(villagerEntity, blockState2));
-//                            bl = true;
-//                        }
-//
-//                        if (bl) {
-//                            serverWorld.playSound(
-//                                    null,
-//                                    (double)this.currentTarget.getX(),
-//                                    (double)this.currentTarget.getY(),
-//                                    (double)this.currentTarget.getZ(),
-//                                    SoundEvents.ITEM_CROP_PLANT,
-//                                    SoundCategory.BLOCKS,
-//                                    1.0F,
-//                                    1.0F
-//                            );
-//                            itemStack.decrement(1);
-//                            if (itemStack.isEmpty()) {
-//                                simpleInventory.setStack(i, ItemStack.EMPTY);
-//                            }
-//                            break;
-//                        }
-//                    }
-//                }
+                    boolean test = StructureHelper.placeBlock(serverWorld, villageData.getConstructions().get(builder.getTargetPosition()), builder.getBuilderInventory());
 
-//                if (block instanceof CropBlock && !((CropBlock)block).isMature(blockState)) {
-//                    this.targetPositions.remove(this.currentTarget);
-//                    this.currentTarget = this.chooseRandomTarget(serverWorld);
-//                    if (this.currentTarget != null) {
-//                        this.nextResponseTime = l + 20L;
-//                        villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
-//                        villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
-//                    }
-//                }
+                    // ISSUE WITH BEDS
+                    System.out.print("PLACE BLOCK " + test + " : " + StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData));
+                    if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
+                        finishBuildTask(serverWorld, villagerEntity, time);
+                    }
+                }
             }
-
-            this.ticksRan++;
+            ticksRan++;
         }
     }
 
@@ -202,6 +210,28 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
             return false;
         }
         return this.ticksRan < 2000;
+    }
+
+    private void finishBuildTask(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+        stop(serverWorld, villagerEntity, time);
+
+        System.out.println("FINALLY FINISHED STRUCTURE");
+        this.currentTarget = null;
+        if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null) {
+            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
+            VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+            if (villageData != null) {
+                if (builder.hasTargetPosition() && villageData.getConstructions().containsKey(builder.getTargetPosition())) {
+                    villageData.addStructure(constructionData.getStructureData());
+                    villageData.getConstructions().remove(builder.getTargetPosition());
+                    mayorVillageState.markDirty();
+                }
+            }
+            if (builder.getBuilderInventory().isEmpty()) {
+                builder.setCarryItemStack(ItemStack.EMPTY);
+            }
+            builder.setTargetPosition(null);
+        }
     }
 }
 

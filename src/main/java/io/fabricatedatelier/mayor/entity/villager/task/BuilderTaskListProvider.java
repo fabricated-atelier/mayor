@@ -39,8 +39,9 @@ public class BuilderTaskListProvider {
                         Pair.of(4,new BuilderBuildTask()),
                         Pair.of(5,new BuilderCollectTask()),
                        // Pair.of(8, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
-                        Pair.of(8,GoToPointOfInterestTask.create(1, 4)),
-                        Pair.of(8, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
+
+//                        Pair.of(8,GoToPointOfInterestTask.create(1, 1)),
+//                        Pair.of(10, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
                         Pair.of(99, ScheduleActivityTask.create()
         ));
 

@@ -89,36 +89,59 @@ public class InventoryUtil {
         return availableStacks;
     }
 
-    // Todo: make MayorScreen more performant to create following method
-//    public static boolean hasMissingItems(List<ItemStack> availableStacksList, List<ItemStack> requiredStacksList){
-//        List<ItemStack> availableStacks = new ArrayList<>(availableStacksList);
-//        List<ItemStack> requiredStacks = new ArrayList<>(requiredStacksList);
-//
-//        for (ItemStack availableStack : availableStacks) {
-//            Iterator<ItemStack> requiredIterator = requiredStacks.iterator();
-//
-//            while (requiredIterator.hasNext()) {
-//                ItemStack requiredStack = requiredIterator.next();
-//
-//                if (requiredStack.isOf(availableStack.getItem())) {
-//                    int availableCount = availableStack.getCount();
-//                    int requiredCount = requiredStack.getCount();
-//
-//                    if (availableCount >= requiredCount) {
-//                        availableStack.setCount(availableCount - requiredCount);
-//                        requiredIterator.remove();
-//                    } else {
-//                        requiredStack.decrement(availableCount);
-//                        availableStack.setCount(0);
-//                    }
-//
-//                    if (availableStack.getCount() == 0) {
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//        return false;
-//    }
+    public static List<ItemStack> getRequiredItems(List<ItemStack> availableStacksList, List<ItemStack> missingStacksList) {
+
+        List<ItemStack> availableStacks = availableStacksList.stream().map(ItemStack::copy).toList();
+        List<ItemStack> missingStacks = missingStacksList.stream().map(ItemStack::copy).toList();
+
+        List<ItemStack> requiredStacks = new ArrayList<>();
+
+        for (ItemStack availableStack : availableStacks) {
+
+            for (ItemStack missingStack : missingStacks) {
+                if (missingStack.isOf(availableStack.getItem())) {
+                    int availableCount = availableStack.getCount();
+                    int missingCount = missingStack.getCount();
+
+                    if (availableCount >= missingCount) {
+                        ItemStack stack = adjustRequiredStack(requiredStacks, missingStack, missingCount);
+                        if (!stack.isEmpty()) {
+                            requiredStacks.add(stack);
+                        }
+                        availableStack.decrement(missingCount);
+                    } else {
+                        ItemStack stack = adjustRequiredStack(requiredStacks, missingStack, availableCount);
+                        if (!stack.isEmpty()) {
+                            requiredStacks.add(stack);
+                        }
+                        missingStack.decrement(availableCount);
+                        availableStack.setCount(0);
+                    }
+
+                    if (availableStack.getCount() == 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return requiredStacks;
+    }
+
+    private static ItemStack adjustRequiredStack(List<ItemStack> requiredStacks, ItemStack missingStack, int count) {
+        ItemStack stack = missingStack.copyWithCount(count);
+        for (ItemStack requiredStack : requiredStacks) {
+            if (requiredStack.isOf(missingStack.getItem())) {
+                int spaceAvailable = requiredStack.getMaxCount() - requiredStack.getCount();
+                int toAdd = Math.min(spaceAvailable, stack.getCount());
+                requiredStack.increment(toAdd);
+                stack.decrement(toAdd);
+                if (stack.isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return stack;
+    }
 
 }

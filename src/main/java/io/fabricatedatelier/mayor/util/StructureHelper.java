@@ -5,6 +5,7 @@ import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
 import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
@@ -21,6 +22,8 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -39,6 +42,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.BlockMirror;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockBox;
@@ -431,7 +435,9 @@ public class StructureHelper {
 
 //                boolean buildStructure = false;
 
-                if (serverPlayerEntity.isCreativeLevelTwoOp() || (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid()) && InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty() && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
+                if (serverPlayerEntity.isCreativeLevelTwoOp() || (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())
+                        && InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty()
+                        && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
                     BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     BlockBox blockBox = getStructureBlockBox(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     StructureData structureData = new StructureData(bottomCenterPos, blockBox,
@@ -467,10 +473,7 @@ public class StructureHelper {
                     mayorManager.setStructureOriginBlockPos(null);
                     return true;
                 } else {
-                    serverPlayerEntity.sendMessage(Text.of("TEST: " + ((VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())))));
-                    //InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty() && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
-//                    serverPlayerEntity.sendMessage(Text.of(mayorManager.getVillageData().getMayorPlayerUuid().toString()+ " : "+(serverPlayerEntity.getUuid().toString())+ " : "+(mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid()))));
-                    serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village"));
+                    serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village "+InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())));
                 }
             } else {
                 serverPlayerEntity.sendMessage(Text.translatable("commands.mayor.something_went_wrong"));
@@ -548,7 +551,7 @@ public class StructureHelper {
                     }
                 }
             }
-            // Todo: Give villager the possibility to remove curtain blocks before building a structure
+            // Todo: Give villager the possibility to remove certain blocks before building a structure
             for (int i = blockBox.getMinX(); i <= blockBox.getMaxX(); i++) {
                 for (int u = blockBox.getMinY(); u <= blockBox.getMaxY(); u++) {
                     for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
@@ -575,6 +578,81 @@ public class StructureHelper {
         return blockMap;
     }
 
-    // Todo: void method to place blocks 
+    public static Map<BlockPos, BlockState> getObStructiveBlockMap(ServerWorld serverWorld, ConstructionData constructionData) {
+        Map<BlockPos, BlockState> blockMap = new HashMap<>();
+        for (Map.Entry<BlockPos, BlockState> entry : constructionData.getBlockMap().entrySet()) {
+            if (!entry.getValue().isAir() && !serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
+                blockMap.put(entry.getKey(), serverWorld.getBlockState(entry.getKey()));
+            }
+        }
+        return blockMap;
+    }
+
+    public static List<ItemStack> getMissingConstructionItemStacks(ServerWorld serverWorld, ConstructionData constructionData) {
+        List<ItemStack> stacks = new ArrayList<>();
+        for (BlockState state : constructionData.getBlockMap().values()) {
+            Optional<ItemStack> optional = stacks.stream().filter(stack -> stack.getCount() < stack.getMaxCount() && stack.isOf(state.getBlock().asItem())).findFirst();
+            if (optional.isPresent() && optional.get().getCount() < optional.get().getMaxCount()) {
+                optional.get().increment(1);
+            } else {
+                stacks.add(new ItemStack(state.getBlock().asItem()));
+            }
+        }
+        return stacks;
+    }
+
+    public static boolean placeBlock(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory inventory) {
+        if (inventory.isEmpty()) {
+            return false;
+        }
+
+        for (Map.Entry<BlockPos, BlockState> entry : getMissingConstructionBlockMap(serverWorld, constructionData).entrySet()) {
+            // Todo: Maybe isAir check is a problem here?
+            if (!serverWorld.getBlockState(entry.getKey()).isAir()) {
+                continue;
+            }
+            for (ItemStack stack : inventory.getHeldStacks()) {
+                if (!stack.isEmpty()) {
+                    if (stack.isOf(entry.getValue().getBlock().asItem())) {
+                        System.out.println("BEFORE " + inventory.getHeldStacks());
+                        stack.decrement(1);
+                        serverWorld.setBlockState(entry.getKey(), entry.getValue());
+
+                        System.out.println("AFTER " + inventory.getHeldStacks());
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean breakBlock(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory builderInventory) {
+        Optional<Map.Entry<BlockPos, BlockState>> optional = getObStructiveBlockMap(serverWorld, constructionData).entrySet().stream().findFirst();
+        if (optional.isPresent()) {
+            if (!builderInventory.isInventoryFull(optional.get().getValue().getBlock().asItem())) {
+                ItemStack itemStack = builderInventory.addStack(new ItemStack(optional.get().getValue().getBlock().asItem()));
+                if (!itemStack.isEmpty()) {
+                    ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
+                }
+            }
+            if (serverWorld.getBlockEntity(optional.get().getKey()) instanceof Inventory inventory) {
+                for (int i = 0; i < inventory.size(); i++) {
+                    if (!inventory.getStack(i).isEmpty()) {
+                        ItemStack itemStack = builderInventory.addStack(inventory.getStack(i));
+                        inventory.removeStack(i);
+                        if (!itemStack.isEmpty()) {
+                            ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
+                        }
+                    }
+                }
+            }
+            serverWorld.breakBlock(optional.get().getKey(), false);
+            return true;
+        }
+        return false;
+    }
+
+    // Todo: If already build blocks - villager will bring useless blocks back
 
 }

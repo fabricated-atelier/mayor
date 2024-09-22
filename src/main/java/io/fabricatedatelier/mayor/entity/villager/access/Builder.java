@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.entity.villager.access;
 
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.RegistryWrapper;
@@ -12,7 +13,7 @@ public interface Builder {
 
     VillagerEntity getVillagerEntity();
 
-    SimpleInventory getBuilderInventory();
+    BuilderInventory getBuilderInventory();
 
 //    static void pickUpItem(MobEntity entity, BuilderInventory builderInventory, ItemEntity item) {
 //        ItemStack itemStack = item.getStack();
@@ -46,6 +47,10 @@ public interface Builder {
     BlockPos getTargetPosition();
 
     void setTargetPosition(@Nullable BlockPos targetPosition);
+
+    ItemStack getCarryItemStack();
+
+    public void setCarryItemStack(ItemStack itemStack);
 
     default void readBuilderInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
         if (nbt.contains("BuilderInventory", NbtElement.LIST_TYPE)) {

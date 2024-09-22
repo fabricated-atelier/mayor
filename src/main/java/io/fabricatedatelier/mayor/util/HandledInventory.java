@@ -55,6 +55,7 @@ public interface HandledInventory extends SidedInventory {
 
     /**
      * Extracts latest inserted item from HandledInventory.
+     *
      * @param direction Interaction side for potential side filtering
      * @return Removed Stack from Inventory. Is empty if stack couldn't be extracted.
      */
@@ -101,6 +102,27 @@ public interface HandledInventory extends SidedInventory {
             break;
         }
         return outputStack.isEmpty() ? Optional.empty() : Optional.of(outputStack);
+    }
+
+    default ItemStack removeStack(ItemStack itemStack) {
+        ItemStack stack = itemStack.copy();
+        for (int i = getItems().size() - 1; i >= 0; i--) {
+            if (getItems().get(i).isOf(stack.getItem())) {
+                if (getItems().get(i).getCount() >= stack.getCount()) {
+                    if (getItems().get(i).getCount() == stack.getCount()) {
+                        getItems().set(i, ItemStack.EMPTY);
+                    } else {
+                        getItems().get(i).decrement(stack.getCount());
+                    }
+                    return ItemStack.EMPTY;
+                } else {
+                    stack.decrement(getItems().get(i).getCount());
+                    getItems().set(i, ItemStack.EMPTY);
+                }
+            }
+        }
+        markDirty();
+        return stack;
     }
 
     @Override

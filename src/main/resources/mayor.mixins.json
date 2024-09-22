@@ -27,6 +27,9 @@
     "client.KeyBindingMixin",
     "client.MinecraftClientMixin",
     "client.MouseMixin",
-    "client.PlayerEntityRendererMixin"
+    "client.PlayerEntityRendererMixin",
+    "client.VillagerResemblingModelMixin",
+    "client.VillagerHeldItemFeatureRendererMixin",
+    "client.VillagerClothingFeatureRendererMixin"
   ]
 }

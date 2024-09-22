@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.VillageData;
@@ -26,8 +27,9 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.inventory.SimpleInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
@@ -61,7 +63,9 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Unique
     private static final TrackedData<BlockPos> TARGET_POS = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
     @Unique
-    private final SimpleInventory builderInventory = new SimpleInventory(27);
+    private static final TrackedData<ItemStack> CARRY_ITEM_STACK = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+    @Unique
+    private final BuilderInventory builderInventory = new BuilderInventory(27);
 
 
     public VillagerEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
@@ -71,6 +75,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Inject(method = "initDataTracker", at = @At("TAIL"))
     protected void initDataTrackerMixin(DataTracker.Builder builder, CallbackInfo info) {
         builder.add(TARGET_POS, BlockPos.ORIGIN);
+        builder.add(CARRY_ITEM_STACK, ItemStack.EMPTY);
     }
 
 
@@ -81,6 +86,9 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
             nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos));
         }
         nbt.put("TargetPosition", NbtHelper.fromBlockPos(this.dataTracker.get(TARGET_POS)));
+        if (!this.dataTracker.get(CARRY_ITEM_STACK).isEmpty()) {
+            nbt.put("CarryItemStack", this.dataTracker.get(CARRY_ITEM_STACK).encode(this.getRegistryManager()));
+        }
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
@@ -88,6 +96,12 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         readBuilderInventory(nbt, this.getRegistryManager());
         this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").orElse(null);
         this.dataTracker.set(TARGET_POS, NbtHelper.toBlockPos(nbt, "TargetPosition").orElse(BlockPos.ORIGIN));
+
+        if (nbt.contains("CarryItemStack", NbtElement.COMPOUND_TYPE)) {
+            this.dataTracker.set(CARRY_ITEM_STACK, ItemStack.fromNbt(this.getRegistryManager(), nbt.getCompound("CarryItemStack")).orElse(ItemStack.EMPTY));
+        } else {
+            this.dataTracker.set(CARRY_ITEM_STACK, ItemStack.EMPTY);
+        }
     }
 
     @Inject(method = "onDeath", at = @At("TAIL"))
@@ -130,7 +144,8 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     }
 
     @WrapOperation(method = "initBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;setTaskList(Lnet/minecraft/entity/ai/brain/Activity;Lcom/google/common/collect/ImmutableList;Ljava/util/Set;)V", ordinal = 0))
-    private void initBrainMixin(Brain<VillagerEntity> instance, Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<? super VillagerEntity>>> indexedTasks, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> requiredMemories, Operation<Void> original) {
+    private void initBrainMixin(Brain<VillagerEntity> instance, Activity activity, ImmutableList<? extends Pair<Integer, ? extends Task<? super VillagerEntity>>>
+            indexedTasks, Set<Pair<MemoryModuleType<?>, MemoryModuleState>> requiredMemories, Operation<Void> original) {
         if (this.getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER)) {
             instance.setTaskList(Activity.WORK, BuilderTaskListProvider.createBuildingTasks(), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryModuleState.VALUE_PRESENT)));
         } else {
@@ -181,7 +196,17 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     }
 
     @Override
-    public SimpleInventory getBuilderInventory() {
+    public ItemStack getCarryItemStack() {
+        return this.dataTracker.get(CARRY_ITEM_STACK);
+    }
+
+    @Override
+    public void setCarryItemStack(ItemStack itemStack) {
+        this.dataTracker.set(CARRY_ITEM_STACK, itemStack);
+    }
+
+    @Override
+    public BuilderInventory getBuilderInventory() {
         return this.builderInventory;
     }
 
