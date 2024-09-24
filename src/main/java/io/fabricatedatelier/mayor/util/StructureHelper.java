@@ -18,6 +18,7 @@ import io.fabricatedatelier.mayor.state.StructureData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
@@ -473,7 +474,7 @@ public class StructureHelper {
                     mayorManager.setStructureOriginBlockPos(null);
                     return true;
                 } else {
-                    serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village "+InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())));
+                    serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village " + InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())));
                 }
             } else {
                 serverPlayerEntity.sendMessage(Text.translatable("commands.mayor.something_went_wrong"));
@@ -606,7 +607,8 @@ public class StructureHelper {
             return false;
         }
 
-        for (Map.Entry<BlockPos, BlockState> entry : getMissingConstructionBlockMap(serverWorld, constructionData).entrySet()) {
+        Map<BlockPos, BlockState> missingConstructionBlockMap = getMissingConstructionBlockMap(serverWorld, constructionData);
+        for (Map.Entry<BlockPos, BlockState> entry : missingConstructionBlockMap.entrySet()) {
             // Todo: Maybe isAir check is a problem here?
             if (!serverWorld.getBlockState(entry.getKey()).isAir()) {
                 continue;
@@ -614,11 +616,27 @@ public class StructureHelper {
             for (ItemStack stack : inventory.getHeldStacks()) {
                 if (!stack.isEmpty()) {
                     if (stack.isOf(entry.getValue().getBlock().asItem())) {
-                        System.out.println("BEFORE " + inventory.getHeldStacks());
+                        if (entry.getValue().contains(Properties.DOUBLE_BLOCK_HALF)) {
+                            if (entry.getValue().get(Properties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
+                                continue;
+                            } else if (missingConstructionBlockMap.containsKey(entry.getKey().up())) {
+                                serverWorld.setBlockState(entry.getKey().up(), missingConstructionBlockMap.get(entry.getKey().up()));
+                            }
+                        }
+                        if (entry.getValue().contains(Properties.BED_PART)) {
+                            if (entry.getValue().get(Properties.BED_PART) == BedPart.HEAD) {
+                                continue;
+                            } else if (entry.getValue().contains(HorizontalFacingBlock.FACING) && missingConstructionBlockMap.containsKey(entry.getKey().offset(entry.getValue().get(HorizontalFacingBlock.FACING)))) {
+                                serverWorld.setBlockState(entry.getKey().offset(entry.getValue().get(HorizontalFacingBlock.FACING)), missingConstructionBlockMap.get(entry.getKey().offset(entry.getValue().get(HorizontalFacingBlock.FACING))));
+                            }
+                        }
+
+                        System.out.println("X BEFORE " + inventory.getHeldStacks());
                         stack.decrement(1);
+
                         serverWorld.setBlockState(entry.getKey(), entry.getValue());
 
-                        System.out.println("AFTER " + inventory.getHeldStacks());
+//                        System.out.println("AFTER " + inventory.getHeldStacks());
                         return true;
                     }
                 }

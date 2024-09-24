@@ -165,7 +165,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
-        if (time > this.nextResponseTime && this.currentTarget != null) {
+        if ( this.currentTarget != null) {//time > this.nextResponseTime &&
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
 
@@ -192,9 +192,9 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                 if (villageData != null && villageData.getConstructions().get(builder.getTargetPosition()) != null) {
 
                     boolean test = StructureHelper.placeBlock(serverWorld, villageData.getConstructions().get(builder.getTargetPosition()), builder.getBuilderInventory());
-
-                    // ISSUE WITH BEDS
-                    System.out.print("PLACE BLOCK " + test + " : " + StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData));
+System.out.println(test+ " : "+builder.getBuilderInventory().getHeldStacks());
+                    // ISSUE WITH BEDS and doors
+//                    System.out.print("PLACE BLOCK " + test + " : " + StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData));
                     if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
                         finishBuildTask(serverWorld, villagerEntity, time);
                     }
@@ -227,8 +227,12 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                     mayorVillageState.markDirty();
                 }
             }
+
+            System.out.println("FINALLY LUL "+builder.getBuilderInventory().isEmpty()+ " : "+builder.getBuilderInventory().getHeldStacks());
             if (builder.getBuilderInventory().isEmpty()) {
                 builder.setCarryItemStack(ItemStack.EMPTY);
+            } else {
+                // Todo: START DUMP TASK HERE
             }
             builder.setTargetPosition(null);
         }

@@ -1,12 +1,14 @@
 package io.fabricatedatelier.mayor.init;
 
 import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.Codec;
 import io.fabricatedatelier.mayor.Mayor;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.fabricmc.fabric.api.object.builder.v1.world.poi.PointOfInterestHelper;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.brain.Activity;
+import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -17,6 +19,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOffers;
@@ -25,6 +28,7 @@ import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public class MayorVillagerUtilities {
@@ -39,7 +43,14 @@ public class MayorVillagerUtilities {
         return Registry.register(Registries.VILLAGER_PROFESSION, Mayor.identifierOf(id), new VillagerProfession(id, heldWorkstation, acquirableWorkstation, gatherableItems, secondaryJobSites, workSound));
     }
 
-    public static final Activity BUILDING =  Registry.register(Registries.ACTIVITY, Mayor.identifierOf("building"), new Activity("building"));
+//    public static final Activity BUILDING =  Registry.register(Registries.ACTIVITY, Mayor.identifierOf("building"), new Activity("building"));
+
+    // Can't use this cause MEMORY_MODULES in VillagerEntity class is final and immutable except with non compat mixin
+//    public static final MemoryModuleType<Boolean> SHOULD_DUMP = register("should_dump", Codec.BOOL);
+
+    private static <U> MemoryModuleType<U> register(String id, Codec<U> codec) {
+        return Registry.register(Registries.MEMORY_MODULE_TYPE, Mayor.identifierOf(id), new MemoryModuleType<>(Optional.of(codec)));
+    }
 
 //    VillagerClothingFeatureRenderer
 //    public static final RegistryKey<PointOfInterestType> BUILDER_POI_KEY = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE,  Identifier.ofVanilla("builder"));

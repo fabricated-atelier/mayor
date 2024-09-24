@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
+import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
@@ -65,7 +66,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Unique
     private static final TrackedData<ItemStack> CARRY_ITEM_STACK = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
     @Unique
-    private final BuilderInventory builderInventory = new BuilderInventory(27);
+    private BuilderInventory builderInventory = new BuilderInventory(2);
 
 
     public VillagerEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
@@ -93,6 +94,8 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
+        this.builderInventory = new BuilderInventory(this.getVillagerEntity().getVillagerData().getLevel() + 1);
+
         readBuilderInventory(nbt, this.getRegistryManager());
         this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").orElse(null);
         this.dataTracker.set(TARGET_POS, NbtHelper.toBlockPos(nbt, "TargetPosition").orElse(BlockPos.ORIGIN));
@@ -159,10 +162,21 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
             VillagerData villagerData3 = this.getVillagerData();
             if (villagerData3.getProfession().equals(VillagerProfession.NONE)) {
                 if (villagerData.getProfession().equals(MayorVillagerUtilities.BUILDER)) {
+                    // acquire builder job
                     VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, true);
                 }
-            } else if (villagerData3.getProfession().equals(MayorVillagerUtilities.BUILDER) && !villagerData.getProfession().equals(MayorVillagerUtilities.BUILDER)) {
-                VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
+            } else if (villagerData3.getProfession().equals(MayorVillagerUtilities.BUILDER)) {
+                if (!villagerData.getProfession().equals(MayorVillagerUtilities.BUILDER)) {
+                    // loose builder job
+                    VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
+                } else {
+                    // level up
+                    BuilderInventory newBuilderInventory = new BuilderInventory(this.builderInventory.size() + 1);
+                    for (int i = 0; i < this.builderInventory.size(); i++) {
+                        newBuilderInventory.addStack(this.builderInventory.getStack(i));
+                    }
+                    this.builderInventory = newBuilderInventory;
+                }
             }
         }
     }

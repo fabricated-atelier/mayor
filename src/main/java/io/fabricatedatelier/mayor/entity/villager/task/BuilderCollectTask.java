@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 import com.google.common.collect.ImmutableMap;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
@@ -154,8 +155,8 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
     @Override
     protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
 //        System.out.println("RUN");
-        if (l > this.nextResponseTime && this.currentTarget != null) {
-            System.out.println("SET TARGETS");
+        if ( this.currentTarget != null) {//l > this.nextResponseTime &&
+            System.out.println("SET TARGETS COLLECT");
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
 
@@ -225,9 +226,8 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
                             }
                             if (!builder.getBuilderInventory().isEmpty()) {
                                 for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
-                                    if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+                                    if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
                                         builder.setCarryItemStack(stack);
-                                        // Todo: Maybe set only a carry item within a tag
                                         break;
                                     }
                                 }

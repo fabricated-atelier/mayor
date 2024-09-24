@@ -33,4 +33,13 @@ public class BuilderInventory extends SimpleInventory {
         return true;
     }
 
+    public ItemStack getFirstStack() {
+        for (int i = 0; i < this.getHeldStacks().size(); i++) {
+            if (!this.getHeldStacks().get(i).isEmpty()) {
+                return this.getHeldStacks().get(i);
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
 }
