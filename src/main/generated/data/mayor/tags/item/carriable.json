@@ -1,0 +1,20 @@
+{
+  "values": [
+    "#minecraft:logs",
+    "#minecraft:planks",
+    "#minecraft:stone_bricks",
+    "#minecraft:stone_crafting_materials",
+    {
+      "id": "#c:logs",
+      "required": false
+    },
+    {
+      "id": "#c:planks",
+      "required": false
+    },
+    {
+      "id": "#c:planks_that_burn",
+      "required": false
+    }
+  ]
+}

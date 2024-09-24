@@ -230,5 +230,7 @@
   "mayor.village": "Village",
   "mayor.village.level_up": "%s Level Up",
   "tag.item.mayor.lumber_storage_storable": "Lumber Storage Storable",
-  "tag.item.mayor.stone_storage_storable": "Stone Storage Storable"
+  "tag.item.mayor.stone_storage_storable": "Stone Storage Storable",
+  "yacl3.config.mayor:mayor.category.main": "Mayor",
+  "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP"
 }

@@ -233,5 +233,8 @@
     "building_taiga_meeting_point_1": "Meeting Point 1",
     "building_taiga_meeting_point_2": "Meeting Point 2",
     "building_taiga_cartographer_house_1": "Cartographer House 1",
-    "building_taiga_fisher_cottage_1": "Fisher Cottage 1"
+    "building_taiga_fisher_cottage_1": "Fisher Cottage 1",
+
+    "yacl3.config.mayor:mayor.category.main": "Mayor",
+    "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP"
 }
