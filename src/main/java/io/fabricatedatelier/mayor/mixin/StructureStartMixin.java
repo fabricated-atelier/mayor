@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.mixin;
 
 import io.fabricatedatelier.mayor.access.SinglePoolElementAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
+import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.data.StructureXpLoader;
 import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.mixin.access.JigsawStructureAccess;
@@ -82,25 +83,19 @@ public class StructureStartMixin {
                         structureTemplateAccess.clearSpawnedEntities();
                     }
                     if (StringUtil.shouldStoreStructureIdentifier(singlePoolElementAccess.getLocation().left().get())) {
-
-                        // Todo: Config option for adding xp at structure generation
-                        if (false) {
-                            Identifier test = StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get());
-                            int level = StringUtil.getStructureLevelByIdentifier(test);
-                            List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(world.toServerWorld(), test);
-
-                            int experience = 0;
-                            if (StructureXpLoader.structureExperienceMap.containsKey(StringUtil.getMayorStructureString(test))) {
-                                experience = StructureXpLoader.structureExperienceMap.get(StringUtil.getMayorStructureString(test));
+                        Identifier structureIdentifier = StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get());
+                        int experience = 0;
+                        if (MayorConfig.CONFIG.instance().generatedStructureXp) {
+                            if (StructureXpLoader.structureExperienceMap.containsKey(StringUtil.getMayorStructureString(structureIdentifier))) {
+                                experience = StructureXpLoader.structureExperienceMap.get(StringUtil.getMayorStructureString(structureIdentifier));
                             } else {
+                                List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(world.toServerWorld(), structureIdentifier);
                                 experience = StructureHelper.getStructureExperience(requiredItemStacks);
-                                StructureXpLoader.structureExperienceMap.put(StringUtil.getMayorStructureString(test), experience);
+                                StructureXpLoader.structureExperienceMap.put(StringUtil.getMayorStructureString(structureIdentifier), experience);
                             }
-
-//                            System.out.println(StructureXpLoader.structureExperienceMap.containsKey(StringUtil.getMayorStructureString(test))+ " : "+experience+ " : "+level);
                         }
                         StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(),
-                                StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get()), 1, 0);
+                                structureIdentifier, StringUtil.getStructureLevelByIdentifier(structureIdentifier), experience);
                         villageData.addStructure(structureData);
                     }
                 }

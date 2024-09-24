@@ -31,6 +31,8 @@ public class TagProvider {
                 TagKey.of(RegistryKeys.ITEM, Mayor.identifierOf("lumber_storage_storable"));
         public static final TagKey<Item> STONE_STORAGE_STORABLE =
                 TagKey.of(RegistryKeys.ITEM, Mayor.identifierOf("stone_storage_storable"));
+        public static final TagKey<Item> CARRIABLE =
+                TagKey.of(RegistryKeys.ITEM, Mayor.identifierOf("carriable"));
 
         public ItemTags(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> completableFuture) {
             super(output, completableFuture, null);
@@ -59,6 +61,15 @@ public class TagProvider {
                     .addOptionalTag(Identifier.of("c", "concretes"))
                     .addOptionalTag(Identifier.of("c", "concrete_powder"))
                     .addOptionalTag(Identifier.of("c", "concrete_powders"));
+
+            getOrCreateTagBuilder(CARRIABLE)
+                    .forceAddTag(net.minecraft.registry.tag.ItemTags.LOGS)
+                    .forceAddTag(net.minecraft.registry.tag.ItemTags.PLANKS)
+                    .forceAddTag(net.minecraft.registry.tag.ItemTags.STONE_BRICKS)
+                    .forceAddTag(net.minecraft.registry.tag.ItemTags.STONE_CRAFTING_MATERIALS)
+                    .addOptionalTag(Identifier.of("c", "logs"))
+                    .addOptionalTag(Identifier.of("c", "planks"))
+                    .addOptionalTag(Identifier.of("c", "planks_that_burn"));
         }
     }
 

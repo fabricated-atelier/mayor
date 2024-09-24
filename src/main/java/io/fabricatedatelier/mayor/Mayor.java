@@ -1,5 +1,6 @@
 package io.fabricatedatelier.mayor;
 
+import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.init.*;
 import io.fabricatedatelier.mayor.network.CustomC2SNetworking;
 import net.fabricmc.api.ModInitializer;
@@ -13,6 +14,7 @@ public class Mayor implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        MayorConfig.load();
         MayorBlocks.initialize();
         MayorItems.initialize();
         MayorEntities.initialize();
