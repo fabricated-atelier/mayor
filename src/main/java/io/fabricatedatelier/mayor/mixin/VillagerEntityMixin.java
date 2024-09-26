@@ -2,10 +2,10 @@ package io.fabricatedatelier.mayor.mixin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
-import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
@@ -52,6 +52,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -179,6 +180,14 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
                 }
             }
         }
+    }
+
+    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
+    private static ImmutableList<MemoryModuleType<?>> test(ImmutableList<MemoryModuleType<?>> original) {
+        List<MemoryModuleType<?>> list = new ArrayList<>(original);
+        list.add(MayorVillagerUtilities.SHOULD_DUMP);
+        list.add(MayorVillagerUtilities.SHOULD_BREAK);
+        return ImmutableList.copyOf(list);
     }
 
     @Shadow

@@ -24,7 +24,6 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
@@ -34,6 +33,8 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BiomeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
@@ -582,7 +583,7 @@ public class StructureHelper {
     public static Map<BlockPos, BlockState> getObStructiveBlockMap(ServerWorld serverWorld, ConstructionData constructionData) {
         Map<BlockPos, BlockState> blockMap = new HashMap<>();
         for (Map.Entry<BlockPos, BlockState> entry : constructionData.getBlockMap().entrySet()) {
-            if (!entry.getValue().isAir() && !serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
+            if (!entry.getValue().isAir() && !serverWorld.getBlockState(entry.getKey()).isAir() && !serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
                 blockMap.put(entry.getKey(), serverWorld.getBlockState(entry.getKey()));
             }
         }
@@ -613,6 +614,8 @@ public class StructureHelper {
             if (!serverWorld.getBlockState(entry.getKey()).isAir()) {
                 continue;
             }
+            // Todo: Maybe place blocks here when they are in curtain tag
+
             for (ItemStack stack : inventory.getHeldStacks()) {
                 if (!stack.isEmpty()) {
                     if (stack.isOf(entry.getValue().getBlock().asItem())) {
@@ -630,13 +633,12 @@ public class StructureHelper {
                                 serverWorld.setBlockState(entry.getKey().offset(entry.getValue().get(HorizontalFacingBlock.FACING)), missingConstructionBlockMap.get(entry.getKey().offset(entry.getValue().get(HorizontalFacingBlock.FACING))));
                             }
                         }
-
-                        System.out.println("X BEFORE " + inventory.getHeldStacks());
                         stack.decrement(1);
-
                         serverWorld.setBlockState(entry.getKey(), entry.getValue());
 
-//                        System.out.println("AFTER " + inventory.getHeldStacks());
+                        BlockSoundGroup blockSoundGroup = entry.getValue().getSoundGroup();
+                        serverWorld.playSound(null, entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ(), blockSoundGroup.getPlaceSound(), SoundCategory.BLOCKS, blockSoundGroup.getVolume(), blockSoundGroup.getPitch(), serverWorld.getRandom().nextLong());
+
                         return true;
                     }
                 }

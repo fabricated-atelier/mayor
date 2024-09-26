@@ -1,18 +1,17 @@
 package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.InventoryUtil;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
-import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
-import net.minecraft.block.BlockState;
+import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -26,14 +25,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.poi.PointOfInterestType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
-    //    private static final int MAX_RUN_TIME = 200;
-    //    public static final float WALK_SPEED = 0.5F;
+
+    private static final int MAX_RUN_TIME = 6000;
     @Nullable
     private BlockPos currentTarget;
     private long nextResponseTime;
@@ -45,7 +43,8 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
     public BuilderCollectTask() {
         //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
         // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
-        super(ImmutableMap.of(), 200);
+//        super(ImmutableMap.of(), 200);
+        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT,MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
 //    @Override
@@ -68,6 +67,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                "minecraft:torch",
 //                "#minecraft:stairs"
 
+        if (serverWorld.getTime() < this.nextResponseTime) {
+            return false;
+        }
         if (villagerEntity instanceof Builder builder) {
             if (builder.getVillageCenterPosition() != null && builder.hasTargetPosition() && builder.getBuilderInventory().isEmpty()) {
                 MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
@@ -77,13 +79,19 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
                         ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
 
                         this.currentTarget = getTarget(serverWorld, villagerEntity, villageData, constructionData);
-                        System.out.println("BUILDER COLLECT TASK: " + villagerEntity + " : " + this.currentTarget);
+//                        System.out.println("BUILDER COLLECT TASK: " + villagerEntity + " : " + this.currentTarget);
+
+                        if (!StructureHelper.getObStructiveBlockMap(serverWorld, constructionData).isEmpty()) {
+
+                            System.out.println("FROM COLLECT SET SHOULD BREAK: "+StructureHelper.getObStructiveBlockMap(serverWorld, constructionData));
+                            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_BREAK, true);
+                            this.currentTarget = null;
+                        }
                     }
                 }
 
                 return this.currentTarget != null;
             }
-            // Todo: Set timer here for not checking this task?
         }
         return false;
     }
@@ -100,11 +108,11 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
                 if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
                     if (villageContainerBlockEntity.contains(item)) {
-                        if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && canReachSite(villagerEntity, villageContainerBlockEntity.getStructureOriginPos().get())) {
+                        if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && VillageHelper.canReachSite(villagerEntity, villageContainerBlockEntity.getStructureOriginPos().get())) {
                             return villageContainerBlockEntity.getStructureOriginPos().get();
                         } else {
                             for (BlockPos pos : villageContainerBlockEntity.getConnectedBlocks()) {
-                                if (canReachSite(villagerEntity, pos)) {
+                                if (VillageHelper.canReachSite(villagerEntity, pos)) {
                                     return pos;
                                 }
                             }
@@ -135,11 +143,6 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         return null;
     }
 
-    private static boolean canReachSite(PathAwareEntity entity, BlockPos pos) {
-        Path path = entity.getNavigation().findPathTo(pos, 256);
-        return path != null && path.reachesTarget();
-    }
-
 
     //    @Nullable
 //    private BlockPos chooseRandomTarget(ServerWorld world) {
@@ -154,13 +157,11 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //    }
     @Override
     protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-//        System.out.println("RUN");
-        if ( this.currentTarget != null) {//l > this.nextResponseTime &&
-            System.out.println("SET TARGETS COLLECT");
+        if (this.currentTarget != null) {
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
 
-            //SECONDARY_JOB_SITE
+            System.out.println("RUN BUILDER COLLECT");
         }
     }
 
@@ -170,7 +171,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
         this.ticksRan = 0;
         this.nextResponseTime = l + 40L;
-        System.out.println("FINISH COLLECT");
+        this.currentTarget = null;
+
+        System.out.println("FINISH BUILDER COLLECT");
     }
 
     @Override
@@ -234,7 +237,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
                             }
                             villageContainerBlockEntity.markDirty();
                             serverWorld.updateListeners(villageContainerBlockEntity.getPos(), villageContainerBlockEntity.getCachedState(), villageContainerBlockEntity.getCachedState(), 0);
-                            System.out.println("FILL INVENTORY :D " + builder.getBuilderInventory().getHeldStacks());
+//                            System.out.println("FILL INVENTORY :D " + builder.getBuilderInventory().getHeldStacks());
 
                         } else {
                             stop(serverWorld, villagerEntity, serverWorld.getTime());
@@ -249,79 +252,14 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             }
             this.ticksRan++;
         }
-//        if (this.currentTarget == null || this.currentTarget.isWithinDistance(villagerEntity.getPos(), 1.0)) {
-//            if (this.currentTarget != null && l > this.nextResponseTime) {
-//                BlockState blockState = serverWorld.getBlockState(this.currentTarget);
-////                Block block = blockState.getBlock();
-////                Block block2 = serverWorld.getBlockState(this.currentTarget.down()).getBlock();
-//
-//                System.out.println("KEEP RUNNING " + villagerEntity + " : " + l);
-
-//                if (block instanceof CropBlock && ((CropBlock)block).isMature(blockState)) {
-//                    serverWorld.breakBlock(this.currentTarget, true, villagerEntity);
-//                }
-
-//                if (blockState.isAir() && block2 instanceof FarmlandBlock && villagerEntity.hasSeedToPlant()) {
-//                    SimpleInventory simpleInventory = villagerEntity.getInventory();
-//
-//                    for (int i = 0; i < simpleInventory.size(); i++) {
-//                        ItemStack itemStack = simpleInventory.getStack(i);
-//                        boolean bl = false;
-//                        if (!itemStack.isEmpty() && itemStack.isIn(ItemTags.VILLAGER_PLANTABLE_SEEDS) && itemStack.getItem() instanceof BlockItem blockItem) {
-//                            BlockState blockState2 = blockItem.getBlock().getDefaultState();
-//                            serverWorld.setBlockState(this.currentTarget, blockState2);
-//                            serverWorld.emitGameEvent(GameEvent.BLOCK_PLACE, this.currentTarget, GameEvent.Emitter.of(villagerEntity, blockState2));
-//                            bl = true;
-//                        }
-//
-//                        if (bl) {
-//                            serverWorld.playSound(
-//                                    null,
-//                                    (double)this.currentTarget.getX(),
-//                                    (double)this.currentTarget.getY(),
-//                                    (double)this.currentTarget.getZ(),
-//                                    SoundEvents.ITEM_CROP_PLANT,
-//                                    SoundCategory.BLOCKS,
-//                                    1.0F,
-//                                    1.0F
-//                            );
-//                            itemStack.decrement(1);
-//                            if (itemStack.isEmpty()) {
-//                                simpleInventory.setStack(i, ItemStack.EMPTY);
-//                            }
-//                            break;
-//                        }
-//                    }
-//                }
-
-//                if (block instanceof CropBlock && !((CropBlock)block).isMature(blockState)) {
-//                    this.targetPositions.remove(this.currentTarget);
-//                    this.currentTarget = this.chooseRandomTarget(serverWorld);
-//                    if (this.currentTarget != null) {
-//                        this.nextResponseTime = l + 20L;
-//                        villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
-//                        villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
-//                    }
-//                }
-//                if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
-//                    stop(serverWorld, villagerEntity, l);
-//                    System.out.println("STOP");
-//                }
-//            }
-//
-////            this.ticksRan++;
-//        }
     }
 
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
         if (villagerEntity instanceof Builder builder && (!builder.getBuilderInventory().isEmpty() || !builder.hasTargetPosition())) {
-//            System.out.println("OOOOOOOOOOO " + builder.getBuilderInventory());
             return false;
         }
-        // Todo: Tweak should keep RUnning until the vill has stored some things in its inventory
-//        System.out.println("SHOULD KEEP RUNNING "+this.ticksRan);
-        return this.ticksRan < 2000;
+        return this.ticksRan < MAX_RUN_TIME;
     }
 }
 

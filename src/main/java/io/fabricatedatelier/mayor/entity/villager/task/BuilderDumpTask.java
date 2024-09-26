@@ -3,11 +3,13 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 import com.google.common.collect.ImmutableMap;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
+import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -22,6 +24,8 @@ import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
+
+    private static final int MAX_RUN_TIME = 6000;
     @Nullable
     private BlockPos currentTarget;
     private long nextResponseTime;
@@ -30,12 +34,18 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
     public BuilderDumpTask() {
         //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
         // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
-        super(ImmutableMap.of(MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT), 200);
+        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT,MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
     @Override
     protected boolean shouldRun(ServerWorld serverWorld, VillagerEntity villagerEntity) {
+        if (serverWorld.getTime() < this.nextResponseTime) {
+            return false;
+        }
         if (villagerEntity instanceof Builder builder) {
+            if (builder.getBuilderInventory().isEmpty()) {
+                return false;
+            }
             if (builder.getVillageCenterPosition() != null && !builder.getBuilderInventory().isEmpty()) {
                 MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
                 if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
@@ -50,7 +60,6 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
                     } else {
                         this.currentTarget = getTarget(serverWorld, builder, villageData);
                     }
-
                 }
                 return this.currentTarget != null;
             }
@@ -67,11 +76,11 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
             if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
                 if (!villageContainerBlockEntity.isFull(stack)) {
-                    if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && canReachSite(builder.getVillagerEntity(), villageContainerBlockEntity.getStructureOriginPos().get())) {
+                    if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && VillageHelper.canReachSite(builder.getVillagerEntity(), villageContainerBlockEntity.getStructureOriginPos().get())) {
                         return villageContainerBlockEntity.getStructureOriginPos().get();
                     } else {
                         for (BlockPos pos : villageContainerBlockEntity.getConnectedBlocks()) {
-                            if (canReachSite(builder.getVillagerEntity(), pos)) {
+                            if (VillageHelper.canReachSite(builder.getVillagerEntity(), pos)) {
                                 return pos;
                             }
                         }
@@ -83,26 +92,28 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         return null;
     }
 
-    private static boolean canReachSite(PathAwareEntity entity, BlockPos pos) {
-        Path path = entity.getNavigation().findPathTo(pos, 256);
-        return path != null && path.reachesTarget();
-    }
-
     @Override
-    protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-        if (l > this.nextResponseTime && this.currentTarget != null) {
+    protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+        if ( this.currentTarget != null) {//l > this.nextResponseTime
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
-        }
+
+            System.out.println("RUN BUILDER DUMP");
+       }
     }
 
     @Override
     protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
         villagerEntity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
-        villagerEntity.getBrain().forget(MemoryModuleType.SECONDARY_JOB_SITE);
+        if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
+            villagerEntity.getBrain().forget(MayorVillagerUtilities.SHOULD_DUMP);
+        }
         this.ticksRan = 0;
-        this.nextResponseTime = l + 40L;
+        this.currentTarget = null;
+        this.nextResponseTime = l + 60L;
+
+        System.out.println("FINISH BUILDER DUMP");
     }
 
     @Override
@@ -112,31 +123,24 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
                 if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Builder builder) {
                     VillageData villageData = MayorStateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
                     if (villageData != null) {
-
-//                        List<ItemStack> missingItemStacks = StructureHelper.getMissingConstructionItemStacks(serverWorld, villageData.getConstructions().get(builder.getTargetPosition()));
-//                        if (!missingItemStacks.isEmpty()) {
                         VillageContainerBlockEntity villageContainerBlockEntity = containerBlockEntity.getStructureOriginBlockEntity().get();
-//                        if(villageContainerBlockEntity.is){
-//
-//                        }
-//                            List<ItemStack> requiredStacks = InventoryUtil.getRequiredItems(villageContainerBlockEntity.getItems(), missingItemStacks);
-//                            for (ItemStack requiredStack : requiredStacks) {
-//                                if (!builder.getBuilderInventory().isInventoryFull(requiredStack)) {
-//                                    builder.getBuilderInventory().addStack(requiredStack);
-//                                    villageContainerBlockEntity.removeStack(requiredStack);
-//                                } else {
-//                                    break;
-//                                }
-//                            }
-
-                        villageContainerBlockEntity.markDirty();
+                        for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
+                            if (villageContainerBlockEntity.tryAddingStack(stack.copy())) {
+                                stack.decrement(stack.getCount());
+                            }
+                        }
+//                      villageContainerBlockEntity.markDirty(); already done at tryAddingStack method
                         serverWorld.updateListeners(villageContainerBlockEntity.getPos(), villageContainerBlockEntity.getCachedState(), villageContainerBlockEntity.getCachedState(), 0);
-//                            System.out.println("FILL INVENTORY :D " + builder.getBuilderInventory().getHeldStacks());
-//
-//                        } else {
-//                            stop(serverWorld, villagerEntity, serverWorld.getTime());
-//                        }
 
+                        if (!builder.getBuilderInventory().isEmpty()) {
+                            this.currentTarget = this.getTarget(serverWorld, builder, villageData);
+                            if (this.currentTarget != null) {
+                                villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
+                                villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
+                            } else {
+                                stop(serverWorld, villagerEntity, serverWorld.getTime());
+                            }
+                        }
                     } else {
                         stop(serverWorld, villagerEntity, serverWorld.getTime());
                     }
@@ -152,7 +156,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
             return false;
         }
-        return this.ticksRan < 2000;
+        return this.ticksRan < MAX_RUN_TIME;
     }
 }
 

@@ -83,6 +83,32 @@ public class VillageContainerBlockEntity extends BlockEntity implements HandledI
         return HandledInventory.super.canExtract(slot, stack, dir);
     }
 
+    public boolean isFull(@Nullable ItemStack stack) {
+        if (!this.isStructureOrigin()) {
+            return true;
+        }
+        if (stack != null) {
+            ItemStack copied = stack.copy();
+            for (ItemStack itemStack : this.getItems()) {
+                if (itemStack.isEmpty()) {
+                    return false;
+                } else if (itemStack.isOf(copied.getItem()) && itemStack.getCount() < itemStack.getMaxCount()) {
+                    copied.decrement(itemStack.getMaxCount() - itemStack.getCount());
+                    if (copied.getCount() <= 0) {
+                        return false;
+                    }
+                }
+            }
+        } else {
+            for (ItemStack itemStack : this.getItems()) {
+                if (itemStack.isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public boolean isStructureOrigin() {
         return this.pos.equals(this.structureOriginPos);
     }

@@ -45,8 +45,8 @@ public class MayorVillagerUtilities {
 
 //    public static final Activity BUILDING =  Registry.register(Registries.ACTIVITY, Mayor.identifierOf("building"), new Activity("building"));
 
-    // Can't use this cause MEMORY_MODULES in VillagerEntity class is final and immutable except with non compat mixin
-//    public static final MemoryModuleType<Boolean> SHOULD_DUMP = register("should_dump", Codec.BOOL);
+    public static final MemoryModuleType<Boolean> SHOULD_DUMP = register("should_dump", Codec.BOOL);
+    public static final MemoryModuleType<Boolean> SHOULD_BREAK = register("should_break", Codec.BOOL);
 
     private static <U> MemoryModuleType<U> register(String id, Codec<U> codec) {
         return Registry.register(Registries.MEMORY_MODULE_TYPE, Mayor.identifierOf(id), new MemoryModuleType<>(Optional.of(codec)));

@@ -3,21 +3,15 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
-import net.minecraft.entity.ai.brain.task.*;
+import net.minecraft.entity.ai.brain.task.ScheduleActivityTask;
+import net.minecraft.entity.ai.brain.task.Task;
+import net.minecraft.entity.ai.brain.task.VillagerWalkTowardsTask;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.village.VillagerProfession;
 
 public class BuilderTaskListProvider {
 
     public static ImmutableList<Pair<Integer, ? extends Task<? super VillagerEntity>>> createBuildingTasks() {
-//        VillagerWorkTask villagerWorkTask;
-//        if (profession == VillagerUtilities.BUILDER) {
-//            villagerWorkTask = new BuilderWorkTask();
-//        } else {
-//            return ImmutableList.of();
-//        }
 
-        System.out.println("CREATE BUILDING TASKS LOL");
 
 //        return ImmutableList.of(Pair.of(5, new RandomTask<>(ImmutableList.of(
 ////                                        Pair.of(villagerWorkTask, 7),
@@ -37,9 +31,11 @@ public class BuilderTaskListProvider {
 //                        Pair.of(6,GoToIfNearbyTask.create(MemoryModuleType.JOB_SITE, 0.4F, 4)),
 //                        Pair.of(7,GoToNearbyPositionTask.create(MemoryModuleType.JOB_SITE, 0.4F, 1, 10)),
                         Pair.of(4,new BuilderBuildTask()),
+                        Pair.of(4,new BuilderBreakTask()),
                         Pair.of(5,new BuilderCollectTask()),
-                       // Pair.of(8, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
-
+                        Pair.of(6,new BuilderDumpTask()),
+//                        Pair.of(12, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
+//
 //                        Pair.of(8,GoToPointOfInterestTask.create(1, 1)),
 //                        Pair.of(10, VillagerWalkTowardsTask.create(MemoryModuleType.JOB_SITE, 0.5f, 1, 100, 1200)),
                         Pair.of(99, ScheduleActivityTask.create()
