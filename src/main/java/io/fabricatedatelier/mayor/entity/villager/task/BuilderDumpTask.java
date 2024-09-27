@@ -35,11 +35,22 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
     public BuilderDumpTask() {
         //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
         // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
-        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+    }
+
+    @Override
+    protected boolean hasRequiredMemoryState(VillagerEntity entity) {
+
+        boolean test = super.hasRequiredMemoryState(entity);
+//        System.out.println("X "+test+ " : "+entity.getBrain().getOptionalMemory(MayorVillagerUtilities.BUSY));
+        return test;
     }
 
     @Override
     protected boolean shouldRun(ServerWorld serverWorld, VillagerEntity villagerEntity) {
+//
+//        System.out.println("?");
+
         if (serverWorld.getTime() < this.nextResponseTime) {
             return false;
         }
@@ -52,10 +63,15 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
                 if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
                     VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
                     if (builder.hasTargetPosition()) {
-                        if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
+                        if (villageData.getConstructions().containsKey(builder.getTargetPosition())) {
                             ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
-                            if (StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).isEmpty()) {
+
+//                            if (StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).isEmpty()) {
+                            if (!StructureHelper.hasMissingConstructionItem(serverWorld, constructionData, builder.getBuilderInventory())) {
                                 this.currentTarget = getTarget(serverWorld, builder, villageData);
+                            }else{
+                                System.out.println("DUMP NOT?");
+                                this.nextResponseTime = serverWorld.getTime() + 100L;
                             }
                         }
                     } else {
@@ -108,18 +124,28 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
     protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         villagerEntity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
-        if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
-            villagerEntity.getBrain().forget(MayorVillagerUtilities.SHOULD_DUMP);
-        }
+
+//        if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
+//            villagerEntity.getBrain().forget(MayorVillagerUtilities.SHOULD_DUMP);
+//        }
         this.ticksRan = 0;
         this.currentTarget = null;
         this.nextResponseTime = time + 60L;
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
         System.out.println("FINISH BUILDER DUMP");
+
+        if (villagerEntity instanceof Builder builder) {
+            if (builder.getBuilderInventory().isEmpty()) {
+                builder.setCarryItemStack(ItemStack.EMPTY);
+            }
+        }
     }
 
     @Override
     protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+
+//        System.out.println("?X");
+
         if (this.currentTarget != null) {
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
                 if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Builder builder) {

@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
+import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
@@ -16,6 +17,8 @@ import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockBox;
@@ -37,7 +40,7 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
     private ConstructionData constructionData = null;
 
     public BuilderBreakTask() {
-        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
 //    public boolean isTempted() {
@@ -64,6 +67,8 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
                     if (villageData != null) {
                         if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(builder.getTargetPosition()) && !StructureHelper.getObStructiveBlockMap(serverWorld, villageData.getConstructions().get(builder.getTargetPosition())).isEmpty()) {
                             this.constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+                        } else {
+                            this.nextResponseTime = serverWorld.getTime() + 100L;
                         }
                     }
                 }
@@ -93,20 +98,26 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
         this.ticksRan = 0;
         this.nextResponseTime = time + 100L;
         this.currentTarget = null;
-        if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
-            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_DUMP, Unit.INSTANCE);
-        }
-        if (this.constructionData == null || StructureHelper.getObStructiveBlockMap(serverWorld, this.constructionData).isEmpty()) {
-            villagerEntity.getBrain().forget(MayorVillagerUtilities.SHOULD_BREAK);
-        }
         this.constructionData = null;
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
+
+        if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
+            for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
+                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
+                    builder.setCarryItemStack(stack);
+                    break;
+                }
+            }
+        }
         System.out.println("FINISH BUILDER BREAK");
     }
 
 
     @Override
     protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+
+//        System.out.println("??");
+
         if (this.currentTarget != null && this.constructionData != null) {
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1 && villagerEntity instanceof Builder builder) {
                 if (this.ticksRan % 20 == 0) {
@@ -120,6 +131,11 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
                     }
                 }
             }
+            // Maybe the builder will forget so this is the solution
+            else if (!villagerEntity.getBrain().hasMemoryModule(MemoryModuleType.WALK_TARGET) || !villagerEntity.getBrain().getOptionalMemory(MemoryModuleType.WALK_TARGET).get().getLookTarget().getBlockPos().equals(this.currentTarget)) {
+                villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
+                villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
+            }
             this.ticksRan++;
         }
     }
@@ -129,6 +145,9 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
 //        if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
 //            return false;
 //        }
+        if (villagerEntity instanceof Builder builder && !builder.hasTargetPosition()) {
+            return false;
+        }
         return this.ticksRan < MAX_RUN_TIME;
     }
 

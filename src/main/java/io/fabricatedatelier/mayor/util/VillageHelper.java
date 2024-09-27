@@ -54,7 +54,6 @@ public class VillageHelper {
         return null;
     }
 
-    // Todo: Find new villager to build structure if this villager hat a task to build
     public static void updateBuildingVillagerBuilder(ServerWorld serverWorld, Builder builder, boolean freshBuilder) {
         if (builder.getVillageCenterPosition() == null) {
             VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, builder.getVillagerEntity().getBlockPos());

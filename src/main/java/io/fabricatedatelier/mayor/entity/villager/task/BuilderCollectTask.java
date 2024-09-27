@@ -17,8 +17,6 @@ import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -37,15 +35,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
     private BlockPos currentTarget;
     private long nextResponseTime;
     private int ticksRan;
-//    private final List<BlockPos> targetPositions = Lists.<BlockPos>newArrayList();
-
-//    private final BlockPos targetPosition = BlockPos.ORIGIN;
 
     public BuilderCollectTask() {
-        //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
-        // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
-//        super(ImmutableMap.of(), 200);
-        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
 //    @Override
@@ -79,15 +71,19 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
                     if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
                         ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
 
-                        this.currentTarget = getTarget(serverWorld, villagerEntity, villageData, constructionData);
+                        if (!StructureHelper.getObStructiveBlockMap(serverWorld, constructionData).isEmpty()) {
+                            this.currentTarget = null;
+                            this.nextResponseTime = serverWorld.getTime() + 100L;
+                        } else {
+                            this.currentTarget = getTarget(serverWorld, villagerEntity, villageData, constructionData);
+                        }
 //                        System.out.println("BUILDER COLLECT TASK: " + villagerEntity + " : " + this.currentTarget);
 
-                        if (!StructureHelper.getObStructiveBlockMap(serverWorld, constructionData).isEmpty()) {
 
-                            System.out.println("FROM COLLECT SET SHOULD BREAK: " + StructureHelper.getObStructiveBlockMap(serverWorld, constructionData));
-                            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_BREAK, Unit.INSTANCE);
-                            this.currentTarget = null;
-                        }
+//                            System.out.println("FROM COLLECT SET SHOULD BREAK: " + StructureHelper.getObStructiveBlockMap(serverWorld, constructionData));
+//                            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_BREAK, Unit.INSTANCE);
+
+//                        }
                     }
                 }
 
@@ -176,12 +172,25 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         this.currentTarget = null;
 
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
+
+        if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
+            for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
+                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
+                    builder.setCarryItemStack(stack);
+                    System.out.println("CARRY LOL "+stack);
+                    break;
+                }
+            }
+            System.out.println("SET COLLECT CARRY: "+builder.getCarryItemStack());
+        }
         System.out.println("FINISH BUILDER COLLECT");
     }
 
     @Override
     protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
-        System.out.println("KEEP "+ villagerEntity.getBrain().getOptionalMemory(MemoryModuleType.WALK_TARGET));
+//        System.out.println("KEEP " + villagerEntity.getBrain().getOptionalMemory(MemoryModuleType.WALK_TARGET));
+
+
         if (this.currentTarget != null) {
 
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
@@ -222,22 +231,15 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                            builder.getBuilderInventory().
                             List<ItemStack> requiredStacks = InventoryUtil.getRequiredItems(villageContainerBlockEntity.getItems(), missingItemStacks);
 
-                            System.out.println("COLLECT: "+requiredStacks);
-                            System.out.println("COLLECT INVENTORY: "+builder.getBuilderInventory());
+
+                            System.out.println("COLLECT: " + requiredStacks);
+                            System.out.println("COLLECT INVENTORY: " + builder.getBuilderInventory());
                             for (ItemStack requiredStack : requiredStacks) {
                                 if (!builder.getBuilderInventory().isInventoryFull(requiredStack)) {
                                     builder.getBuilderInventory().addStack(requiredStack);
                                     villageContainerBlockEntity.removeStack(requiredStack);
                                 } else {
                                     break;
-                                }
-                            }
-                            if (!builder.getBuilderInventory().isEmpty()) {
-                                for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
-                                    if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
-                                        builder.setCarryItemStack(stack);
-                                        break;
-                                    }
                                 }
                             }
                             villageContainerBlockEntity.markDirty();

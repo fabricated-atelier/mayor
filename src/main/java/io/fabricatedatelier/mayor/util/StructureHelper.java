@@ -553,7 +553,6 @@ public class StructureHelper {
                     }
                 }
             }
-            // Todo: Give villager the possibility to remove certain blocks before building a structure
             for (int i = blockBox.getMinX(); i <= blockBox.getMaxX(); i++) {
                 for (int u = blockBox.getMinY(); u <= blockBox.getMaxY(); u++) {
                     for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
@@ -610,6 +609,11 @@ public class StructureHelper {
             }
         }
         return stacks;
+    }
+
+    public static boolean hasMissingConstructionItem(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory builderInventory) {
+        List<ItemStack> stacks = getMissingConstructionItemStacks(serverWorld, constructionData);
+        return InventoryUtil.containsItem(stacks, builderInventory.getHeldStacks());
     }
 
     public static boolean placeBlock(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory inventory) {

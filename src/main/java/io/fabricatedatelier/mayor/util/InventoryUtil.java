@@ -89,6 +89,19 @@ public class InventoryUtil {
         return availableStacks;
     }
 
+    public static boolean containsItem(List<ItemStack> stacks, List<ItemStack> stacks2) {
+        for (ItemStack stack : stacks) {
+            if (!stack.isEmpty()) {
+                for (ItemStack stack2 : stacks2) {
+                    if (!stack2.isEmpty() && stack.isOf(stack2.getItem())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public static List<ItemStack> getRequiredItems(List<ItemStack> availableStacksList, List<ItemStack> missingStacksList) {
 
         List<ItemStack> availableStacks = availableStacksList.stream().map(ItemStack::copy).toList();

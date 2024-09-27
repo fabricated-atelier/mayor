@@ -28,12 +28,15 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -182,17 +185,36 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         }
     }
 
+    @Inject(method = "sleep", at = @At("TAIL"))
+    private void sleepMixin(BlockPos pos, CallbackInfo info) {
+        this.brain.forget(MayorVillagerUtilities.BUSY);
+    }
+
+    @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/VillagerEntity;beginTradeWith(Lnet/minecraft/entity/player/PlayerEntity;)V"), cancellable = true)
+    private void interactMobMixin(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> info) {
+        if (this.brain.hasMemoryModule(MayorVillagerUtilities.BUSY)) {
+            this.sayNo();
+            info.setReturnValue(ActionResult.FAIL);
+        }
+    }
+
+    @Inject(method = "reinitializeBrain",at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/ai/brain/Brain;stopAllTasks(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;)V"))
+    private void reinitializeBrainMixin(ServerWorld world, CallbackInfo info){
+        this.brain.forget(MayorVillagerUtilities.BUSY);
+    }
+
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
-    private static ImmutableList<MemoryModuleType<?>> test(ImmutableList<MemoryModuleType<?>> original) {
+    private static ImmutableList<MemoryModuleType<?>> initMixin(ImmutableList<MemoryModuleType<?>> original) {
         List<MemoryModuleType<?>> list = new ArrayList<>(original);
         list.add(MayorVillagerUtilities.BUSY);
-        list.add(MayorVillagerUtilities.SHOULD_DUMP);
-        list.add(MayorVillagerUtilities.SHOULD_BREAK);
         return ImmutableList.copyOf(list);
     }
 
     @Shadow
     public abstract VillagerData getVillagerData();
+
+    @Shadow
+    protected abstract void sayNo();
 
     @Override
     public BlockPos getVillageCenterPosition() {
@@ -226,6 +248,9 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Override
     public void setCarryItemStack(ItemStack itemStack) {
+
+        System.out.println("SET CARRY: "+itemStack);
+
         this.dataTracker.set(CARRY_ITEM_STACK, itemStack);
     }
 
