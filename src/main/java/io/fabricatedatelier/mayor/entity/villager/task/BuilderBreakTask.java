@@ -17,6 +17,7 @@ import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +37,7 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
     private ConstructionData constructionData = null;
 
     public BuilderBreakTask() {
-        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT,MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
 //    public boolean isTempted() {
@@ -77,6 +78,7 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
     @Override
     protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         if (this.currentTarget != null) {
+            villagerEntity.getBrain().remember(MayorVillagerUtilities.BUSY, Unit.INSTANCE);
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
 
@@ -92,13 +94,13 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
         this.nextResponseTime = time + 100L;
         this.currentTarget = null;
         if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty()) {
-            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_DUMP, true);
+            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_DUMP, Unit.INSTANCE);
         }
         if (this.constructionData == null || StructureHelper.getObStructiveBlockMap(serverWorld, this.constructionData).isEmpty()) {
             villagerEntity.getBrain().forget(MayorVillagerUtilities.SHOULD_BREAK);
         }
         this.constructionData = null;
-
+        villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
         System.out.println("FINISH BUILDER BREAK");
     }
 

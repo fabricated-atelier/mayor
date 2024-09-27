@@ -20,6 +20,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradeOffers;
@@ -45,8 +46,9 @@ public class MayorVillagerUtilities {
 
 //    public static final Activity BUILDING =  Registry.register(Registries.ACTIVITY, Mayor.identifierOf("building"), new Activity("building"));
 
-    public static final MemoryModuleType<Boolean> SHOULD_DUMP = register("should_dump", Codec.BOOL);
-    public static final MemoryModuleType<Boolean> SHOULD_BREAK = register("should_break", Codec.BOOL);
+    public static final MemoryModuleType<Unit> BUSY = register("busy", Unit.CODEC);
+    public static final MemoryModuleType<Unit> SHOULD_DUMP = register("should_dump", Unit.CODEC);
+    public static final MemoryModuleType<Unit> SHOULD_BREAK = register("should_break", Unit.CODEC);
 
     private static <U> MemoryModuleType<U> register(String id, Codec<U> codec) {
         return Registry.register(Registries.MEMORY_MODULE_TYPE, Mayor.identifierOf(id), new MemoryModuleType<>(Optional.of(codec)));

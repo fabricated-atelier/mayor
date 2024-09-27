@@ -185,6 +185,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
     private static ImmutableList<MemoryModuleType<?>> test(ImmutableList<MemoryModuleType<?>> original) {
         List<MemoryModuleType<?>> list = new ArrayList<>(original);
+        list.add(MayorVillagerUtilities.BUSY);
         list.add(MayorVillagerUtilities.SHOULD_DUMP);
         list.add(MayorVillagerUtilities.SHOULD_BREAK);
         return ImmutableList.copyOf(list);

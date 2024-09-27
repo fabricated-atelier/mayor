@@ -20,6 +20,7 @@ import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
     public BuilderDumpTask() {
         //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
         // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
-        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT,MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_PRESENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
     @Override
@@ -94,16 +95,17 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
-        if ( this.currentTarget != null) {//l > this.nextResponseTime
+        if (this.currentTarget != null) {
+            villagerEntity.getBrain().remember(MayorVillagerUtilities.BUSY, Unit.INSTANCE);
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
 
             System.out.println("RUN BUILDER DUMP");
-       }
+        }
     }
 
     @Override
-    protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+    protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         villagerEntity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
         if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
@@ -111,8 +113,8 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         }
         this.ticksRan = 0;
         this.currentTarget = null;
-        this.nextResponseTime = l + 60L;
-
+        this.nextResponseTime = time + 60L;
+        villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
         System.out.println("FINISH BUILDER DUMP");
     }
 

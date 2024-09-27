@@ -592,12 +592,21 @@ public class StructureHelper {
 
     public static List<ItemStack> getMissingConstructionItemStacks(ServerWorld serverWorld, ConstructionData constructionData) {
         List<ItemStack> stacks = new ArrayList<>();
-        for (BlockState state : constructionData.getBlockMap().values()) {
-            Optional<ItemStack> optional = stacks.stream().filter(stack -> stack.getCount() < stack.getMaxCount() && stack.isOf(state.getBlock().asItem())).findFirst();
+        for (Map.Entry<BlockPos, BlockState> entry : constructionData.getBlockMap().entrySet()) {
+            if (serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
+                continue;
+            }
+            if (entry.getValue().contains(Properties.DOUBLE_BLOCK_HALF) && entry.getValue().get(Properties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER) {
+                continue;
+            }
+            if (entry.getValue().contains(Properties.BED_PART) && entry.getValue().get(Properties.BED_PART) == BedPart.HEAD) {
+                continue;
+            }
+            Optional<ItemStack> optional = stacks.stream().filter(stack -> stack.getCount() < stack.getMaxCount() && stack.isOf(entry.getValue().getBlock().asItem())).findFirst();
             if (optional.isPresent() && optional.get().getCount() < optional.get().getMaxCount()) {
                 optional.get().increment(1);
             } else {
-                stacks.add(new ItemStack(state.getBlock().asItem()));
+                stacks.add(new ItemStack(entry.getValue().getBlock().asItem()));
             }
         }
         return stacks;

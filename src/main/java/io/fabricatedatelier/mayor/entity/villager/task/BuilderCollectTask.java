@@ -24,6 +24,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +45,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         //   super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.SECONDARY_JOB_SITE, MemoryModuleState.VALUE_PRESENT));
         // super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
 //        super(ImmutableMap.of(), 200);
-        super(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT,MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
+        super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_DUMP, MemoryModuleState.VALUE_ABSENT, MayorVillagerUtilities.SHOULD_BREAK, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
 //    @Override
@@ -83,8 +84,8 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
                         if (!StructureHelper.getObStructiveBlockMap(serverWorld, constructionData).isEmpty()) {
 
-                            System.out.println("FROM COLLECT SET SHOULD BREAK: "+StructureHelper.getObStructiveBlockMap(serverWorld, constructionData));
-                            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_BREAK, true);
+                            System.out.println("FROM COLLECT SET SHOULD BREAK: " + StructureHelper.getObStructiveBlockMap(serverWorld, constructionData));
+                            villagerEntity.getBrain().remember(MayorVillagerUtilities.SHOULD_BREAK, Unit.INSTANCE);
                             this.currentTarget = null;
                         }
                     }
@@ -156,8 +157,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //        return block instanceof CropBlock && ((CropBlock)block).isMature(blockState) || blockState.isAir() && block2 instanceof FarmlandBlock;
 //    }
     @Override
-    protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+    protected void run(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         if (this.currentTarget != null) {
+            villagerEntity.getBrain().remember(MayorVillagerUtilities.BUSY, Unit.INSTANCE);
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
 
@@ -166,23 +168,23 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
     }
 
     @Override
-    protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
+    protected void finishRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         villagerEntity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
         this.ticksRan = 0;
-        this.nextResponseTime = l + 40L;
+        this.nextResponseTime = time + 40L;
         this.currentTarget = null;
 
+        villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
         System.out.println("FINISH BUILDER COLLECT");
     }
 
     @Override
-    protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-//        System.out.println("KEEP");
+    protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+        System.out.println("KEEP "+ villagerEntity.getBrain().getOptionalMemory(MemoryModuleType.WALK_TARGET));
         if (this.currentTarget != null) {
 
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
-//                VillageContainerBlockEntity villageContainerBlockEntity
                 if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Builder builder) {
 //                    villageContainerBlockEntity.getItems();
 //                    villageContainerBlockEntity.getori
@@ -219,6 +221,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 //                            }
 //                            builder.getBuilderInventory().
                             List<ItemStack> requiredStacks = InventoryUtil.getRequiredItems(villageContainerBlockEntity.getItems(), missingItemStacks);
+
+                            System.out.println("COLLECT: "+requiredStacks);
+                            System.out.println("COLLECT INVENTORY: "+builder.getBuilderInventory());
                             for (ItemStack requiredStack : requiredStacks) {
                                 if (!builder.getBuilderInventory().isInventoryFull(requiredStack)) {
                                     builder.getBuilderInventory().addStack(requiredStack);
