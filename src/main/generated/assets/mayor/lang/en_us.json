@@ -201,6 +201,7 @@
   "commands.mayor.village_set_mayor": "Set %s as mayor of %s at %s",
   "commands.mayor.village_set_name": "Set name %s for village at %s",
   "entity.minecraft.villager.builder": "Builder",
+  "item.mayor.deconstruction_hammer": "Deconstruction Hammer",
   "key.categories.mayor": "Mayor",
   "key.mayor.mayor_view": "Mayor View",
   "key.mayor.mayor_view_selection": "Mayor View Selection",
@@ -234,8 +235,11 @@
   "mayor.screen.villagers": "Villagers: %s",
   "mayor.village": "Village",
   "mayor.village.level_up": "%s Level Up",
+  "mayor.village.mayor_elected": "%s is now the mayor of this village",
+  "mayor.village.mayor_elected_2": "You are now the mayor of this village",
   "tag.item.mayor.lumber_storage_storable": "Lumber Storage Storable",
   "tag.item.mayor.stone_storage_storable": "Stone Storage Storable",
   "yacl3.config.mayor:mayor.category.main": "Mayor",
-  "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP"
+  "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP",
+  "yacl3.config.mayor:mayor.maxTickMayorOffline": "Max Tick Mayor Offline"
 }

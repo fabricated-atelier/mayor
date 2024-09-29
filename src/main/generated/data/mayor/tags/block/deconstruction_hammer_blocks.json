@@ -1,0 +1,24 @@
+{
+  "values": [
+    "minecraft:cobblestone",
+    "minecraft:blackstone",
+    "minecraft:cobbled_deepslate",
+    "minecraft:cobbled_deepslate_slab",
+    "minecraft:cobbled_deepslate_stairs",
+    "minecraft:cobbled_deepslate_wall",
+    "minecraft:cobblestone_slab",
+    "minecraft:cobblestone_stairs",
+    "minecraft:cobblestone_wall",
+    "minecraft:infested_cobblestone",
+    "minecraft:mossy_cobblestone",
+    "minecraft:mossy_cobblestone_slab",
+    "minecraft:mossy_cobblestone_stairs",
+    "minecraft:mossy_cobblestone_wall",
+    "minecraft:blackstone_slab",
+    "minecraft:blackstone_stairs",
+    "minecraft:blackstone_wall",
+    "minecraft:glass_pane",
+    "minecraft:glass",
+    "#minecraft:impermeable"
+  ]
+}

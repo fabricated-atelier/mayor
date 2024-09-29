@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.datagen;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.MayorProperties;
 import io.fabricatedatelier.mayor.init.MayorBlocks;
+import io.fabricatedatelier.mayor.init.MayorItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
 import net.minecraft.data.client.*;
@@ -39,6 +40,8 @@ public class ModelProvider extends FabricModelProvider {
 
         itemModelGenerator.register(MayorBlocks.CONSTRUCTION_TABLE.asItem(),
                 new Model(Optional.of(Mayor.identifierOf("block/construction_table")), Optional.empty()));
+
+        itemModelGenerator.register(MayorItems.DECONSTRUCTION_HAMMER, Models.HANDHELD);
     }
 
     private BlockStateVariantMap createMultiBlockStructureMap(String name) {

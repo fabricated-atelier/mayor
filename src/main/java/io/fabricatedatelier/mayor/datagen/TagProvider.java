@@ -2,9 +2,12 @@ package io.fabricatedatelier.mayor.datagen;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.init.MayorBlocks;
+import io.fabricatedatelier.mayor.init.MayorItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
@@ -15,6 +18,9 @@ import java.util.concurrent.CompletableFuture;
 
 public class TagProvider {
     public static class BlockTags extends FabricTagProvider.BlockTagProvider {
+        public static final TagKey<Block> DECONSTRUCTION_HAMMER_BLOCKS =
+                TagKey.of(RegistryKeys.BLOCK, Mayor.identifierOf("deconstruction_hammer_blocks"));
+
         public BlockTags(FabricDataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
             super(output, registriesFuture);
         }
@@ -23,6 +29,14 @@ public class TagProvider {
         protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
             getOrCreateTagBuilder(net.minecraft.registry.tag.BlockTags.AXE_MINEABLE)
                     .add(MayorBlocks.LUMBER_STORAGE, MayorBlocks.STONE_STORAGE).setReplace(false);
+            getOrCreateTagBuilder(DECONSTRUCTION_HAMMER_BLOCKS)
+                    .add(Blocks.COBBLESTONE, Blocks.BLACKSTONE, Blocks.COBBLED_DEEPSLATE, Blocks.COBBLED_DEEPSLATE_SLAB,
+                            Blocks.COBBLED_DEEPSLATE_STAIRS, Blocks.COBBLED_DEEPSLATE_WALL, Blocks.COBBLESTONE_SLAB,
+                            Blocks.COBBLESTONE_STAIRS, Blocks.COBBLESTONE_WALL, Blocks.INFESTED_COBBLESTONE,
+                            Blocks.MOSSY_COBBLESTONE, Blocks.MOSSY_COBBLESTONE_SLAB, Blocks.MOSSY_COBBLESTONE_STAIRS,
+                            Blocks.MOSSY_COBBLESTONE_WALL, Blocks.BLACKSTONE_SLAB, Blocks.BLACKSTONE_STAIRS,
+                            Blocks.BLACKSTONE_WALL, Blocks.GLASS_PANE, Blocks.GLASS)
+                    .forceAddTag(net.minecraft.registry.tag.BlockTags.IMPERMEABLE);
         }
     }
 
@@ -70,6 +84,8 @@ public class TagProvider {
                     .addOptionalTag(Identifier.of("c", "logs"))
                     .addOptionalTag(Identifier.of("c", "planks"))
                     .addOptionalTag(Identifier.of("c", "planks_that_burn"));
+
+            getOrCreateTagBuilder(net.minecraft.registry.tag.ItemTags.PICKAXES).add(MayorItems.DECONSTRUCTION_HAMMER);
         }
     }
 

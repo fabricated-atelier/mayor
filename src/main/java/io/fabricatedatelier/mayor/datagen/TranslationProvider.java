@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.datagen;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.init.MayorBlocks;
+import io.fabricatedatelier.mayor.init.MayorItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.registry.Registries;
@@ -24,6 +25,8 @@ public class TranslationProvider extends FabricLanguageProvider {
 
         translationBuilder.add(MayorBlocks.LUMBER_STORAGE, cleanString(Registries.BLOCK.getId(MayorBlocks.LUMBER_STORAGE)));
         translationBuilder.add(MayorBlocks.STONE_STORAGE, cleanString(Registries.BLOCK.getId(MayorBlocks.STONE_STORAGE)));
+
+        translationBuilder.add(MayorItems.DECONSTRUCTION_HAMMER, cleanString(Registries.ITEM.getId(MayorItems.DECONSTRUCTION_HAMMER)));
 
         // Load an existing language file.
         try {

@@ -1,13 +1,13 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.init.MayorItems;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.feature.VillagerHeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithArms;
@@ -15,9 +15,7 @@ import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.*;
@@ -36,7 +34,7 @@ public abstract class VillagerHeldItemFeatureRendererMixin<T extends LivingEntit
 
     // Todo: Replace with hammer
     @Unique
-    private static final ItemStack HAMMER = new ItemStack(Items.IRON_SWORD);
+    private static final ItemStack HAMMER = new ItemStack(MayorItems.DECONSTRUCTION_HAMMER);
 
     public VillagerHeldItemFeatureRendererMixin(FeatureRendererContext<T, M> context) {
         super(context);

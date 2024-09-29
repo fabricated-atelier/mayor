@@ -1,8 +1,9 @@
-// 1.21.1	2024-09-29T12:22:16.9600994	Mayor/Model Definitions
+// 1.21.1	2024-09-29T22:24:01.5965362	Mayor/Model Definitions
 d183856983f0f13802ec356006cc10d9dfc16650 assets\mayor\models\item\camera_debug.json
+17cb79692c4ed0cc3efbd4a1196492d194c53c66 assets\mayor\models\item\deconstruction_hammer.json
 8ac76aa83b1300bd875607674bbb5eb62ce0369f assets\mayor\blockstates\stone_storage.json
 6f545644079ea59be167728e34e2d11a85d8d4a7 assets\mayor\models\item\construction_table.json
 29373f1f71083071a14d3ca2ea731f53c267437f assets\mayor\models\item\lumber_storage_block.json
-231e5d499785932a985ae132a7e6f2e2626b74a5 assets\mayor\blockstates\camera_debug.json
 29373f1f71083071a14d3ca2ea731f53c267437f assets\mayor\models\item\stone_storage_block.json
+231e5d499785932a985ae132a7e6f2e2626b74a5 assets\mayor\blockstates\camera_debug.json
 8ac76aa83b1300bd875607674bbb5eb62ce0369f assets\mayor\blockstates\lumber_storage.json
