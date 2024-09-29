@@ -16,20 +16,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StructureXpLoader implements SimpleSynchronousResourceReloadListener {
+public class StructureDataLoader implements SimpleSynchronousResourceReloadListener {
 
-    public static Map<String, Integer> structureExperienceMap = new HashMap<>();
+    public static Map<String, List<Integer>> structureDataMap = new HashMap<>();
     // List to store replacing structures
     private final List<String> replaceList = new ArrayList<>();
 
     @Override
     public Identifier getFabricId() {
-        return Identifier.of("mayor", "structure_experience");
+        return Mayor.identifierOf("structure_data");
     }
 
     @Override
     public void reload(ResourceManager manager) {
-        manager.findResources("structure_experience", id -> id.getPath().endsWith(".json")).forEach((id, resourceRef) -> {
+        manager.findResources("structure_data", id -> id.getPath().endsWith(".json")).forEach((id, resourceRef) -> {
             try {
                 InputStream stream = resourceRef.getInputStream();
                 JsonObject data = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
@@ -40,9 +40,9 @@ public class StructureXpLoader implements SimpleSynchronousResourceReloadListene
                             if (JsonHelper.getBoolean(entry.getValue().getAsJsonObject(), "replace", false)) {
                                 replaceList.add(entry.getKey());
                             }
-                            StructureXpLoader.structureExperienceMap.put(entry.getKey(), entry.getValue().getAsJsonObject().get("experience").getAsInt());
+                            StructureDataLoader.structureDataMap.put(entry.getKey(), List.of(entry.getValue().getAsJsonObject().get("experience").getAsInt(), entry.getValue().getAsJsonObject().get("price").getAsInt()));
                         } else {
-                            StructureXpLoader.structureExperienceMap.put(entry.getKey(), entry.getValue().getAsInt());
+                            Mayor.LOGGER.error("Error occurred while loading resource {}. {} is not a valid json object.", id.toString(), entry.getKey());
                         }
                     }
                 }

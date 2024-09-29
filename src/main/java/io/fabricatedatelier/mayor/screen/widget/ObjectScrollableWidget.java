@@ -212,7 +212,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         if (!this.visible) {
             return false;
         }
-        if (isWithinExtraBounds(mouseX, mouseY,0,15)) {
+        if (isWithinExtraBounds(mouseX, mouseY, 0, 15)) {
             if (this.texts != null && !this.texts.isEmpty() && this.objects != null) {
                 if (isPointWithinBounds(this.width / 2 - 8, -15, 17, 12, mouseX, mouseY)) {
                     this.setScrollY(this.getScrollY() - this.getDeltaYPerScroll());
@@ -259,8 +259,8 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         this.selectedIndex = selectedIndex;
     }
 
-    private boolean isWithinExtraBounds(double mouseX, double mouseY, int extraX, int extraY){
-        return mouseX >= (double) this.getX()-extraX && mouseX < this.getX() + this.width + 4+extraX && mouseY < (double) this.getY() + this.maxRows * 13+extraY && mouseY >= (double) (this.getY()-extraY);
+    private boolean isWithinExtraBounds(double mouseX, double mouseY, int extraX, int extraY) {
+        return mouseX >= (double) this.getX() - extraX && mouseX < this.getX() + this.width + 4 + extraX && mouseY < (double) this.getY() + this.maxRows * 13 + extraY && mouseY >= (double) (this.getY() - extraY);
     }
 
     private void clicked() {
@@ -293,9 +293,11 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
                     mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
                     if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty()) {
-                        mayorScreen.getBuildButton().active = true;
+                        if (StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice())) {
+                            mayorScreen.getBuildButton().active = true;
+                        }
                         mayorScreen.getBuildButton().visible = true;
-                    }else{
+                    } else {
                         mayorScreen.getBuildButton().active = false;
                         mayorScreen.getBuildButton().visible = false;
                     }

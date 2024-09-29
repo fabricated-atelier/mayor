@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.init;
 
-import io.fabricatedatelier.mayor.data.StructureXpLoader;
+import io.fabricatedatelier.mayor.data.StructureDataLoader;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
@@ -49,18 +49,21 @@ public class MayorCommonEvents {
                     List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(server.getOverworld(), identifier);
 
                     int experience = 0;
-                    if (StructureXpLoader.structureExperienceMap.containsKey(StringUtil.getMayorStructureString(identifier))) {
-                        experience = StructureXpLoader.structureExperienceMap.get(StringUtil.getMayorStructureString(identifier));
+                    int price = 0;
+                    if (StructureDataLoader.structureDataMap.containsKey(StringUtil.getMayorStructureString(identifier))) {
+                        experience = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(identifier)).get(0);
+                        price = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(identifier)).get(1);
                     } else {
                         experience = StructureHelper.getStructureExperience(requiredItemStacks);
-                        StructureXpLoader.structureExperienceMap.put(StringUtil.getMayorStructureString(identifier), experience);
+                        price = 8;
+                        StructureDataLoader.structureDataMap.put(StringUtil.getMayorStructureString(identifier), List.of(experience, price));
                     }
                     Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(server.getOverworld(), identifier, BlockRotation.NONE, false);
                     MayorCategory.BiomeCategory biomeCategory = StructureHelper.getBiomeCategory(identifier);
                     MayorCategory.BuildingCategory buildingCategory = StructureHelper.getBuildingCategory(identifier);
                     Vec3i size = StructureHelper.getStructureSize(server.getOverworld(), identifier);
 
-                    MayorStructure mayorStructure = new MayorStructure(mayorStructureIdentifier, level, experience, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
+                    MayorStructure mayorStructure = new MayorStructure(mayorStructureIdentifier, level, experience, price, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
                     if (MayorManager.mayorStructureMap.containsKey(biomeCategory)) {
                         MayorManager.mayorStructureMap.get(biomeCategory).add(mayorStructure);
                     } else {

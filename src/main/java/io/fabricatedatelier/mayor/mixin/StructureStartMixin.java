@@ -3,7 +3,7 @@ package io.fabricatedatelier.mayor.mixin;
 import io.fabricatedatelier.mayor.access.SinglePoolElementAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
 import io.fabricatedatelier.mayor.config.MayorConfig;
-import io.fabricatedatelier.mayor.data.StructureXpLoader;
+import io.fabricatedatelier.mayor.data.StructureDataLoader;
 import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.mixin.access.JigsawStructureAccess;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
@@ -85,13 +85,15 @@ public class StructureStartMixin {
                     if (StringUtil.shouldStoreStructureIdentifier(singlePoolElementAccess.getLocation().left().get())) {
                         Identifier structureIdentifier = StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get());
                         int experience = 0;
+                        int price = 8;
                         if (MayorConfig.CONFIG.instance().generatedStructureXp) {
-                            if (StructureXpLoader.structureExperienceMap.containsKey(StringUtil.getMayorStructureString(structureIdentifier))) {
-                                experience = StructureXpLoader.structureExperienceMap.get(StringUtil.getMayorStructureString(structureIdentifier));
+                            if (StructureDataLoader.structureDataMap.containsKey(StringUtil.getMayorStructureString(structureIdentifier))) {
+                                experience = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(structureIdentifier)).get(0);
+//                                price = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(structureIdentifier)).get(1);
                             } else {
                                 List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(world.toServerWorld(), structureIdentifier);
                                 experience = StructureHelper.getStructureExperience(requiredItemStacks);
-                                StructureXpLoader.structureExperienceMap.put(StringUtil.getMayorStructureString(structureIdentifier), experience);
+                                StructureDataLoader.structureDataMap.put(StringUtil.getMayorStructureString(structureIdentifier), List.of(experience, price));
                             }
                         }
                         StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(),

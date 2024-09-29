@@ -56,7 +56,7 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
 
     public void handlePacket(ClientPlayNetworking.Context context) {
         MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
-        if(mayorManager.getVillageData() != null) {
+        if (mayorManager.getVillageData() != null) {
             mayorManager.setMajorView(this.mayorView);
         }
 
@@ -84,13 +84,14 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
                             Identifier structureId = entry.getIdentifier();
                             int level = entry.getLevel();
                             int experience = entry.getExperience();
+                            int price = entry.getPrice();
                             String biomeCategory = entry.getBiomeCategory().name();
                             String buildingCategory = entry.getBuildingCategory().name();
                             List<ItemStack> requiredItemStacks = entry.getRequiredItemStacks();
                             Map<BlockPos, NbtCompound> posCompoundMap = StructureHelper.getBlockPosNbtMap(entry.getBlockMap());
                             Vec3i size = entry.getSize();
 
-                            MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, experience, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
+                            MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, experience, price, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
                             list.add(mayorStructureData);
                         }
                     }

@@ -14,16 +14,18 @@ public class MayorStructure {
     private final Identifier identifier;
     private final int level;
     private final int experience;
+    private final int price;
     private final MayorCategory.BiomeCategory biomeCategory;
     private final MayorCategory.BuildingCategory buildingCategory;
     private final List<ItemStack> requiredItemStacks;
     private final Map<BlockPos, BlockState> blockMap;
     private final Vec3i size;
 
-    public MayorStructure(Identifier identifier, int level, int experience, MayorCategory.BiomeCategory biomeCategory, MayorCategory.BuildingCategory buildingCategory, List<ItemStack> requiredItemStacks, Map<BlockPos, BlockState> blockMap, Vec3i size) {
+    public MayorStructure(Identifier identifier, int level, int experience, int price, MayorCategory.BiomeCategory biomeCategory, MayorCategory.BuildingCategory buildingCategory, List<ItemStack> requiredItemStacks, Map<BlockPos, BlockState> blockMap, Vec3i size) {
         this.identifier = identifier;
         this.level = level;
         this.experience = experience;
+        this.price = price;
         this.biomeCategory = biomeCategory;
         this.buildingCategory = buildingCategory;
         this.requiredItemStacks = requiredItemStacks;
@@ -41,6 +43,10 @@ public class MayorStructure {
 
     public int getExperience() {
         return experience;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public MayorCategory.BiomeCategory getBiomeCategory() {

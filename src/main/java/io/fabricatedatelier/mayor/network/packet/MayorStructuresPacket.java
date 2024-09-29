@@ -57,17 +57,18 @@ public record MayorStructuresPacket(MayorStructureDatas mayorStructures) impleme
         }
     }
 
-    public record MayorStructureData(Identifier structureId, int level, int experience, String biomeCategory, String buildingCategory, List<ItemStack> requiredItemStacks,
+    public record MayorStructureData(Identifier structureId, int level, int experience, int price, String biomeCategory, String buildingCategory, List<ItemStack> requiredItemStacks,
                                      Map<BlockPos, NbtCompound> posCompoundMap, Vec3i size) {
 
         private MayorStructureData(RegistryByteBuf buf) {
-            this(buf.readIdentifier(), buf.readInt(), buf.readInt(), buf.readString(), buf.readString(), ItemStack.LIST_PACKET_CODEC.decode(buf), buf.readMap(BlockPos.PACKET_CODEC::decode, (bufx) -> PacketByteBuf.readNbt(bufx)), readVec3i(buf));
+            this(buf.readIdentifier(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readString(), buf.readString(), ItemStack.LIST_PACKET_CODEC.decode(buf), buf.readMap(BlockPos.PACKET_CODEC::decode, (bufx) -> PacketByteBuf.readNbt(bufx)), readVec3i(buf));
         }
 
         public void write(RegistryByteBuf buf) {
             buf.writeIdentifier(this.structureId());
             buf.writeInt(this.level());
             buf.writeInt(this.experience());
+            buf.writeInt(this.price());
             buf.writeString(this.biomeCategory());
             buf.writeString(this.buildingCategory());
             ItemStack.LIST_PACKET_CODEC.encode(buf, this.requiredItemStacks());
@@ -98,13 +99,14 @@ public record MayorStructuresPacket(MayorStructureDatas mayorStructures) impleme
             Identifier identifier = mayorStructureData.structureId();
             int level = mayorStructureData.level();
             int experience = mayorStructureData.experience();
+            int price = mayorStructureData.price();
             MayorCategory.BiomeCategory biomeCategory = MayorCategory.BiomeCategory.valueOf(mayorStructureData.biomeCategory());
             MayorCategory.BuildingCategory buildingCategory = MayorCategory.BuildingCategory.valueOf(mayorStructureData.buildingCategory());
             List<ItemStack> requiredItemStacks = mayorStructureData.requiredItemStacks();
             Map<BlockPos, BlockState> blockMap = StructureHelper.getBlockPosBlockStateMap(world, mayorStructureData.posCompoundMap());
             Vec3i size = mayorStructureData.size();
 
-            MayorStructure mayorStructure = new MayorStructure(identifier, level, experience, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
+            MayorStructure mayorStructure = new MayorStructure(identifier, level, experience, price, biomeCategory, buildingCategory, requiredItemStacks, blockMap, size);
 
             if (MayorManager.mayorStructureMap.containsKey(biomeCategory)) {
                 MayorManager.mayorStructureMap.get(biomeCategory).add(mayorStructure);

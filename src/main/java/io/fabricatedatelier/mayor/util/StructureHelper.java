@@ -15,6 +15,7 @@ import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -23,8 +24,10 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.RegistryEntryLookup;
@@ -434,18 +437,27 @@ public class StructureHelper {
             mayorManager.setStructureCentered(center);
 
             if (canPlaceStructure(mayorManager)) {
+                boolean isCreativeLevelTwoOp = serverPlayerEntity.isCreativeLevelTwoOp();
 
-//                boolean buildStructure = false;
-
-                if (serverPlayerEntity.isCreativeLevelTwoOp() || (mayorManager.getVillageData().getMayorPlayerUuid() != null && mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())
-                        && InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty()
-                        && VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()))) {
+                if (!isCreativeLevelTwoOp && mayorManager.getVillageData().getMayorPlayerUuid() != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
+                    serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.is_not_mayor"));
+                    return false;
+                }
+                if (!isCreativeLevelTwoOp && !InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty()) {
+                    serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_items"));
+                    return false;
+                }
+                if (!isCreativeLevelTwoOp && !StructureHelper.hasRequiredStructurePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice())) {
+                    serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_funds"));
+                    return false;
+                }
+                if (isCreativeLevelTwoOp || VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())) {
                     BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     BlockBox blockBox = getStructureBlockBox(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     StructureData structureData = new StructureData(bottomCenterPos, blockBox,
                             mayorStructure.getIdentifier(), mayorStructure.getLevel(), mayorStructure.getExperience());
 
-                    if (serverPlayerEntity.isCreativeLevelTwoOp()) {
+                    if (isCreativeLevelTwoOp) {
                         placeBlocks(serverPlayerEntity.getServerWorld(), blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                         mayorManager.getVillageData().addStructure(structureData);
                         VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
@@ -454,19 +466,11 @@ public class StructureHelper {
                     } else {
                         Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), builder.getVillagerEntity().getUuid());
-                        //    mayorManager.getVillageData().getConstructions().g
-                        // Todo: Set multiple target positions to use a random one at the edges of the building
 
                         builder.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
                         builder.setTargetPosition(structureData.getBottomCenterPos());
                         mayorManager.getVillageData().addConstruction(constructionData);
-//                        }
-
-                        System.out.println("ASSIGNED " + builder);
-                        //                        // Todo: Assign villager to build this mayorStructure here
-//                        // add info to villageData that this building is in construction
-//                        // remove using items of available items, put in extra inventory for villager to use
-
+                        // Todo: remove using items of available items, put in extra inventory for villager to use
                     }
                     MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverPlayerEntity.getServerWorld());
                     mayorVillageState.markDirty();
@@ -475,10 +479,10 @@ public class StructureHelper {
                     mayorManager.setStructureOriginBlockPos(null);
                     return true;
                 } else {
-                    serverPlayerEntity.sendMessage(Text.of("You are not the Mayor of this Village " + InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())));
+                    serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_builder"));
                 }
             } else {
-                serverPlayerEntity.sendMessage(Text.translatable("commands.mayor.something_went_wrong"));
+                serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.not_constructible"));
             }
         }
         return false;
@@ -686,6 +690,24 @@ public class StructureHelper {
         return false;
     }
 
-    // Todo: If already build blocks - villager will bring useless blocks back
+    public static final boolean isNumismaticLoaded = FabricLoader.getInstance().isModLoaded("numismatic-overhaul");
+
+    public static boolean hasRequiredStructurePrice(PlayerInventory playerInventory, int price) {
+        int calculatePrice = price;
+        for (int i = 0; i < playerInventory.size(); i++) {
+            ItemStack stack = playerInventory.getStack(i);
+//            if(isNumismaticLoaded){
+//
+//            }
+            if (stack.isOf(Items.EMERALD)) {
+                calculatePrice -= stack.getCount();
+            }
+            if (calculatePrice <= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
 }

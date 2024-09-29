@@ -33,6 +33,11 @@
     "mayor.screen.upgrade": "Upgrade",
     "mayor.screen.build": "Build",
     "mayor.screen.building_value": "%s / %s",
+    "mayor.screen.missing_funds": "You do not have enough funds!",
+    "mayor.screen.missing_items": "The village does not have all required building items!",
+    "mayor.screen.missing_builder": "The village does not have a taskless builder!",
+    "mayor.screen.is_not_mayor": "You are not the Mayor of this village!",
+    "mayor.screen.not_constructible": "Structure can not be build here!",
 
     "commands.mayor.something_went_wrong": "Something went wrong!",
     "commands.mayor.created_village": "Created at position %s",
