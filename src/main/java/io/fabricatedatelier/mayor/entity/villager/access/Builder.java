@@ -29,6 +29,10 @@ public interface Builder {
 
     void setCarryItemStack(ItemStack itemStack);
 
+    int getTaskValue();
+
+    void setTaskValue(int taskValue);
+
     default void readBuilderInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
         if (nbt.contains("BuilderInventory", NbtElement.LIST_TYPE)) {
             this.getBuilderInventory().readNbtList(nbt.getList("BuilderInventory", NbtElement.COMPOUND_TYPE), wrapperLookup);

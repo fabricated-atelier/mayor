@@ -69,6 +69,14 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     private static final TrackedData<BlockPos> TARGET_POS = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
     @Unique
     private static final TrackedData<ItemStack> CARRY_ITEM_STACK = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+
+    /*
+     * 0: Nothing
+     * 1: Front Carry Task
+     * 2: Breaking Task
+     * */
+    @Unique
+    private static final TrackedData<Integer> TASK_VALUE = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.INTEGER);
     @Unique
     private BuilderInventory builderInventory = new BuilderInventory(2);
 
@@ -81,6 +89,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     protected void initDataTrackerMixin(DataTracker.Builder builder, CallbackInfo info) {
         builder.add(TARGET_POS, BlockPos.ORIGIN);
         builder.add(CARRY_ITEM_STACK, ItemStack.EMPTY);
+        builder.add(TASK_VALUE, 0);
     }
 
 
@@ -94,6 +103,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         if (!this.dataTracker.get(CARRY_ITEM_STACK).isEmpty()) {
             nbt.put("CarryItemStack", this.dataTracker.get(CARRY_ITEM_STACK).encode(this.getRegistryManager()));
         }
+        nbt.putInt("TaskValue", this.dataTracker.get(TASK_VALUE));
     }
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
@@ -109,6 +119,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         } else {
             this.dataTracker.set(CARRY_ITEM_STACK, ItemStack.EMPTY);
         }
+        this.dataTracker.set(TASK_VALUE, nbt.getInt("TaskValue"));
     }
 
     @Inject(method = "onDeath", at = @At("TAIL"))
@@ -188,6 +199,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Inject(method = "sleep", at = @At("TAIL"))
     private void sleepMixin(BlockPos pos, CallbackInfo info) {
         this.brain.forget(MayorVillagerUtilities.BUSY);
+        setTaskValue(0);
     }
 
     @Inject(method = "interactMob", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/VillagerEntity;beginTradeWith(Lnet/minecraft/entity/player/PlayerEntity;)V"), cancellable = true)
@@ -198,9 +210,10 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         }
     }
 
-    @Inject(method = "reinitializeBrain",at = @At(value = "INVOKE",target = "Lnet/minecraft/entity/ai/brain/Brain;stopAllTasks(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;)V"))
-    private void reinitializeBrainMixin(ServerWorld world, CallbackInfo info){
+    @Inject(method = "reinitializeBrain", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/brain/Brain;stopAllTasks(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/LivingEntity;)V"))
+    private void reinitializeBrainMixin(ServerWorld world, CallbackInfo info) {
         this.brain.forget(MayorVillagerUtilities.BUSY);
+        setTaskValue(0);
     }
 
     @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
@@ -248,10 +261,22 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Override
     public void setCarryItemStack(ItemStack itemStack) {
-
-        System.out.println("SET CARRY: "+itemStack);
-
         this.dataTracker.set(CARRY_ITEM_STACK, itemStack);
+        if (!itemStack.isEmpty()) {
+            setTaskValue(this.getWorld().getRandom().nextInt(2));
+        } else {
+            setTaskValue(0);
+        }
+    }
+
+    @Override
+    public int getTaskValue() {
+        return this.dataTracker.get(TASK_VALUE);
+    }
+
+    @Override
+    public void setTaskValue(int taskValue) {
+        this.dataTracker.set(TASK_VALUE, taskValue);
     }
 
     @Override

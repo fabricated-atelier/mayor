@@ -86,7 +86,9 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
             villagerEntity.getBrain().remember(MayorVillagerUtilities.BUSY, Unit.INSTANCE);
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
-
+            if(villagerEntity instanceof  Builder builder){
+                builder.setTaskValue(2);
+            }
             System.out.println("RUN BUILDER BREAK");
         }
     }
@@ -101,11 +103,14 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
         this.constructionData = null;
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
 
-        if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
-            for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
-                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
-                    builder.setCarryItemStack(stack);
-                    break;
+        if (villagerEntity instanceof Builder builder ) {
+            builder.setTaskValue(0);
+            if(!builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
+                for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
+                    if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
+                        builder.setCarryItemStack(stack);
+                        break;
+                    }
                 }
             }
         }
