@@ -65,7 +65,7 @@ public class TaskHelper {
 
             BlockPos targetPos = null;
             for (BlockPos pos : getPossibleMiddleTargetBlockPoses(serverWorld, blockBox)) {
-                if (VillageHelper.canReachSite(villagerEntity, pos)) {
+                if (canReachSite(villagerEntity, pos)) {
                     if (targetPos != null) {
                         if (pos.getSquaredDistance(villagerEntity.getPos()) < targetPos.getSquaredDistance(villagerEntity.getPos())) {
                             targetPos = pos;
