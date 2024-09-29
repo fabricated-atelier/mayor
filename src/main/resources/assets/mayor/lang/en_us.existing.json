@@ -14,6 +14,8 @@
 
     "mayor.village": "Village",
     "mayor.village.level_up": "%s Level Up",
+    "mayor.village.mayor_elected": "%s is now the mayor of this village",
+    "mayor.village.mayor_elected_2": "You are now the mayor of this village",
 
     "mayor.screen.title": "Mayor",
     "mayor.screen.mayor": "Mayor: %s",
@@ -241,5 +243,6 @@
     "building_taiga_fisher_cottage_1": "Fisher Cottage 1",
 
     "yacl3.config.mayor:mayor.category.main": "Mayor",
-    "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP"
+    "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP",
+    "yacl3.config.mayor:mayor.maxTickMayorOffline": "Max Tick Mayor Offline"
 }
