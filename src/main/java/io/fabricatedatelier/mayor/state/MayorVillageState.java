@@ -19,13 +19,7 @@ public class MayorVillageState extends PersistentState {
 
     private final ServerWorld world;
 
-    private Map<BlockPos, VillageData> villages = new HashMap<BlockPos, VillageData>();
-    // village level
-    // blockpos of chests? for structure requirements
-    // structures though identifier with origin blockpos and level
-    // calculate available structures
-    // check which level and if more structures can be build
-
+    private final Map<BlockPos, VillageData> villages = new HashMap<BlockPos, VillageData>();
 
     public MayorVillageState(ServerWorld world) {
         this.world = world;
@@ -41,9 +35,9 @@ public class MayorVillageState extends PersistentState {
         NbtList nbtList = nbt.getList("VillageData", NbtElement.COMPOUND_TYPE);
         for (int i = 0; i < nbtList.size(); i++) {
             VillageData villageData = new VillageData(nbtList.getCompound(i));
+            VillageHelper.updateOfflineMayor(world, villageData);
             mayorVillageState.villages.put(villageData.getCenterPos(), villageData);
         }
-
 
         return mayorVillageState;
     }

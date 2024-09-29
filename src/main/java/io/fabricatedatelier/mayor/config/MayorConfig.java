@@ -5,6 +5,7 @@ import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.autogen.AutoGen;
 import dev.isxander.yacl3.config.v2.api.autogen.Boolean;
+import dev.isxander.yacl3.config.v2.api.autogen.IntField;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import io.fabricatedatelier.mayor.Mayor;
 import net.fabricmc.loader.api.FabricLoader;
@@ -17,6 +18,11 @@ public class MayorConfig {
             .serializer(config -> GsonConfigSerializerBuilder.create(config)
                     .setPath(FabricLoader.getInstance().getConfigDir().resolve("mayor.json5"))
                     .appendGsonBuilder(GsonBuilder::setPrettyPrinting).setJson5(true).build()).build();
+
+    @SerialEntry(comment = "Mayor gets removed when too long offline. 0 = disabled")
+    @AutoGen(category = "main")
+    @IntField
+    public int maxTickMayorOffline = 12_096_000;
 
     @SerialEntry(comment = "Pre generated village structures get experience")
     @AutoGen(category = "main")

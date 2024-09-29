@@ -1,22 +1,18 @@
 package io.fabricatedatelier.mayor.util;
 
+import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +121,13 @@ public class VillageHelper {
     }
 
     // Todo: Survival non mayor screen to see infos like village level and building material
+
+    public static void updateOfflineMayor(ServerWorld serverWorld, VillageData villageData) {
+        if (villageData.getMayorPlayerUuid() != null && serverWorld.getTime() >= (villageData.getMayorPlayerTime() + MayorConfig.CONFIG.instance().maxTickMayorOffline)) {
+            villageData.setMayorPlayerUuid(null);
+            villageData.setMayorPlayerTime(0);
+        }
+    }
 
     public static int getVillageLevelBuildingExperienceRequirement(int nextVillageLevel, MayorCategory.BuildingCategory buildingCategory) {
 
