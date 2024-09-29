@@ -9,14 +9,12 @@ import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
-import io.fabricatedatelier.mayor.util.VillageHelper;
+import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
@@ -69,7 +67,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
 //                            if (StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).isEmpty()) {
                             if (!StructureHelper.hasMissingConstructionItem(serverWorld, constructionData, builder.getBuilderInventory())) {
                                 this.currentTarget = getTarget(serverWorld, builder, villageData);
-                            }else{
+                            } else {
                                 System.out.println("DUMP NOT?");
                                 this.nextResponseTime = serverWorld.getTime() + 100L;
                             }
@@ -93,11 +91,11 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
             if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
                 if (!villageContainerBlockEntity.isFull(stack)) {
-                    if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && VillageHelper.canReachSite(builder.getVillagerEntity(), villageContainerBlockEntity.getStructureOriginPos().get())) {
+                    if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && TaskHelper.canReachSite(builder.getVillagerEntity(), villageContainerBlockEntity.getStructureOriginPos().get())) {
                         return villageContainerBlockEntity.getStructureOriginPos().get();
                     } else {
                         for (BlockPos pos : villageContainerBlockEntity.getConnectedBlocks()) {
-                            if (VillageHelper.canReachSite(builder.getVillagerEntity(), pos)) {
+                            if (TaskHelper.canReachSite(builder.getVillagerEntity(), pos)) {
                                 return pos;
                             }
                         }

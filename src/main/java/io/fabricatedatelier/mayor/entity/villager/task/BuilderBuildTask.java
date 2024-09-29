@@ -8,7 +8,7 @@ import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
-import io.fabricatedatelier.mayor.util.VillageHelper;
+import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
@@ -68,7 +68,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                     return false;
                 }
 
-                this.currentTarget = VillageHelper.findClosestTarget(serverWorld, villagerEntity, this.constructionData);
+                this.currentTarget = TaskHelper.findClosestTarget(serverWorld, villagerEntity, this.constructionData);
             }
         }
         return this.currentTarget != null;
@@ -101,7 +101,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
             if (builder.getBuilderInventory().isEmpty()) {
                 builder.setCarryItemStack(ItemStack.EMPTY);
             } else {
-                System.out.println("SHOULD BE EMPTY: " + builder.getBuilderInventory()+ " : "+builder.getCarryItemStack()+ " : "+builder.getBuilderInventory().isEmpty());
+                System.out.println("SHOULD BE EMPTY: " + builder.getBuilderInventory() + " : " + builder.getCarryItemStack() + " : " + builder.getBuilderInventory().isEmpty());
             }
         }
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);

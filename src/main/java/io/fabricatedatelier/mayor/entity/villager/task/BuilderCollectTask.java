@@ -11,7 +11,7 @@ import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.InventoryUtil;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
-import io.fabricatedatelier.mayor.util.VillageHelper;
+import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -105,11 +105,11 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
                 if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
                     if (villageContainerBlockEntity.contains(item)) {
-                        if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && VillageHelper.canReachSite(villagerEntity, villageContainerBlockEntity.getStructureOriginPos().get())) {
+                        if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && TaskHelper.canReachSite(villagerEntity, villageContainerBlockEntity.getStructureOriginPos().get())) {
                             return villageContainerBlockEntity.getStructureOriginPos().get();
                         } else {
                             for (BlockPos pos : villageContainerBlockEntity.getConnectedBlocks()) {
-                                if (VillageHelper.canReachSite(villagerEntity, pos)) {
+                                if (TaskHelper.canReachSite(villagerEntity, pos)) {
                                     return pos;
                                 }
                             }
@@ -177,11 +177,11 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
             for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
                 if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
                     builder.setCarryItemStack(stack);
-                    System.out.println("CARRY LOL "+stack);
+                    System.out.println("CARRY LOL " + stack);
                     break;
                 }
             }
-            System.out.println("SET COLLECT CARRY: "+builder.getCarryItemStack());
+            System.out.println("SET COLLECT CARRY: " + builder.getCarryItemStack());
         }
         System.out.println("FINISH BUILDER COLLECT");
     }

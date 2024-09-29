@@ -8,25 +8,19 @@ import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
-import io.fabricatedatelier.mayor.util.VillageHelper;
+import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Unit;
-import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
 
@@ -74,7 +68,7 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
                 }
             }
             if (this.constructionData != null) {
-                this.currentTarget = VillageHelper.findClosestTarget(serverWorld, villagerEntity, this.constructionData);
+                this.currentTarget = TaskHelper.findClosestTarget(serverWorld, villagerEntity, this.constructionData);
             }
         }
         return this.currentTarget != null;
@@ -86,7 +80,7 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
             villagerEntity.getBrain().remember(MayorVillagerUtilities.BUSY, Unit.INSTANCE);
             villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
-            if(villagerEntity instanceof  Builder builder){
+            if (villagerEntity instanceof Builder builder) {
                 builder.setTaskValue(2);
             }
             System.out.println("RUN BUILDER BREAK");
@@ -103,9 +97,9 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
         this.constructionData = null;
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
 
-        if (villagerEntity instanceof Builder builder ) {
+        if (villagerEntity instanceof Builder builder) {
             builder.setTaskValue(0);
-            if(!builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
+            if (!builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
                 for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
                     if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
                         builder.setCarryItemStack(stack);
