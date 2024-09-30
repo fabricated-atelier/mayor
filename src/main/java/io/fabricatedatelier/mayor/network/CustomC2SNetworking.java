@@ -11,6 +11,7 @@ public class CustomC2SNetworking {
         ServerPlayNetworking.registerGlobalReceiver(EntityListC2SPacket.PACKET_ID, EntityListC2SPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(EntityViewPacket.PACKET_ID, EntityViewPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(StructureBuildPacket.PACKET_ID, StructureBuildPacket::handlePacket);
+        ServerPlayNetworking.registerGlobalReceiver(MayorUpdatePacket.PACKET_ID, MayorUpdatePacket::handlePacket);
     }
 
     public static void initialize() {

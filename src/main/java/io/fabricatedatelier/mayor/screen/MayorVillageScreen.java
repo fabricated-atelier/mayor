@@ -4,6 +4,8 @@ import io.fabricatedatelier.mayor.init.MayorKeyBindings;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.network.packet.EntityListC2SPacket;
+import io.fabricatedatelier.mayor.network.packet.MayorUpdatePacket;
+import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
 import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
@@ -13,9 +15,11 @@ import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.PopupScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
@@ -34,6 +38,7 @@ public class MayorVillageScreen extends Screen {
     private ObjectScrollableWidget structureScrollableWidget;
     private ItemScrollableWidget upgradeStructureScrollableWidget;
     private ButtonWidget upgradeButton;
+    private ButtonWidget dismissButton;
 
     private int levelX = 0;
     private int levelY = 0;
@@ -89,6 +94,23 @@ public class MayorVillageScreen extends Screen {
             this.upgradeButton.setWidth(this.textRenderer.getWidth(upgrade) + 7);
             this.upgradeButton.setX(this.width / 2 - this.upgradeButton.getWidth() / 2);
             this.upgradeButton.setY(this.height / 2 + 38);
+
+            Text dismiss = Text.translatable("mayor.screen.dismiss");
+            if (this.mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client != null && this.client.player != null && this.client.player.getUuid().equals(this.mayorManager.getVillageData().getMayorPlayerUuid())) {
+                this.dismissButton = this.addDrawableChild(ButtonWidget.builder(dismiss, button -> {
+                    if (this.client != null && this.client.player != null) {
+                        this.client.setScreen(new PopupScreen.Builder(this, Text.translatable("mayor.screen.dismiss.confirm")).button(ScreenTexts.YES, screen -> {
+                            new MayorViewPacket(false).sendClientPacket();
+                            new MayorUpdatePacket(this.mayorManager.getVillageData().getCenterPos(), this.mayorManager.getVillageData().getLevel(), this.client.player.getUuid(), true).sendPacket();
+                            this.close();
+                        }).button(ScreenTexts.CANCEL, PopupScreen::close).build());
+                    }
+                }).build());
+
+                this.dismissButton.setWidth(this.textRenderer.getWidth(dismiss) + 7);
+                this.dismissButton.setX(this.width - 7 - this.dismissButton.getWidth());
+                this.dismissButton.setY(this.height - 27);
+            }
         }
     }
 
@@ -138,9 +160,9 @@ public class MayorVillageScreen extends Screen {
                 }
             }
 
-            if (this.client != null && mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client.world != null && this.client.player != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(this.client.player.getUuid()) && this.client.player.isCreativeLevelTwoOp()) {
+            if (this.client != null && mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client.world != null && this.client.player != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(this.client.player.getUuid()) && this.client.player.isCreativeLevelTwoOp() && this.client.world.getPlayerByUuid(mayorManager.getVillageData().getMayorPlayerUuid()) != null) {
                 Text mayor = Text.translatable("mayor.screen.mayor", this.client.world.getPlayerByUuid(mayorManager.getVillageData().getMayorPlayerUuid()).getName());
-                context.drawText(this.textRenderer, mayor, this.width - this.textRenderer.getWidth(mayor)-8, 6, Colors.WHITE, false);
+                context.drawText(this.textRenderer, mayor, this.width - this.textRenderer.getWidth(mayor) - 8, 6, Colors.WHITE, false);
             }
         }
     }
@@ -183,7 +205,7 @@ public class MayorVillageScreen extends Screen {
                 int requiredBuildingCategoryExperience = VillageHelper.getVillageLevelBuildingExperienceRequirement(this.mayorManager.getVillageData().getLevel() + 1, MayorCategory.BuildingCategory.values()[i]);
                 Text experience = Text.translatable("mayor.screen.building_value", this.buildingCategoryExperienceMap.get(MayorCategory.BuildingCategory.values()[i]), requiredBuildingCategoryExperience);
 
-                context.drawText(this.textRenderer, experience, this.width - 20 - this.textRenderer.getWidth(experience), villageBackgroundY + 20 + i * 10, requiredBuildingCategoryExperience<= this.buildingCategoryExperienceMap.get(MayorCategory.BuildingCategory.values()[i])  ? 32319: Colors.WHITE, false);
+                context.drawText(this.textRenderer, experience, this.width - 20 - this.textRenderer.getWidth(experience), villageBackgroundY + 20 + i * 10, requiredBuildingCategoryExperience <= this.buildingCategoryExperienceMap.get(MayorCategory.BuildingCategory.values()[i]) ? 32319 : Colors.WHITE, false);
             }
         }
     }

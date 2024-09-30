@@ -7,6 +7,7 @@ import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -95,10 +96,11 @@ public class RaidMixin {
                         mayorVillageState.markDirty();
 
                         for (ServerPlayerEntity serverPlayerEntity : this.world.getEntitiesByClass(ServerPlayerEntity.class, new Box(this.centerPos).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
+                            serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", mayorVillageState.getVillageData(this.centerPos).getName())));
                             if (serverPlayerEntity.getUuid().equals(mayorUuid)) {
-                                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.mayor_elected_2")));
+                                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected_2")));
                             } else {
-                                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.mayor_elected", mayorName)));
+                                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected", mayorName)));
                             }
                         }
                     }

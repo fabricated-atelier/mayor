@@ -14,8 +14,11 @@
 
     "mayor.village": "Village",
     "mayor.village.level_up": "%s Level Up",
+    "mayor.village.news": "%s News",
     "mayor.village.mayor_elected": "%s is now the mayor of this village",
     "mayor.village.mayor_elected_2": "You are now the mayor of this village",
+    "mayor.village.mayor_dismissed": "%s is no longer the mayor this village",
+    "mayor.village.mayor_dismissed_2": "You are no longer the mayor this village",
 
     "mayor.screen.title": "Mayor",
     "mayor.screen.mayor": "Mayor: %s",
@@ -40,6 +43,8 @@
     "mayor.screen.missing_builder": "The village does not have a taskless builder!",
     "mayor.screen.is_not_mayor": "You are not the Mayor of this village!",
     "mayor.screen.not_constructible": "Structure can not be build here!",
+    "mayor.screen.dismiss": "Dismiss",
+    "mayor.screen.dismiss.confirm": "Are you sure you want to dismiss as the mayor?",
 
     "commands.mayor.something_went_wrong": "Something went wrong!",
     "commands.mayor.created_village": "Created at position %s",
