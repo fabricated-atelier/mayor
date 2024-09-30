@@ -257,6 +257,8 @@
   "mayor.village.news": "%s News",
   "tag.item.mayor.lumber_storage_storable": "Lumber Storage Storable",
   "tag.item.mayor.stone_storage_storable": "Stone Storage Storable",
+  "key.mayor.free_fly_camera_mode": "Free Fly Camera Mode"
+  "tag.item.mayor.stone_storage_storable": "Stone Storage Storable",
   "yacl3.config.mayor:mayor.category.main": "Mayor",
   "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP",
   "yacl3.config.mayor:mayor.maxTickMayorOffline": "Max Tick Mayor Offline",

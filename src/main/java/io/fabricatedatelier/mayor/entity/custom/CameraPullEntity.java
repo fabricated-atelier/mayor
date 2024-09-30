@@ -1,34 +1,37 @@
 package io.fabricatedatelier.mayor.entity.custom;
 
+import io.fabricatedatelier.mayor.camera.util.CameraTarget;
 import io.fabricatedatelier.mayor.init.MayorEntities;
 import io.fabricatedatelier.mayor.util.NbtKeys;
+import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.entity.EntityLookup;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class CameraTargetEntity extends Entity {
-    private static final TrackedData<Optional<UUID>> USER = DataTracker.registerData(CameraTargetEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+public class CameraPullEntity extends Entity implements CameraTarget {
+    private static final TrackedData<Optional<UUID>> USER = DataTracker.registerData(CameraPullEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
-    public CameraTargetEntity(EntityType<?> type, World world) {
+    public CameraPullEntity(EntityType<?> type, World world) {
         super(type, world);
     }
 
-    public CameraTargetEntity(World world, @Nullable ServerPlayerEntity player) {
-        this(MayorEntities.CAMERA_TARGET, world);
-        if (player == null) {
-            setUser(null);
-        } else {
-            setUser(player.getUuid());
-        }
+    public CameraPullEntity(World world, @Nullable ServerPlayerEntity player) {
+        this(MayorEntities.CAMERA_PULL, world);
+        if (player == null) setUser(null);
+        else setUser(player.getUuid());
     }
 
     public Optional<UUID> getUser() {
@@ -58,5 +61,14 @@ public class CameraTargetEntity extends Entity {
         getUser().ifPresentOrElse(userUUID -> {
             nbt.putUuid(NbtKeys.USER_UUID, userUUID);
         }, () -> nbt.remove(NbtKeys.USER_UUID));
+    }
+
+    public Optional<PlayerEntity> getUserPlayer() {
+        return getUser().flatMap(uuid -> Optional.ofNullable(this.getWorld().getPlayerByUuid(uuid)));
+    }
+
+    @Override
+    public Vec3d mayor$getTargetPosition() {
+        return this.getPos();
     }
 }

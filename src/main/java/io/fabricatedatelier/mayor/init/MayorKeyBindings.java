@@ -22,6 +22,8 @@ public class MayorKeyBindings {
     public static final KeyBinding upward = new KeyBinding("key.mayor.structure_upward", GLFW.GLFW_KEY_PAGE_UP, MAYOR_CATEGORY);
     public static final KeyBinding downward = new KeyBinding("key.mayor.structure_downward", GLFW.GLFW_KEY_PAGE_DOWN, MAYOR_CATEGORY);
 
+    public static final KeyBinding freeFlyCameraMode = new KeyBinding("key.mayor.free_fly_camera_mode", GLFW.GLFW_KEY_SPACE, MAYOR_CATEGORY);
+
     public static void initialize() {
         KeyBindingHelper.registerKeyBinding(mayorView);
         KeyBindingHelper.registerKeyBinding(mayorViewSelection);
@@ -30,6 +32,7 @@ public class MayorKeyBindings {
         KeyBindingHelper.registerKeyBinding(targetToCenter);
         KeyBindingHelper.registerKeyBinding(upward);
         KeyBindingHelper.registerKeyBinding(downward);
+        KeyBindingHelper.registerKeyBinding(freeFlyCameraMode);
 
         ClientTickEvents.END_CLIENT_TICK.register((client) -> {
             KeyHelper.viewKey(client);
