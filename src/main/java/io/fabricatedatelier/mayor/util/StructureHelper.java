@@ -10,7 +10,6 @@ import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
-import io.fabricatedatelier.mayor.network.packet.StructurePacket;
 import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
@@ -134,27 +133,6 @@ public class StructureHelper {
             return optional.get().getSize();
         }
         return Vec3i.ZERO;
-    }
-
-    // Unused
-    @Deprecated
-    public static boolean updateMayorStructure(ServerPlayerEntity serverPlayerEntity, Identifier structureId, BlockRotation structureRotation, boolean center) {
-        MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
-        List<MayorStructure> list = MayorManager.mayorStructureMap.get(mayorManager.getBiomeCategory());
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).getIdentifier().equals(structureId)) {
-                mayorManager.setMayorStructure(list.get(i));
-
-                mayorManager.setStructureRotation(structureRotation);
-
-                new StructurePacket(structureId, structureRotation, center).sendPacket(serverPlayerEntity);
-                return true;
-            }
-            if (i == list.size() - 1) {
-                mayorManager.setMayorStructure(null);
-            }
-        }
-        return false;
     }
 
     @Nullable
