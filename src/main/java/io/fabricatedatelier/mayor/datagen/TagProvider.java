@@ -86,6 +86,8 @@ public class TagProvider {
                     .addOptionalTag(Identifier.of("c", "planks_that_burn"));
 
             getOrCreateTagBuilder(net.minecraft.registry.tag.ItemTags.PICKAXES).add(MayorItems.DECONSTRUCTION_HAMMER);
+
+            getOrCreateTagBuilder(net.minecraft.registry.tag.ItemTags.DECORATED_POT_SHERDS).add(MayorItems.BALLOT_POTTERY_SHERD);
         }
     }
 

@@ -24,6 +24,16 @@ public class MayorConfig {
     @IntField
     public int maxTickMayorOffline = 12_096_000;
 
+    @SerialEntry(comment = "Mayor vote can not start before given time")
+    @AutoGen(category = "main")
+    @IntField
+    public int minTickMayorTime = 5_184_000;
+
+    @SerialEntry(comment = "Minimum mayor voting count for an election")
+    @AutoGen(category = "main")
+    @IntField
+    public int minVoteCount = 5;
+
     @SerialEntry(comment = "Pre generated village structures get experience")
     @AutoGen(category = "main")
     @Boolean

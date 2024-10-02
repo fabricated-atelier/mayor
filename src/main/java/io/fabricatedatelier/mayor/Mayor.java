@@ -17,6 +17,7 @@ public class Mayor implements ModInitializer {
         MayorConfig.load();
         MayorBlocks.initialize();
         MayorItems.initialize();
+        MayorComponents.initialize();
         MayorEntities.initialize();
         MayorVillagerUtilities.initialize();
         MayorItemGroups.initialize();

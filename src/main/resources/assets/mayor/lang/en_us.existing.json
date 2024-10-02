@@ -12,13 +12,20 @@
 
     "block.mayor.construction_table": "Construction Table",
 
+    "mayor.container.ballot_urn": "Ballot Urn",
+
     "mayor.village": "Village",
+    "mayor.village.name": "%s",
     "mayor.village.level_up": "%s Level Up",
     "mayor.village.news": "%s News",
-    "mayor.village.mayor_elected": "%s is now the mayor of this village",
-    "mayor.village.mayor_elected_2": "You are now the mayor of this village",
-    "mayor.village.mayor_dismissed": "%s is no longer the mayor this village",
-    "mayor.village.mayor_dismissed_2": "You are no longer the mayor this village",
+    "mayor.village.mayor_elected": "%s is now the mayor of this village!",
+    "mayor.village.mayor_elected_2": "You are now the mayor of this village!",
+    "mayor.village.mayor_dismissed": "%s is no longer the mayor this village!",
+    "mayor.village.mayor_dismissed_2": "You are no longer the mayor this village!",
+    "mayor.village.mayor_election_start": "The election of the mayor has begun!",
+    "mayor.village.mayor_election_end": "The election of the mayor has ended.\n%s is now the mayor of this village!",
+    "mayor.village.mayor_election_failed": "The election of the mayor has ended.\nThere were not enough voters!",
+    "mayor.village.ballot_urn_destroy": "The ballot urn has been destroyed!",
 
     "mayor.screen.title": "Mayor",
     "mayor.screen.mayor": "Mayor: %s",
@@ -45,6 +52,13 @@
     "mayor.screen.not_constructible": "Structure can not be build here!",
     "mayor.screen.dismiss": "Dismiss",
     "mayor.screen.dismiss.confirm": "Are you sure you want to dismiss as the mayor?",
+
+    "mayor.screen.vote_time": "Vote Time: %s",
+    "mayor.screen.vote_count": "Vote Count: %s",
+    "mayor.screen.vote_time_left": "Time Left: %s",
+    "mayor.screen.start_vote": "Start",
+
+    "mayor.screen.ballot_paper.title": "Ballot Paper",
 
     "commands.mayor.something_went_wrong": "Something went wrong!",
     "commands.mayor.created_village": "Created at position %s",
@@ -249,5 +263,7 @@
 
     "yacl3.config.mayor:mayor.category.main": "Mayor",
     "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP",
-    "yacl3.config.mayor:mayor.maxTickMayorOffline": "Max Tick Mayor Offline"
+    "yacl3.config.mayor:mayor.maxTickMayorOffline": "Max Tick Mayor Offline",
+    "yacl3.config.mayor:mayor.minVoteCount": "Min Vote Count",
+    "yacl3.config.mayor:mayor.minTickMayorTime": "Min Tick Mayor Time"
 }

@@ -32,16 +32,19 @@ public class ModelProvider extends FabricModelProvider {
 
     @Override
     public void generateItemModels(ItemModelGenerator itemModelGenerator) {
-        itemModelGenerator.register(MayorBlocks.LUMBER_STORAGE.asItem(),
+        itemModelGenerator.register(MayorItems.LUMBER_STORAGE_BLOCK,
                 new Model(Optional.of(Mayor.identifierOf("block/lumber_single")), Optional.empty()));
-
-        itemModelGenerator.register(MayorBlocks.STONE_STORAGE.asItem(),   //TODO: use different model?
+        itemModelGenerator.register(MayorItems.STONE_STORAGE_BLOCK,   //TODO: use different model?
                 new Model(Optional.of(Mayor.identifierOf("block/lumber_single")), Optional.empty()));
 
         itemModelGenerator.register(MayorBlocks.CONSTRUCTION_TABLE.asItem(),
                 new Model(Optional.of(Mayor.identifierOf("block/construction_table")), Optional.empty()));
 
         itemModelGenerator.register(MayorItems.DECONSTRUCTION_HAMMER, Models.HANDHELD);
+
+        itemModelGenerator.register(MayorItems.BALLOT_POTTERY_SHERD, Models.GENERATED);
+
+        itemModelGenerator.register(MayorItems.BALLOT_PAPER, Models.GENERATED);
     }
 
     private BlockStateVariantMap createMultiBlockStructureMap(String name) {

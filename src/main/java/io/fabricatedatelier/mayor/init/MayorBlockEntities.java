@@ -3,13 +3,17 @@ package io.fabricatedatelier.mayor.init;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.entity.CameraDebugBlockEntity;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
+import io.fabricatedatelier.mayor.block.screen.BallotUrnBlockScreenHandler;
+import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
 import io.fabricatedatelier.mayor.util.HandledInventory;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.screen.ScreenHandlerType;
 
 public class MayorBlockEntities {
     public static final BlockEntityType<CameraDebugBlockEntity> CAMERA_DEBUG =
@@ -19,6 +23,8 @@ public class MayorBlockEntities {
             registerWithStorage("lumber_storage", VillageContainerBlockEntity::new,
                     MayorBlocks.LUMBER_STORAGE, MayorBlocks.STONE_STORAGE);
 
+    public static final ScreenHandlerType<BallotUrnBlockScreenHandler> BALLOT_URN_SCREEN_HANDLER = new ExtendedScreenHandlerType<>(
+            BallotUrnBlockScreenHandler::new, BallotUrnPacket.PACKET_CODEC);
 
     private static <T extends BlockEntity> BlockEntityType<T> register(
             String name, BlockEntityType.BlockEntityFactory<? extends T> entityFactory, Block... blocks) {
@@ -41,5 +47,6 @@ public class MayorBlockEntities {
 
     public static void initialize() {
         // static initialisation
+        Registry.register(Registries.SCREEN_HANDLER, Mayor.identifierOf("ballot_urn"), BALLOT_URN_SCREEN_HANDLER);
     }
 }

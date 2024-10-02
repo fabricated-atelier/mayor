@@ -10,6 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ * All data of a village
+ */
 public class VillageData {
 
     private final BlockPos centerPos;
@@ -21,6 +24,8 @@ public class VillageData {
     @Nullable
     private UUID mayorPlayerUuid = null;
     private long mayorPlayerTime = 0;
+    @Nullable
+    private BlockPos ballotUrnPos = null;
     private List<BlockPos> storageOriginBlockPosList = new ArrayList<BlockPos>();
     private List<UUID> villagers = new ArrayList<UUID>();
     private List<UUID> ironGolems = new ArrayList<UUID>();
@@ -31,7 +36,7 @@ public class VillageData {
         this.centerPos = centerPos;
     }
 
-    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
+    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, @Nullable BlockPos ballotUrnPos, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
                        List<UUID> ironGolems, Map<BlockPos, StructureData> structures, Map<BlockPos, ConstructionData> constructions) {
         this.centerPos = centerPos;
         this.biomeCategory = biomeCategory;
@@ -40,6 +45,7 @@ public class VillageData {
         this.age = age;
         this.mayorPlayerUuid = mayorPlayerUuid;
         this.mayorPlayerTime = mayorPlayerTime;
+        this.ballotUrnPos = ballotUrnPos;
         this.storageOriginBlockPosList = storageOriginBlockPosList;
         this.villagers = villagers;
         this.ironGolems = ironGolems;
@@ -57,6 +63,7 @@ public class VillageData {
             this.mayorPlayerUuid = nbt.getUuid("MayorUuid");
             this.mayorPlayerTime = nbt.getLong("MayorPlayTime");
         }
+        this.ballotUrnPos = NbtHelper.toBlockPos(nbt, "BallotUrnPos").orElse(null);
         this.storageOriginBlockPosList.clear();
         for (int i = 0; i < nbt.getInt("Origins"); i++) {
             this.storageOriginBlockPosList.add(NbtHelper.toBlockPos(nbt, "Origin" + i).get());
@@ -94,6 +101,9 @@ public class VillageData {
             nbt.putUuid("MayorUuid", this.mayorPlayerUuid);
             nbt.putLong("MayorPlayTime", this.mayorPlayerTime);
         }
+        if (this.ballotUrnPos != null) {
+            nbt.put("BallotUrnPos", NbtHelper.fromBlockPos(this.ballotUrnPos));
+        }
         nbt.putInt("Origins", this.storageOriginBlockPosList.size());
         for (int i = 0; i < this.storageOriginBlockPosList.size(); i++) {
             nbt.put("Origin" + i, NbtHelper.fromBlockPos(this.storageOriginBlockPosList.get(i)));
@@ -121,10 +131,6 @@ public class VillageData {
             constructionList.add(nbtCompound);
         }
         nbt.put("Constructions", constructionList);
-
-        // this.structureData.values().
-        // var test = BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, pos);
-        // NbtElement nbtCompound = test.getOrThrow();
     }
 
     // Center
@@ -185,6 +191,16 @@ public class VillageData {
 
     public void setMayorPlayerTime(long mayorPlayerTime) {
         this.mayorPlayerTime = mayorPlayerTime;
+    }
+
+    // Ballot Urn
+    @Nullable
+    public BlockPos getBallotUrnPos() {
+        return ballotUrnPos;
+    }
+
+    public void setBallotUrnPos(BlockPos ballotUrnPos) {
+        this.ballotUrnPos = ballotUrnPos;
     }
 
     // StorageBlocks

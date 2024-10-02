@@ -1,5 +1,6 @@
-// 1.21.1	2024-09-30T09:45:11.9791931	Mayor/Tags for minecraft:item
+// 1.21.1	2024-10-02T21:43:13.1270194	Mayor/Tags for minecraft:item
 8884229b9b0301d333129c2442d6d40fb27e4cd3 data\mayor\tags\item\carriable.json
+048db2438fbb18db65a6ad15a51c1afe215f199e data\minecraft\tags\item\decorated_pot_sherds.json
 224f1133d94ff01044b3c30c931fbad6ae8241a0 data\mayor\tags\item\lumber_storage_storable.json
 9d2ade62b88c6675bc1c1be7957f606a890ef71e data\mayor\tags\item\stone_storage_storable.json
 99d55106e0f05af7000205eaa9e4f0873bbd13f4 data\minecraft\tags\item\pickaxes.json

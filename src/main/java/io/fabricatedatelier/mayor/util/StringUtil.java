@@ -1,12 +1,22 @@
 package io.fabricatedatelier.mayor.util;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtSizeTracker;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
 
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class StringUtil {
 
@@ -59,7 +69,7 @@ public class StringUtil {
         return string;
     }
 
-    public static String getStructureString(Identifier structureIdentifier){
+    public static String getStructureString(Identifier structureIdentifier) {
         String string = structureIdentifier.getPath().replaceAll("[0-9]", "").replaceAll("_+$", "");
         return string;
     }
@@ -72,6 +82,43 @@ public class StringUtil {
             }
         }
         return width;
+    }
+
+    public static Map<UUID, String> getOnlinePlayerUuidNames(ServerWorld serverWorld) {
+        Map<UUID, String> onlinePlayerUuids = new HashMap<>();
+        for (ServerPlayerEntity serverPlayerEntity : serverWorld.getServer().getPlayerManager().getPlayerList()) {
+            onlinePlayerUuids.put(serverPlayerEntity.getUuid(), serverPlayerEntity.getName().getString());
+        }
+        return onlinePlayerUuids;
+    }
+
+    public static Map<UUID, String> getOfflinePlayerUuidNames(ServerWorld serverWorld) {
+        Map<UUID, String> offlinePlayerNames = new HashMap<>();
+
+        List<UUID> onlinePlayerUuids = new ArrayList<>();
+        for (ServerPlayerEntity serverPlayerEntity : serverWorld.getServer().getPlayerManager().getPlayerList()) {
+            onlinePlayerUuids.add(serverPlayerEntity.getUuid());
+        }
+
+        try (Stream<Path> paths = Files.walk(serverWorld.getServer().getSavePath(WorldSavePath.PLAYERDATA))) {
+            List<Path> datFiles = paths.filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".dat")).toList();
+            datFiles.forEach(path -> {
+                if (path.toFile().exists() && path.toFile().isFile()) {
+                    try {
+                        NbtCompound nbtCompound = NbtIo.readCompressed(path, NbtSizeTracker.ofUnlimitedBytes());
+                        if (nbtCompound.contains("UUID") && !onlinePlayerUuids.contains(nbtCompound.getUuid("UUID"))) {
+                            if (nbtCompound.contains("Name")) {
+                                offlinePlayerNames.put(nbtCompound.getUuid("UUID"), nbtCompound.getString("Name"));
+                            }
+                        }
+                    } catch (IOException ignored) {
+                    }
+                }
+            });
+
+        } catch (IOException ignored) {
+        }
+        return offlinePlayerNames;
     }
 
 }

@@ -14,12 +14,16 @@ public class MayorNetworkPayloads {
         registerC2S(EntityViewPacket.PACKET_ID, EntityViewPacket.PACKET_CODEC);
         registerC2S(StructureBuildPacket.PACKET_ID, StructureBuildPacket.PACKET_CODEC);
         registerC2S(MayorUpdatePacket.PACKET_ID, MayorUpdatePacket.PACKET_CODEC);
+        registerC2S(ElectionPacket.PACKET_ID, ElectionPacket.PACKET_CODEC);
+        registerC2S(BallotPaperC2SPacket.PACKET_ID, BallotPaperC2SPacket.PACKET_CODEC);
 
         // S2C
         registerS2C(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);
         registerS2C(VillageDataPacket.PACKET_ID, VillageDataPacket.PACKET_CODEC);
         registerS2C(MayorStructuresPacket.PACKET_ID, MayorStructuresPacket.PACKET_CODEC);
         registerS2C(EntityListS2CPacket.PACKET_ID, EntityListS2CPacket.PACKET_CODEC);
+        registerS2C(BallotUrnPacket.PACKET_ID, BallotUrnPacket.PACKET_CODEC);
+        registerS2C(BallotPaperS2CPacket.PACKET_ID, BallotPaperS2CPacket.PACKET_CODEC);
     }
 
     private static <T extends CustomPayload> void registerS2C(CustomPayload.Id<T> packetIdentifier, PacketCodec<RegistryByteBuf, T> codec) {

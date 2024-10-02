@@ -13,8 +13,12 @@
     "SinglePoolElementMixin",
     "StructureStartMixin",
     "StructureTemplateMixin",
+    "PlayerSaveHandlerMixin",
     "VillagerEntityMixin",
     "RaidMixin",
+    "DecoratedPotBlockEntityMixin",
+    "DecoratedPotPatternsMixin",
+    "DecoratedPotBlockMixin",
     "access.JigsawStructureAccess"
   ],
   "injectors": {

@@ -28,6 +28,9 @@ public class TranslationProvider extends FabricLanguageProvider {
 
         translationBuilder.add(MayorItems.DECONSTRUCTION_HAMMER, cleanString(Registries.ITEM.getId(MayorItems.DECONSTRUCTION_HAMMER)));
 
+        translationBuilder.add(MayorItems.BALLOT_POTTERY_SHERD, cleanString(Registries.ITEM.getId(MayorItems.BALLOT_POTTERY_SHERD)));
+        translationBuilder.add(MayorItems.BALLOT_PAPER, cleanString(Registries.ITEM.getId(MayorItems.BALLOT_PAPER)));
+
         // Load an existing language file.
         try {
             Path existingFilePath = dataOutput.getModContainer().findPath("assets/%s/lang/en_us.existing.json".formatted(Mayor.MODID)).get();
