@@ -160,10 +160,12 @@ public class MayorScreen extends Screen {
         this.buildButton.setX(this.width / 2 - this.buildButton.getWidth() / 2);
         this.buildButton.setY(this.height / 2 + 38);
 
+
         if (this.mayorManager.getMayorStructure() != null) {
             this.requiredItemScrollableWidget.setItemStacks(this.mayorManager.getMayorStructure().getRequiredItemStacks());
             if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty()))) {
-                if (this.getAvailableBuilder() > 0 && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
+                //can not check this.getAvailableBuilder() > 0 cause it is not synced yet
+                if (StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
                     this.buildButton.active = true;
                 }
                 this.buildButton.visible = true;
@@ -275,6 +277,9 @@ public class MayorScreen extends Screen {
                     }
                 }
             }
+        }
+        if (this.buildButton.active && this.getAvailableBuilder() < 0) {
+            this.buildButton.active = false;
         }
 
     }
