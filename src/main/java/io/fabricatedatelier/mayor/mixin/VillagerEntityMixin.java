@@ -66,9 +66,9 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Unique
     private BlockPos villageCenterPos = null;
     @Unique
-    private static final TrackedData<BlockPos> TARGET_POS = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.BLOCK_POS);
+    private static final TrackedData<BlockPos> TARGET_POS = DataTracker.registerData(VillagerEntityMixin.class, TrackedDataHandlerRegistry.BLOCK_POS);
     @Unique
-    private static final TrackedData<ItemStack> CARRY_ITEM_STACK = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+    private static final TrackedData<ItemStack> CARRY_ITEM_STACK = DataTracker.registerData(VillagerEntityMixin.class, TrackedDataHandlerRegistry.ITEM_STACK);
 
     /*
      * 0: Nothing
@@ -76,7 +76,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
      * 2: Breaking Task
      * */
     @Unique
-    private static final TrackedData<Integer> TASK_VALUE = DataTracker.registerData(VillagerEntity.class, TrackedDataHandlerRegistry.INTEGER);
+    private static final TrackedData<Integer> TASK_VALUE = DataTracker.registerData(VillagerEntityMixin.class, TrackedDataHandlerRegistry.INTEGER);
     @Unique
     private BuilderInventory builderInventory = new BuilderInventory(2);
 
