@@ -1,30 +1,27 @@
 package io.fabricatedatelier.mayor.mixin;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import io.fabricatedatelier.mayor.init.MayorItems;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.block.DecoratedPotPattern;
 import net.minecraft.block.DecoratedPotPatterns;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Mixin(DecoratedPotPatterns.class)
 public class DecoratedPotPatternsMixin {
+    @ModifyReturnValue(method = "fromSherd", at = @At("RETURN"))
+    private static @Nullable RegistryKey<DecoratedPotPattern> appendCustomPatterns(@Nullable RegistryKey<DecoratedPotPattern> original) {
+        //TODO: retrieve modded Patterns from registry or access them from MayorPotPatterns and append them to the original Map!
+        return original;
+    }
 
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Ljava/util/Map;ofEntries([Ljava/util/Map$Entry;)Ljava/util/Map;"))
+/*    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Ljava/util/Map;ofEntries([Ljava/util/Map$Entry;)Ljava/util/Map;"))
     private static Map<Item, RegistryKey<DecoratedPotPattern>> initMixin(Map<Item, RegistryKey<DecoratedPotPattern>> original) {
         Map<Item, RegistryKey<DecoratedPotPattern>> map = new LinkedHashMap<>(original);
         map.put(MayorItems.BALLOT_POTTERY_SHERD, MayorItems.BALLOT);
         return map;
-    }
+    }*/
 
 //    @Inject(method = "fromSherd",at = @At("RETURN"),cancellable = true)
 //    private static void fromSherdMixin(Item sherd, CallbackInfoReturnable<RegistryKey<DecoratedPotPattern>> info) {
@@ -34,9 +31,9 @@ public class DecoratedPotPatternsMixin {
 //    }
 
 
-    @Inject(method = "registerAndGetDefault", at = @At("HEAD"))
+/*    @Inject(method = "registerAndGetDefault", at = @At("HEAD"))
     private static void registerAndGetDefaultMixin(Registry<DecoratedPotPattern> registry, CallbackInfoReturnable<DecoratedPotPattern> info) {
         Registry.register(registry, MayorItems.BALLOT, new DecoratedPotPattern(Identifier.ofVanilla("ballot_pottery_pattern")));
-    }
+    }*/
 
 }

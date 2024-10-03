@@ -4,17 +4,13 @@ import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.item.BallotPaperItem;
 import io.fabricatedatelier.mayor.item.DeconstructionHammerItem;
 import io.fabricatedatelier.mayor.item.StorageBlockItem;
-import net.minecraft.block.DecoratedPotPattern;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.ToolMaterials;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -35,7 +31,6 @@ public class MayorItems {
 
     public static final Item BALLOT_PAPER = register("ballot_paper", new BallotPaperItem(new Item.Settings()), List.of(MayorItemGroups.MAYOR_ITEMS));
 
-    public static final RegistryKey<DecoratedPotPattern> BALLOT = RegistryKey.of(RegistryKeys.DECORATED_POT_PATTERN, Identifier.ofVanilla("ballot"));
 
     private static <T extends Item> T register(String name, T item, @Nullable List<MayorItemGroups.ItemGroupEntry> itemGroups) {
         Registry.register(Registries.ITEM, Mayor.identifierOf(name), item);
