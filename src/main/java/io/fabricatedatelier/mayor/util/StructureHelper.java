@@ -445,6 +445,7 @@ public class StructureHelper {
                         Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), builder.getVillagerEntity().getUuid());
 
+                        consumeStructurePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice());
                         builder.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
                         builder.setTargetPosition(structureData.getBottomCenterPos());
                         mayorManager.getVillageData().addConstruction(constructionData);
@@ -674,9 +675,9 @@ public class StructureHelper {
         int calculatePrice = price;
         for (int i = 0; i < playerInventory.size(); i++) {
             ItemStack stack = playerInventory.getStack(i);
-//            if(isNumismaticLoaded){
+//            if(isNumismaticLoaded && Config Option lul){
 //
-//            }
+//            } else
             if (stack.isOf(Items.EMERALD)) {
                 calculatePrice -= stack.getCount();
             }
@@ -685,6 +686,29 @@ public class StructureHelper {
             }
         }
         return false;
+    }
+
+    public static void consumeStructurePrice(PlayerInventory playerInventory, int price) {
+        int calculatePrice = price;
+        for (int i = 0; i < playerInventory.size(); i++) {
+            ItemStack stack = playerInventory.getStack(i);
+//            if(isNumismaticLoaded){
+//
+//            } else
+            if (stack.isOf(Items.EMERALD)) {
+                calculatePrice -= stack.getCount();
+                if (stack.getCount() > calculatePrice) {
+                    stack.decrement(calculatePrice);
+                    break;
+                } else {
+                    calculatePrice -= stack.getCount();
+                    stack.decrement(stack.getCount());
+                }
+            }
+            if (calculatePrice <= 0) {
+                break;
+            }
+        }
     }
 
 
