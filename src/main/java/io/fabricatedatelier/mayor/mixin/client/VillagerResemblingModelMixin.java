@@ -74,16 +74,16 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
                     this.root.getChild(EntityModelPartNames.ARMS).pitch = 0.8f;
                     this.root.getChild(EntityModelPartNames.ARMS).pivotZ = -2.5f;
                 }
+            } else if (builder.getTaskValue() == 2) {
+                this.root.getChild(EntityModelPartNames.ARMS).visible = false;
             } else {
-                if (builder.getTaskValue() == 2) {
-                    this.root.getChild(EntityModelPartNames.ARMS).visible = false;
-                } else {
-                    this.root.getChild(EntityModelPartNames.ARMS).visible = true;
-                    this.rightArm.visible = false;
-                    this.leftArm.visible = false;
-                }
+                this.root.getChild(EntityModelPartNames.ARMS).visible = true;
+                this.rightArm.visible = false;
+                this.leftArm.visible = false;
+                renderNormalModel();
             }
-            renderNormalModel();
+
+//
 
             if (!this.root.getChild(EntityModelPartNames.ARMS).visible) {
                 // hit animation
