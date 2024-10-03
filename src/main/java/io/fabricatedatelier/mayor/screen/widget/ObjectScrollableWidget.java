@@ -293,7 +293,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
                     mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
                     if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty()) {
-                        if (StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice())) {
+                        if (mayorScreen.getAvailableBuilder() > 0 && StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice())) {
                             mayorScreen.getBuildButton().active = true;
                         }
                         mayorScreen.getBuildButton().visible = true;
