@@ -163,7 +163,7 @@ public class MayorScreen extends Screen {
         if (this.mayorManager.getMayorStructure() != null) {
             this.requiredItemScrollableWidget.setItemStacks(this.mayorManager.getMayorStructure().getRequiredItemStacks());
             if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty()))) {
-                if (StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
+                if (this.getAvailableBuilder() > 0 && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
                     this.buildButton.active = true;
                 }
                 this.buildButton.visible = true;
