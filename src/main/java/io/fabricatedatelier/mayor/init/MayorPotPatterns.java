@@ -24,12 +24,25 @@ public enum MayorPotPatterns {
         );
     }
 
+    @Nullable
+    public DecoratedPotPattern getPattern() {
+        return Registries.DECORATED_POT_PATTERN.get(this.registryKey);
+    }
+
     public RegistryKey<DecoratedPotPattern> getRegistryKey() {
         return this.registryKey;
     }
 
     public Item getItem() {
         return this.item;
+    }
+
+    @Nullable
+    public static MayorPotPatterns fromItem(Item item) {
+        for (MayorPotPatterns entry : MayorPotPatterns.values()) {
+            if (entry.item.equals(item)) return entry;
+        }
+        return null;
     }
 
     @Nullable
