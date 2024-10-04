@@ -14,7 +14,7 @@ public class MayorEntities {
                     .dimensions(0.5f, 0.5f)
                     .spawnableFarFromPlayer()
                     .makeFireImmune()
-                    .disableSummon()
+                    // .disableSummon()
                     .build());
 
 

@@ -31,7 +31,6 @@ import java.util.Optional;
  */
 @SuppressWarnings("UnusedReturnValue")
 public class CameraHandler {
-    public static final int TICKS_UNTIL_IDLE_FINISHED = 800;
 
     private static CameraHandler instance;
 
@@ -42,8 +41,8 @@ public class CameraHandler {
     private Vec3d cameraPos = Vec3d.ZERO;
     private double pitch, yaw;
 
-    private int ticksSinceLastInteraction = 0;
-    private int tick = ticksSinceLastInteraction;
+    private int tick = 0;
+    private float tickDelta = 0;
 
     private final FadeTransition startFadeTransition, endFadeTransition;
 
@@ -141,12 +140,12 @@ public class CameraHandler {
         this.tick = tick;
     }
 
-    public int getTicksSinceLastInteraction() {
-        return this.ticksSinceLastInteraction;
+    public float getTickDelta() {
+        return tickDelta;
     }
 
-    public void setTicksSinceLastInteraction(int ticksSinceLastInteraction) {
-        this.ticksSinceLastInteraction = ticksSinceLastInteraction;
+    public void setTickDelta(float tickDelta) {
+        this.tickDelta = tickDelta;
     }
 
     public void tick() {
@@ -165,29 +164,24 @@ public class CameraHandler {
             CameraHandler.instance = null;
         }
 
-        // TODO: non-orbit modes might not need a target
         if (getTarget().isEmpty()) return;
         if (getMode().isEmpty()) return;
 
-        this.getMode().get().tick(this.getTick(), this::setTick);
+        this.getMode().get().tick(this.getTick(), this::setTick, this.tickDelta);
         updateCameraPos();
         updateCameraRotations();
-
-        this.setTicksSinceLastInteraction(this.getTicksSinceLastInteraction() + 1);
-        if (this.getTicksSinceLastInteraction() >= TICKS_UNTIL_IDLE_FINISHED) {
-            this.setTick(this.getTick() + 1);
-        }
     }
 
     public void updateCameraPos() {
         if (this.getTarget().isEmpty() || this.getMode().isEmpty()) return;
-        this.setCameraPos(this.getMode().get().updateCameraPos(getTarget().get()));
+        this.setCameraPos(this.getMode().get().updateCameraPos(getTarget().get(), this.tickDelta));
     }
 
     public void updateCameraRotations() {
         if (this.getTarget().isEmpty() || this.getTarget().get().mayor$getTargetPosition() == null) return;
         this.getMode().ifPresent(cameraMode -> {
-            CameraRotation rotation = cameraMode.updateCameraRotations(this.getTarget().get(), this.getCameraPos());
+            CameraRotation rotation = cameraMode.updateCameraRotations(this.getTarget().get(), this.getCameraPos(), this.tickDelta);
+            if (rotation == null) return;
             this.setPitch(Math.toDegrees(rotation.pitchInRad()));
             this.setYaw(Math.toDegrees(rotation.yawInRad()) - 90);
         });
@@ -198,11 +192,6 @@ public class CameraHandler {
     }
 
     public void handleMouseMovement(double deltaX, double deltaY) {
-        double idleThreshold = 2.7;
-        if (Math.abs(deltaX) + Math.abs(deltaY) > idleThreshold) {
-            this.ticksSinceLastInteraction = 0;
-        }
-
         this.getMode().ifPresent(cameraMode -> cameraMode.handleMouseMovement(deltaX, deltaY));
     }
 }

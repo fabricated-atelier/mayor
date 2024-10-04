@@ -1,5 +1,8 @@
 package io.fabricatedatelier.mayor.entity.custom;
 
+import io.fabricatedatelier.mayor.camera.CameraHandler;
+import io.fabricatedatelier.mayor.camera.mode.FreeFlyMode;
+import io.fabricatedatelier.mayor.camera.util.CameraMode;
 import io.fabricatedatelier.mayor.camera.util.CameraTarget;
 import io.fabricatedatelier.mayor.init.MayorEntities;
 import io.fabricatedatelier.mayor.util.NbtKeys;
@@ -13,6 +16,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.entity.EntityLookup;
@@ -28,12 +33,6 @@ public class CameraPullEntity extends Entity implements CameraTarget {
         super(type, world);
     }
 
-    public CameraPullEntity(World world, @Nullable ServerPlayerEntity player) {
-        this(MayorEntities.CAMERA_PULL, world);
-        if (player == null) setUser(null);
-        else setUser(player.getUuid());
-    }
-
     public Optional<UUID> getUser() {
         return this.dataTracker.get(USER);
     }
@@ -45,6 +44,20 @@ public class CameraPullEntity extends Entity implements CameraTarget {
     @Override
     protected void initDataTracker(DataTracker.Builder builder) {
         builder.add(USER, Optional.empty());
+    }
+
+    @Override
+    public boolean canHit() {
+        return true;
+    }
+
+    @Override
+    public ActionResult interact(PlayerEntity player, Hand hand) {
+        setUser(player.getUuid());
+        if (player.getWorld().isClient()) {
+            CameraHandler.getInstance().setMode(new FreeFlyMode(this)).setTarget(this);
+        }
+        return ActionResult.SUCCESS;
     }
 
     @Override
