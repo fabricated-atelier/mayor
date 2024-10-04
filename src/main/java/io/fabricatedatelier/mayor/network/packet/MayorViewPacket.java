@@ -1,18 +1,16 @@
 package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.access.BallotUrnAccess;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.access.ServerPlayerAccess;
-import io.fabricatedatelier.mayor.camera.CameraHandler;
-import io.fabricatedatelier.mayor.camera.target.StaticCameraTarget;
 import io.fabricatedatelier.mayor.manager.MayorManager;
-import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
+import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.option.Perspective;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.RegistryByteBuf;
@@ -24,10 +22,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public record MayorViewPacket(boolean mayorView) implements CustomPayload {
 
@@ -75,33 +70,56 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
     public void handleClientPacket(ServerPlayNetworking.Context context) {
         if (this.mayorView) {
             VillageData villageData = MayorStateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());
-            if (villageData != null && ((villageData.getMayorPlayerUuid() != null && villageData.getMayorPlayerUuid().equals(context.player().getUuid())) || context.player().isCreativeLevelTwoOp())) {
-                ((MayorManagerAccess) context.player()).getMayorManager().setVillageData(villageData);
-                if (!MayorManager.mayorStructureMap.isEmpty()) {
-                    List<MayorStructuresPacket.MayorStructureData> list = new ArrayList<>();
-                    for (var entries : MayorManager.mayorStructureMap.entrySet()) {
-                        for (var entry : entries.getValue()) {
-                            Identifier structureId = entry.getIdentifier();
-                            int level = entry.getLevel();
-                            int experience = entry.getExperience();
-                            int price = entry.getPrice();
-                            String biomeCategory = entry.getBiomeCategory().name();
-                            String buildingCategory = entry.getBuildingCategory().name();
-                            List<ItemStack> requiredItemStacks = entry.getRequiredItemStacks();
-                            Map<BlockPos, NbtCompound> posCompoundMap = StructureHelper.getBlockPosNbtMap(entry.getBlockMap());
-                            Vec3i size = entry.getSize();
+            if (villageData != null) {
+                if ((villageData.getMayorPlayerUuid() != null && villageData.getMayorPlayerUuid().equals(context.player().getUuid())) || context.player().isCreativeLevelTwoOp()) {
+                    ((MayorManagerAccess) context.player()).getMayorManager().setVillageData(villageData);
+                    if (!MayorManager.mayorStructureMap.isEmpty()) {
+                        List<MayorStructuresPacket.MayorStructureData> list = new ArrayList<>();
+                        for (var entries : MayorManager.mayorStructureMap.entrySet()) {
+                            for (var entry : entries.getValue()) {
+                                Identifier structureId = entry.getIdentifier();
+                                int level = entry.getLevel();
+                                int experience = entry.getExperience();
+                                int price = entry.getPrice();
+                                String biomeCategory = entry.getBiomeCategory().name();
+                                String buildingCategory = entry.getBuildingCategory().name();
+                                List<ItemStack> requiredItemStacks = entry.getRequiredItemStacks();
+                                Map<BlockPos, NbtCompound> posCompoundMap = StructureHelper.getBlockPosNbtMap(entry.getBlockMap());
+                                Vec3i size = entry.getSize();
 
-                            MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, experience, price, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
-                            list.add(mayorStructureData);
+                                MayorStructuresPacket.MayorStructureData mayorStructureData = new MayorStructuresPacket.MayorStructureData(structureId, level, experience, price, biomeCategory, buildingCategory, requiredItemStacks, posCompoundMap, size);
+                                list.add(mayorStructureData);
+                            }
+                        }
+                        new MayorStructuresPacket(new MayorStructuresPacket.MayorStructureDatas(list.size(), list)).sendPacket(context.player());
+                    }
+                    new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), Optional.ofNullable(villageData.getBallotUrnPos()), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures(), villageData.getConstructions()).sendPacket(context.player());
+
+                    int availableBuilderCount = VillageHelper.getAvailableBuilderCount(context.player().getServerWorld(), villageData.getVillagers());
+                    new ExtraVillageInfoPacket(availableBuilderCount).sendPacket(context.player());
+                } else {
+                    int voteTimeLeft = 0;
+                    if (villageData.getBallotUrnPos() != null && context.player().getServerWorld().getBlockEntity(villageData.getBallotUrnPos()) instanceof BallotUrnAccess ballotUrnAccess && ballotUrnAccess.validated()) {
+                        voteTimeLeft = (int) (context.player().getServerWorld().getTime() - ballotUrnAccess.getVoteStartTime()) - ballotUrnAccess.getVoteTicks();
+                    }
+                    String mayorName = null;
+                    if (villageData.getMayorPlayerUuid() != null) {
+                        if (StringUtil.getOnlinePlayerUuidNames(context.player().getServerWorld()).containsKey(villageData.getMayorPlayerUuid())) {
+                            mayorName = StringUtil.getOnlinePlayerUuidNames(context.player().getServerWorld()).get(villageData.getMayorPlayerUuid());
+                        } else {
+                            Map<UUID, String> offlinePlayers = StringUtil.getOfflinePlayerUuidNames(context.player().getServerWorld());
+                            if (offlinePlayers.containsKey(villageData.getMayorPlayerUuid())) {
+                                mayorName = offlinePlayers.get(villageData.getMayorPlayerUuid());
+                            }
                         }
                     }
-                    new MayorStructuresPacket(new MayorStructuresPacket.MayorStructureDatas(list.size(), list)).sendPacket(context.player());
+                    new VillageViewPacket(villageData.getName(), villageData.getLevel(), Optional.ofNullable(mayorName), Optional.ofNullable(villageData.getBallotUrnPos()), voteTimeLeft).sendPacket(context.player());
                 }
-                new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), Optional.ofNullable(villageData.getBallotUrnPos()), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures(), villageData.getConstructions()).sendPacket(context.player());
             }
         } else {
             context.player().setCameraEntity(null);
         }
+        ((MayorManagerAccess) context.player()).getMayorManager().setMajorView(this.mayorView());
         sendPacket(context.player());
     }
 }

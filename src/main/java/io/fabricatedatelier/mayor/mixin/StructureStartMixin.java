@@ -96,7 +96,8 @@ public class StructureStartMixin {
                                 StructureDataLoader.structureDataMap.put(StringUtil.getMayorStructureString(structureIdentifier), List.of(experience, price));
                             }
                         }
-                        StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(),
+
+                        StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(), StructureHelper.getStructureRotation(structurePiece.getRotation()),
                                 structureIdentifier, StringUtil.getStructureLevelByIdentifier(structureIdentifier), experience);
                         villageData.addStructure(structureData);
                     }

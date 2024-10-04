@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.block.screen;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.network.packet.ElectionPacket;
+import io.fabricatedatelier.mayor.util.StringUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -86,21 +87,11 @@ public class BallotUrnBlockScreen extends HandledScreen<BallotUrnBlockScreenHand
         context.drawText(this.textRenderer, Text.translatable("mayor.screen.vote_count", this.handler.getBallotUrn().getVotedPlayerUuids().size()), this.x + 8, this.y + 38, 0x404040, false);
 
         if (this.client != null && this.client.world != null) {
-            int seconds = (this.handler.getBallotUrn().getVoteTicks() - (int) (this.client.world.getTime() - this.handler.getBallotUrn().getVoteStartTime())) / 20;
-
+            int ticks = this.handler.getBallotUrn().getVoteTicks() - (int) (this.client.world.getTime() - this.handler.getBallotUrn().getVoteStartTime());
             if (this.handler.getBallotUrn().getVoteStartTime() <= 0) {
-                seconds = 0;
+                ticks = 0;
             }
-            if (seconds < 0) {
-                seconds = 0;
-            }
-            String string;
-            if (seconds >= 3600) {
-                string = String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
-            } else {
-                string = String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
-            }
-            context.drawText(this.textRenderer, Text.translatable("mayor.screen.vote_time_left", string), this.x + 8, this.y + 53, 0x404040, false);
+            context.drawText(this.textRenderer, Text.translatable("mayor.screen.vote_time_left", StringUtil.getTimeString(ticks)), this.x + 8, this.y + 53, 0x404040, false);
         }
 
         this.drawMouseoverTooltip(context, mouseX, mouseY);

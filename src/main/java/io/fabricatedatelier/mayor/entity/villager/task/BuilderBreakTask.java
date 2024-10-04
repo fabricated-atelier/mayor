@@ -82,8 +82,9 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
             villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.5F, 1));
             if (villagerEntity instanceof Builder builder) {
                 builder.setTaskValue(2);
+
+                System.out.println("RUN BUILDER BREAK "+builder.getTaskValue());
             }
-            System.out.println("RUN BUILDER BREAK");
         }
     }
 

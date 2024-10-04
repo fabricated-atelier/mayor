@@ -105,7 +105,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
             }
         }
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
-        System.out.println("FINISH BUILDER BUILD");
+        System.out.println("END BUILDER BUILD");
     }
 
 
@@ -120,7 +120,8 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                 if (this.ticksRan % 20 == 0) {
                     boolean placedBlock = StructureHelper.placeBlock(serverWorld, this.constructionData, builder.getBuilderInventory());
 
-                    System.out.println("PLACE BLOCK " + placedBlock);
+//                    System.out.println("CHECK "+builder.getBuilderInventory());
+//                    System.out.println("PLACE BLOCK " + placedBlock);
 
                     if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
                         this.constructionFinished = true;

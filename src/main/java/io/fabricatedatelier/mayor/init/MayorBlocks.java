@@ -16,7 +16,7 @@ public class MayorBlocks {
     public static final LumberStorageBlock LUMBER_STORAGE = register("lumber_storage", new LumberStorageBlock(AbstractBlock.Settings.create()), false);
     public static final StoneStorageBlock STONE_STORAGE = register("stone_storage", new StoneStorageBlock(AbstractBlock.Settings.create()), false);
 
-    public static final Block CONSTRUCTION_TABLE = register("construction_table", new Block(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE_SLAB)), true);
+    public static final Block CONSTRUCTION_TABLE = register("construction_table", new Block(AbstractBlock.Settings.copy(net.minecraft.block.Blocks.SMOOTH_STONE_SLAB)), false);
 
     /**
      * If you need a custom {@link BlockItem}, register it in the {@link MayorItems} class with the corresponding Block entry.

@@ -56,7 +56,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
             if (builder.getBuilderInventory().isEmpty()) {
                 return false;
             }
-            if (builder.getVillageCenterPosition() != null && !builder.getBuilderInventory().isEmpty()) {
+            if (builder.getVillageCenterPosition() != null) {
                 MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
                 if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
                     VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());

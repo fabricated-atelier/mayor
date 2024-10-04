@@ -292,8 +292,8 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                 } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {
                     mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
                     mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
-                    if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty()) {
-                        if (mayorScreen.getAvailableBuilder() > 0 && StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice())) {
+                    if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty() && StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice()))) {
+                        if (mayorScreen.getMayorManager().getAvailableBuilder() > 0) {
                             mayorScreen.getBuildButton().active = true;
                         }
                         mayorScreen.getBuildButton().visible = true;
@@ -306,13 +306,22 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                 if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity) {
                     new EntityViewPacket(villagerEntity.getId()).sendPacket();
                 } else if (this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
-                    MayorStructure mayorStructure = StructureHelper.getUpgradeStructure(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
-                    if (mayorStructure != null) {
-                        List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorStructure.getRequiredItemStacks());
+                    MayorStructure mayorUpgradeStructure = StructureHelper.getUpgradeStructure(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
+                    if (mayorUpgradeStructure != null) {
+                        List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorUpgradeStructure.getRequiredItemStacks());
                         mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
-                        if (requiredItemStacks.isEmpty()) {
-                            mayorVillageScreen.getUpgradeButton().active = true;
+                        if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (requiredItemStacks.isEmpty() && StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice()))) {
+                            if (mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
+                                mayorVillageScreen.getUpgradeButton().setUpgradeStructure(mayorUpgradeStructure);
+                                mayorVillageScreen.getUpgradeButton().setStructureData(structureData);
+                                mayorVillageScreen.getUpgradeButton().active = true;
+                            }
                             mayorVillageScreen.getUpgradeButton().visible = true;
+                        } else {
+                            mayorVillageScreen.getUpgradeButton().setUpgradeStructure(null);
+                            mayorVillageScreen.getUpgradeButton().setStructureData(null);
+                            mayorVillageScreen.getUpgradeButton().active = false;
+                            mayorVillageScreen.getUpgradeButton().visible = false;
                         }
                     } else {
                         this.selectedIndex = -1;

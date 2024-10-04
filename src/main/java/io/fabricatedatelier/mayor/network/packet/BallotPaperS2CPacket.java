@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.network.packet;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.item.screen.BallotPaperScreen;
 import io.fabricatedatelier.mayor.util.BallotUrnHelper;
+import io.fabricatedatelier.mayor.util.ScreenHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
@@ -38,7 +39,7 @@ public record BallotPaperS2CPacket(Optional<UUID> votedUuid, Optional<String> vo
 
 
     public void handlePacket(ClientPlayNetworking.Context context) {
-        BallotUrnHelper.openBallotPaperScreen(context.client(), this.votedName().orElse(""), this.availablePlayers());
+        ScreenHelper.openBallotPaperScreen(context.client(), this.votedName().orElse(""), this.availablePlayers());
     }
 }
 

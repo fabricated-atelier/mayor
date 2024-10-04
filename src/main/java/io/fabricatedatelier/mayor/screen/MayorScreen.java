@@ -11,6 +11,7 @@ import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.util.InventoryUtil;
+import io.fabricatedatelier.mayor.util.RenderUtil;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
@@ -56,8 +57,6 @@ public class MayorScreen extends Screen {
 
     private ButtonWidget buildButton;
 
-    private int availableBuilder = 0;
-
     private int levelX = 0;
     private int levelY = 0;
 
@@ -68,8 +67,6 @@ public class MayorScreen extends Screen {
         super(Text.translatable("mayor.screen.title"));
         this.mayorManager = mayorManager;
     }
-
-    // Todo: Show how many builders are available
 
     @Override
     protected void init() {
@@ -117,7 +114,6 @@ public class MayorScreen extends Screen {
 
         this.requiredItemScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width - 10 - 118, this.height - 9 - availableItemRows * 18 - 25, 118, 28, Text.translatable("mayor.screen.required_items"), this.textRenderer));
 
-        // Send a packet to the server to sync again to the client with a second method to call before
         if (this.mayorManager.getVillageData() != null) {
             for (Map.Entry<BlockPos, StructureData> entry : mayorManager.getVillageData().getStructures().entrySet()) {
                 if (!this.villageStructureMap.containsKey(entry.getValue().getLevel())) {
@@ -153,26 +149,18 @@ public class MayorScreen extends Screen {
                 // this.mayorManager.setStructureRotation(BlockRotation.NONE);
                 // this.mayorManager.setStructureCentered(false);
             }
-        }).build());
+        }).position(this.width / 2 - (this.textRenderer.getWidth(build) + 7) / 2, this.height / 2 + 10).width(this.textRenderer.getWidth(build) + 7).build());
         this.buildButton.visible = false;
         this.buildButton.active = false;
-        this.buildButton.setWidth(this.textRenderer.getWidth(build) + 7);
-        this.buildButton.setX(this.width / 2 - this.buildButton.getWidth() / 2);
-        this.buildButton.setY(this.height / 2 + 38);
-
 
         if (this.mayorManager.getMayorStructure() != null) {
             this.requiredItemScrollableWidget.setItemStacks(this.mayorManager.getMayorStructure().getRequiredItemStacks());
-            if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty()))) {
-                //can not check this.getAvailableBuilder() > 0 cause it is not synced yet
-                if (StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
+            if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || (InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty() && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice()))))) {
+                if (this.mayorManager.getAvailableBuilder() > 0) {
                     this.buildButton.active = true;
                 }
                 this.buildButton.visible = true;
             }
-        }
-        if (this.mayorManager.getVillageData() != null && !this.mayorManager.getVillageData().getVillagers().isEmpty()) {
-            new EntityListC2SPacket(mayorManager.getVillageData().getVillagers()).sendPacket();
         }
     }
 
@@ -194,7 +182,7 @@ public class MayorScreen extends Screen {
             int villageBackgroundX = villageMiddleX - maxWidth / 2;
             int villageBackgroundY = villageY + 16;
 
-            renderCustomBackground(context, villageBackgroundX, villageBackgroundY, maxWidth, 47);
+            RenderUtil.renderCustomBackground(context, villageBackgroundX, villageBackgroundY, maxWidth, 47);
 
             String name = mayorManager.getVillageData().getName();
             int villageLeft = villageMiddleX - this.textRenderer.getWidth(name) / 2;
@@ -242,27 +230,6 @@ public class MayorScreen extends Screen {
         }
 
         if (this.mayorManager.getMayorStructure() != null) {
-            // Structure price
-            if (this.buildButton.visible) {
-                renderCustomBackground(context, this.width / 2 - 50, this.height / 2 - 30, 100, 60);
-
-                Text builder = Text.translatable("mayor.screen.builder", this.getAvailableBuilder());
-                context.drawText(this.textRenderer, builder, this.width / 2 - this.textRenderer.getWidth(builder) / 2, this.height / 2 - 20, Colors.GRAY, false);
-
-                int buildingCost = this.mayorManager.getMayorStructure().getPrice();
-                Text buildingConst = Text.translatable("mayor.screen.building_cost", buildingCost);
-
-                // Numismatic Overhaul Compatibility
-                if (StructureHelper.isNumismaticLoaded) {
-
-                }
-                context.drawText(this.textRenderer, buildingConst, this.width / 2 - this.textRenderer.getWidth(buildingConst) / 2, this.height / 2 - 5, Colors.GRAY, false);
-                context.drawItem(EMERALD, this.width / 2 - 8, this.height / 2 + 10);
-                context.drawItemInSlot(this.textRenderer, EMERALD, this.width / 2 - 8, this.height / 2 + 10, String.valueOf(buildingCost));
-                if (this.client != null && this.client.player != null && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
-                    context.drawTexture(VILLAGE, this.width / 2 + 4, this.height / 2 + 10, 46, 0, 7, 6, 128, 128);
-                }
-            }
             // Structure requirements
             if (this.requiredItemScrollableWidget.visible && this.requiredItemScrollableWidget.getItemStacks() != null) {
                 List<ItemStack> missingItems = InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks());
@@ -278,31 +245,38 @@ public class MayorScreen extends Screen {
                 }
             }
         }
-        if (this.buildButton.active && this.getAvailableBuilder() < 0) {
-            this.buildButton.active = false;
-        }
 
     }
 
-    private void renderCustomBackground(DrawContext context, int x, int y, int width, int height) {
-        // top left
-        context.drawTexture(VILLAGE, x - 4, y, 25, 0, 7, 7, 128, 128);
-        // top middle
-        context.drawTexture(VILLAGE, x - 4 + 7, y, width - 7, 7, 32, 0, 7, 7, 128, 128);
-        // top right
-        context.drawTexture(VILLAGE, x - 4 + 7 + width - 7, y, 39, 0, 7, 7, 128, 128);
-        // middle left
-        context.drawTexture(VILLAGE, x - 4, y + 7, 7, height - 7, 25, 7, 7, 7, 128, 128);
-        // middle middle
-        context.drawTexture(VILLAGE, x - 4 + 7, y + 7, width - 7, height - 7, 32, 7, 7, 7, 128, 128);
-        // middle right
-        context.drawTexture(VILLAGE, x - 4 + 7 + width - 7, y + 7, 7, height - 7, 39, 7, 7, 7, 128, 128);
-        // bottom left
-        context.drawTexture(VILLAGE, x - 4, y + height, 25, 14, 7, 7, 128, 128);
-        // bottom middle
-        context.drawTexture(VILLAGE, x - 4 + 7, y + height, width - 7, 7, 32, 14, 7, 7, 128, 128);
-        // bottom right
-        context.drawTexture(VILLAGE, x - 4 + 7 + width - 7, y + height, 39, 14, 7, 7, 128, 128);
+    @Override
+    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.renderBackground(context, mouseX, mouseY, delta);
+
+        if (this.mayorManager.getMayorStructure() != null) {
+            // Structure price
+            if (this.buildButton.visible) {
+                RenderUtil.renderCustomBackground(context, this.width / 2 - 50, this.height / 2 - 30, 100, 60);
+
+                Text builder = Text.translatable("mayor.screen.builder", this.mayorManager.getAvailableBuilder());
+                context.drawText(this.textRenderer, builder, this.width / 2 - this.textRenderer.getWidth(builder) / 2, this.height / 2 - 20, Colors.GRAY, false);
+
+                int buildingCost = this.mayorManager.getMayorStructure().getPrice();
+                Text buildingConst = Text.translatable("mayor.screen.building_cost", buildingCost);
+
+                int extraWidth = 8; // cause of emeralds
+                // Numismatic Overhaul Compatibility
+                if (StructureHelper.isNumismaticLoaded) {
+
+                }
+                context.drawText(this.textRenderer, buildingConst, this.width / 2 - this.textRenderer.getWidth(buildingConst) / 2 - extraWidth, this.height / 2 - 5, Colors.GRAY, false);
+                int priceX = this.width / 2 + this.textRenderer.getWidth(buildingConst) / 2 - extraWidth + 4;
+                context.drawItem(EMERALD, priceX, this.height / 2 - 10);
+                context.drawItemInSlot(this.textRenderer, EMERALD, priceX, this.height / 2 - 10, String.valueOf(buildingCost));
+                if (this.client != null && this.client.player != null && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
+                    context.drawTexture(VILLAGE, priceX + 12, this.height / 2 - 10, 46, 0, 7, 6, 128, 128);
+                }
+            }
+        }
     }
 
     @Override
@@ -362,14 +336,6 @@ public class MayorScreen extends Screen {
 
     public ButtonWidget getBuildButton() {
         return this.buildButton;
-    }
-
-    public void setAvailableBuilder(int availableBuilder) {
-        this.availableBuilder = availableBuilder;
-    }
-
-    public int getAvailableBuilder() {
-        return this.availableBuilder;
     }
 
     public List<ItemStack> getAvailableStacks() {

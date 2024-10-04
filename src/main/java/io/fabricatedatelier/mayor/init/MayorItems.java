@@ -5,6 +5,7 @@ import io.fabricatedatelier.mayor.item.BallotPaperItem;
 import io.fabricatedatelier.mayor.item.DeconstructionHammerItem;
 import io.fabricatedatelier.mayor.item.StorageBlockItem;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.ToolMaterials;
@@ -21,6 +22,8 @@ public class MayorItems {
 
     public static final Item STONE_STORAGE_BLOCK = register("stone_storage_block",
             new StorageBlockItem(MayorBlocks.STONE_STORAGE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
+
+    public static final Item CONSTRUCTION_TABLE = register("construction_table", new BlockItem(MayorBlocks.CONSTRUCTION_TABLE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_ITEMS));
 
     public static final Item DECONSTRUCTION_HAMMER = register("deconstruction_hammer",
             new DeconstructionHammerItem(ToolMaterials.IRON,

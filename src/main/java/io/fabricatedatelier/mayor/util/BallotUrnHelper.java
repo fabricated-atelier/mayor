@@ -189,8 +189,4 @@ public class BallotUrnHelper {
         }
     }
 
-    public static void openBallotPaperScreen(MinecraftClient client, String votedName, Map<UUID, String> availablePlayers) {
-        client.setScreen(new BallotPaperScreen(votedName, availablePlayers));
-    }
-
 }

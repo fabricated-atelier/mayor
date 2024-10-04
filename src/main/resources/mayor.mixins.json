@@ -9,6 +9,7 @@
     "EntityMixin",
     "PlayerEntityMixin",
     "ServerPlayerEntityMixin",
+    "ServerPlayNetworkHandlerMixin",
     "ServerWorldMixin",
     "SinglePoolElementMixin",
     "StructureStartMixin",

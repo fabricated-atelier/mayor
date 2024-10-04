@@ -37,6 +37,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
@@ -422,6 +423,10 @@ public class StructureHelper {
                     return false;
                 }
                 if (!isCreativeLevelTwoOp && !InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()).isEmpty()) {
+
+                    // TEST
+                    System.out.println(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()) + " : " + InventoryUtil.getMissingItems(InventoryUtil.getAvailableItems(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld()), mayorStructure.getRequiredItemStacks()));
+
                     serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_items"));
                     return false;
                 }
@@ -432,7 +437,7 @@ public class StructureHelper {
                 if (isCreativeLevelTwoOp || VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())) {
                     BlockPos bottomCenterPos = getBottomCenterPos(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
                     BlockBox blockBox = getStructureBlockBox(originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center);
-                    StructureData structureData = new StructureData(bottomCenterPos, blockBox,
+                    StructureData structureData = new StructureData(bottomCenterPos, blockBox, StructureHelper.getStructureRotation(mayorManager.getStructureRotation()),
                             mayorStructure.getIdentifier(), mayorStructure.getLevel(), mayorStructure.getExperience());
 
                     if (isCreativeLevelTwoOp) {
@@ -456,6 +461,8 @@ public class StructureHelper {
 
                     mayorManager.setMayorStructure(null);
                     mayorManager.setStructureOriginBlockPos(null);
+// TODO:
+//                    serverPlayerEntity.getServerWorld().playSound(null, serverPlayerEntity.getX(),serverPlayerEntity.getY(),serverPlayerEntity.getZ(), SoundEvents.,SoundCategory.PLAYERS,1.0f,1.0f,serverPlayerEntity.getRandom().nextLong());
                     return true;
                 } else {
                     serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_builder"));
@@ -696,7 +703,6 @@ public class StructureHelper {
 //
 //            } else
             if (stack.isOf(Items.EMERALD)) {
-                calculatePrice -= stack.getCount();
                 if (stack.getCount() > calculatePrice) {
                     stack.decrement(calculatePrice);
                     break;

@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class VillageHelper {
 
@@ -315,6 +317,16 @@ public class VillageHelper {
         }
 
         return 0;
+    }
+
+    public static int getAvailableBuilderCount(ServerWorld serverWorld, List<UUID> villagers) {
+        int availableBuilder = 0;
+        for (UUID villager : villagers) {
+            if (serverWorld.getEntity(villager) instanceof VillagerEntity villagerEntity && villagerEntity.getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && villagerEntity instanceof Builder builder && !builder.hasTargetPosition()) {
+                availableBuilder++;
+            }
+        }
+        return availableBuilder;
     }
 
 }

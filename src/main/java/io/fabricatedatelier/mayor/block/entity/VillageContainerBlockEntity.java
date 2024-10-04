@@ -64,8 +64,7 @@ public class VillageContainerBlockEntity extends BlockEntity implements HandledI
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
         if (!this.isStructureOrigin() || this.getWorld() == null) return false;
-
-        return true;
+return true;
 //        if (!stack.isIn(this.insertableItems)) return false;
 //        //TODO: only allow if valid size
 //        return HandledInventory.super.canInsert(slot, stack, dir);

@@ -37,7 +37,7 @@ public class ModelProvider extends FabricModelProvider {
         itemModelGenerator.register(MayorItems.STONE_STORAGE_BLOCK,   //TODO: use different model?
                 new Model(Optional.of(Mayor.identifierOf("block/lumber_single")), Optional.empty()));
 
-        itemModelGenerator.register(MayorBlocks.CONSTRUCTION_TABLE.asItem(),
+        itemModelGenerator.register(MayorItems.CONSTRUCTION_TABLE,
                 new Model(Optional.of(Mayor.identifierOf("block/construction_table")), Optional.empty()));
 
         itemModelGenerator.register(MayorItems.DECONSTRUCTION_HAMMER, Models.HANDHELD);

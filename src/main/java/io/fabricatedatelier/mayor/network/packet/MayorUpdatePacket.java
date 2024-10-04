@@ -1,13 +1,11 @@
 package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.access.ServerPlayerAccess;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;

@@ -228,20 +228,28 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 ////      break;
 ////                                }
 //                            }
+                            System.out.println("REAL MISSING?: "+missingItemStacks);
+                            System.out.println("CONTAINER: "+villageContainerBlockEntity.getItems());
 //                            builder.getBuilderInventory().
                             List<ItemStack> requiredStacks = InventoryUtil.getRequiredItems(villageContainerBlockEntity.getItems(), missingItemStacks);
 
 
-                            System.out.println("COLLECT: " + requiredStacks);
-                            System.out.println("COLLECT INVENTORY: " + builder.getBuilderInventory());
+                            System.out.println("REQUIRED STACKS: " + requiredStacks);
+                            System.out.println("COLLECTED INVENTORY: " + builder.getBuilderInventory());
+
                             for (ItemStack requiredStack : requiredStacks) {
                                 if (!builder.getBuilderInventory().isInventoryFull(requiredStack)) {
-                                    builder.getBuilderInventory().addStack(requiredStack);
+                                    builder.getBuilderInventory().addStack(requiredStack.copy());
                                     villageContainerBlockEntity.removeStack(requiredStack);
+
+                                    System.out.println("REMOVE STACK FROM VILLAGE CONTAINER BLOCK: "+requiredStack);
                                 } else {
+                                    System.out.println("AFTER FILLING VIL INV: "+villageContainerBlockEntity.getItems());
                                     break;
                                 }
                             }
+
+                            System.out.println("SET COLLECT STACKS: " + builder.getBuilderInventory());
                             villageContainerBlockEntity.markDirty();
                             serverWorld.updateListeners(villageContainerBlockEntity.getPos(), villageContainerBlockEntity.getCachedState(), villageContainerBlockEntity.getCachedState(), 0);
 //                            System.out.println("FILL INVENTORY :D " + builder.getBuilderInventory().getHeldStacks());

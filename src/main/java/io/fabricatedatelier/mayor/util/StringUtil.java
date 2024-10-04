@@ -121,4 +121,19 @@ public class StringUtil {
         return offlinePlayerNames;
     }
 
+    public static String getTimeString(int ticks) {
+        int seconds = ticks / 20;
+
+        if (seconds < 0) {
+            seconds = 0;
+        }
+        String string;
+        if (seconds >= 3600) {
+            string = String.format("%02d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
+        } else {
+            string = String.format("%02d:%02d", (seconds % 3600) / 60, (seconds % 60));
+        }
+        return string;
+    }
+
 }

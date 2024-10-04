@@ -8,6 +8,7 @@ import io.fabricatedatelier.mayor.access.BuiltinModelItemRendererAccess;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.mixin.access.BlockRenderManagerAccess;
+import io.fabricatedatelier.mayor.screen.MayorScreen;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.StructureData;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -118,6 +119,27 @@ public class RenderUtil {
             client.getBlockRenderManager().renderBlockAsEntity(blockState, matrices, vertexConsumerProvider, LightmapTextureManager.MAX_BLOCK_LIGHT_COORDINATE, canBuildStructure ? OverlayTexture.DEFAULT_UV : 1);
         }
         matrices.pop();
+    }
+
+    public static void renderCustomBackground(DrawContext context, int x, int y, int width, int height) {
+        // top left
+        context.drawTexture(MayorScreen.VILLAGE, x - 4, y, 25, 0, 7, 7, 128, 128);
+        // top middle
+        context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7, y, width - 7, 7, 32, 0, 7, 7, 128, 128);
+        // top right
+        context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7 + width - 7, y, 39, 0, 7, 7, 128, 128);
+        // middle left
+        context.drawTexture(MayorScreen.VILLAGE, x - 4, y + 7, 7, height - 7, 25, 7, 7, 7, 128, 128);
+        // middle middle
+        context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7, y + 7, width - 7, height - 7, 32, 7, 7, 7, 128, 128);
+        // middle right
+        context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7 + width - 7, y + 7, 7, height - 7, 39, 7, 7, 7, 128, 128);
+        // bottom left
+        context.drawTexture(MayorScreen.VILLAGE, x - 4, y + height, 25, 14, 7, 7, 128, 128);
+        // bottom middle
+        context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7, y + height, width - 7, 7, 32, 14, 7, 7, 128, 128);
+        // bottom right
+        context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7 + width - 7, y + height, 39, 14, 7, 7, 128, 128);
     }
 
 

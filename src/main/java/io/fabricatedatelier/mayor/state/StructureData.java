@@ -13,13 +13,15 @@ public class StructureData {
 
     private final BlockPos bottomCenterPos;
     private final BlockBox blockBox;
+    private final int rotation;
     private final Identifier identifier;
     private int level;
     private int experience;
 
-    public StructureData(BlockPos bottomCenterPos, BlockBox blockBox, Identifier identifier, int level, int experience) {
+    public StructureData(BlockPos bottomCenterPos, BlockBox blockBox, int rotation, Identifier identifier, int level, int experience) {
         this.bottomCenterPos = bottomCenterPos;
         this.blockBox = blockBox;
+        this.rotation = rotation;
         this.identifier = identifier;
         this.level = level;
         this.experience = experience;
@@ -28,6 +30,7 @@ public class StructureData {
     public StructureData(NbtCompound nbt) {
         this.bottomCenterPos = NbtHelper.toBlockPos(nbt, "Origin").get();
         this.blockBox = new BlockBox(nbt.getInt("MinX"), nbt.getInt("MinY"), nbt.getInt("MinZ"), nbt.getInt("MaxX"), nbt.getInt("MaxY"), nbt.getInt("MaxZ"));
+        this.rotation = nbt.getInt("Rotation");
         this.identifier = Identifier.of(nbt.getString("Identifier"));
         this.level = nbt.getInt("Level");
         this.experience = nbt.getInt("Experience");
@@ -41,6 +44,7 @@ public class StructureData {
         nbt.putInt("MaxX", this.blockBox.getMaxX());
         nbt.putInt("MaxY", this.blockBox.getMaxY());
         nbt.putInt("MaxZ", this.blockBox.getMaxZ());
+        nbt.putInt("Rotation", this.rotation);
         nbt.putString("Identifier", this.identifier.toString());
         nbt.putInt("Level", this.level);
         nbt.putInt("Experience", this.experience);
@@ -55,6 +59,7 @@ public class StructureData {
         nbt.putInt("MaxX", this.blockBox.getMaxX());
         nbt.putInt("MaxY", this.blockBox.getMaxY());
         nbt.putInt("MaxZ", this.blockBox.getMaxZ());
+        nbt.putInt("Rotation", this.rotation);
         nbt.putString("Identifier", this.identifier.toString());
         nbt.putInt("Level", this.level);
         nbt.putInt("Experience", this.experience);
@@ -68,6 +73,10 @@ public class StructureData {
 
     public BlockBox getBlockBox() {
         return blockBox;
+    }
+
+    public int getRotation() {
+        return rotation;
     }
 
     public Identifier getIdentifier() {

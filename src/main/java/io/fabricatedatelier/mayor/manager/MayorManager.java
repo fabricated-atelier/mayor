@@ -1,16 +1,15 @@
 package io.fabricatedatelier.mayor.manager;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.client.option.Perspective;
-import org.jetbrains.annotations.Nullable;
-
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MayorManager {
 
@@ -28,6 +27,8 @@ public class MayorManager {
     private BlockPos originBlockPos = null;
     private BlockRotation structureRotation = BlockRotation.NONE;
     private boolean center = false;
+
+    private int availableBuilder = 0;
     @Nullable
     private Perspective oldPerspective = null;
 
@@ -103,6 +104,15 @@ public class MayorManager {
 
     public boolean getStructureCentered() {
         return this.center;
+    }
+
+    // Other
+    public void setAvailableBuilder(int availableBuilder) {
+        this.availableBuilder = availableBuilder;
+    }
+
+    public int getAvailableBuilder() {
+        return this.availableBuilder;
     }
 
     @Nullable
