@@ -54,7 +54,7 @@
     "mayor.screen.dismiss": "Dismiss",
     "mayor.screen.dismiss.confirm": "Are you sure you want to dismiss as the mayor?",
 
-    "mayor.screen.election": "Election",
+    "mayor.screen.election": "Election:",
     "mayor.screen.election.pos": "Ballot Urn: %s",
     "mayor.screen.election.none": "-",
     "mayor.screen.vote_time": "Vote Time: %s",
