@@ -55,7 +55,9 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
     private void setAnglesMixin(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, CallbackInfo info) {
         if (entity instanceof Builder builder && builder.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !builder.getVillagerEntity().isSleeping()) {
             this.head.xScale = 1.0005f;
-            if (!builder.getCarryItemStack().isEmpty()) {
+            if (builder.getTaskValue() == 2) {
+                this.root.getChild(EntityModelPartNames.ARMS).visible = false;
+            } else if (!builder.getCarryItemStack().isEmpty()) {
                 if (builder.getTaskValue() == 1) {
                     this.head.pivotZ = 4f;
                     this.head.pivotY = 3.2f;
@@ -74,8 +76,6 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
                     this.root.getChild(EntityModelPartNames.ARMS).pitch = 0.8f;
                     this.root.getChild(EntityModelPartNames.ARMS).pivotZ = -2.5f;
                 }
-            } else if (builder.getTaskValue() == 2) {
-                this.root.getChild(EntityModelPartNames.ARMS).visible = false;
             } else {
                 this.root.getChild(EntityModelPartNames.ARMS).visible = true;
                 this.rightArm.visible = false;
@@ -83,9 +83,9 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
                 renderNormalModel();
             }
 
-//
-
             if (!this.root.getChild(EntityModelPartNames.ARMS).visible) {
+                this.rightArm.visible = true;
+                this.leftArm.visible = true;
                 // hit animation
                 this.rightArm.pitch = MathHelper.cos(animationProgress * 0.3332F + (float) Math.PI) * 0.85f - 1.9f;
                 // walk animation
