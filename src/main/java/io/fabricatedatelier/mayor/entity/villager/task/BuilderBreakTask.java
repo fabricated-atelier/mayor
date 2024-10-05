@@ -100,14 +100,7 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
 
         if (villagerEntity instanceof Builder builder) {
             builder.setTaskValue(0);
-            if (!builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
-                for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
-                    if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
-                        builder.setCarryItemStack(stack);
-                        break;
-                    }
-                }
-            }
+            TaskHelper.updateCarryItemStack(villagerEntity);
         }
         System.out.println("FINISH BUILDER BREAK");
     }

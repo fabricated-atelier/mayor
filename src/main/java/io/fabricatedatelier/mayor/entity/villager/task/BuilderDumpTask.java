@@ -123,20 +123,13 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         villagerEntity.getBrain().forget(MemoryModuleType.LOOK_TARGET);
         villagerEntity.getBrain().forget(MemoryModuleType.WALK_TARGET);
 
-//        if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
-//            villagerEntity.getBrain().forget(MayorVillagerUtilities.SHOULD_DUMP);
-//        }
         this.ticksRan = 0;
         this.currentTarget = null;
         this.nextResponseTime = time + 60L;
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
         System.out.println("FINISH BUILDER DUMP");
 
-        if (villagerEntity instanceof Builder builder) {
-            if (builder.getBuilderInventory().isEmpty()) {
-                builder.setCarryItemStack(ItemStack.EMPTY);
-            }
-        }
+        TaskHelper.updateCarryItemStack(villagerEntity);
     }
 
     @Override

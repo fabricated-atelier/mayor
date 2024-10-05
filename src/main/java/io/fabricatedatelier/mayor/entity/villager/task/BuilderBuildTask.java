@@ -97,13 +97,8 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
         this.currentTarget = null;
         this.constructionData = null;
 
-        if (villagerEntity instanceof Builder builder) {
-            if (builder.getBuilderInventory().isEmpty()) {
-                builder.setCarryItemStack(ItemStack.EMPTY);
-            } else {
-                System.out.println("SHOULD BE EMPTY: " + builder.getBuilderInventory() + " : " + builder.getCarryItemStack() + " : " + builder.getBuilderInventory().isEmpty());
-            }
-        }
+        TaskHelper.updateCarryItemStack(villagerEntity);
+
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
         System.out.println("END BUILDER BUILD");
     }

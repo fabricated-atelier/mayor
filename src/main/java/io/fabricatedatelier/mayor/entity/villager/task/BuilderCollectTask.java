@@ -173,16 +173,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
         villagerEntity.getBrain().forget(MayorVillagerUtilities.BUSY);
 
-        if (villagerEntity instanceof Builder builder && !builder.getBuilderInventory().isEmpty() && builder.getCarryItemStack().isEmpty()) {
-            for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
-                if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
-                    builder.setCarryItemStack(stack);
-                    System.out.println("CARRY LOL " + stack);
-                    break;
-                }
-            }
-            System.out.println("SET COLLECT CARRY: " + builder.getCarryItemStack());
-        }
+        TaskHelper.updateCarryItemStack(villagerEntity);
         System.out.println("FINISH BUILDER COLLECT");
     }
 
@@ -228,8 +219,8 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 ////      break;
 ////                                }
 //                            }
-                            System.out.println("REAL MISSING?: "+missingItemStacks);
-                            System.out.println("CONTAINER: "+villageContainerBlockEntity.getItems());
+                            System.out.println("REAL MISSING?: " + missingItemStacks);
+                            System.out.println("CONTAINER: " + villageContainerBlockEntity.getItems());
 //                            builder.getBuilderInventory().
                             List<ItemStack> requiredStacks = InventoryUtil.getRequiredItems(villageContainerBlockEntity.getItems(), missingItemStacks);
 
@@ -242,9 +233,9 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
                                     builder.getBuilderInventory().addStack(requiredStack.copy());
                                     villageContainerBlockEntity.removeStack(requiredStack);
 
-                                    System.out.println("REMOVE STACK FROM VILLAGE CONTAINER BLOCK: "+requiredStack);
+                                    System.out.println("REMOVE STACK FROM VILLAGE CONTAINER BLOCK: " + requiredStack);
                                 } else {
-                                    System.out.println("AFTER FILLING VIL INV: "+villageContainerBlockEntity.getItems());
+                                    System.out.println("AFTER FILLING VIL INV: " + villageContainerBlockEntity.getItems());
                                     break;
                                 }
                             }
