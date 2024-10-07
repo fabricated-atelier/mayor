@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.screen;
 
-import io.fabricatedatelier.mayor.init.MayorKeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.util.RenderUtil;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import net.fabricmc.api.EnvType;
@@ -79,7 +79,7 @@ public class VillageScreen extends Screen {
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
 
-        if (!this.initiated && MayorKeyBindings.mayorView.matchesKey(keyCode, scanCode)) {
+        if (!this.initiated && MayorKeyBind.MAYOR_VIEW.get().matchesKey(keyCode, scanCode)) {
             this.close();
         }
         this.initiated = false;

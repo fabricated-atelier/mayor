@@ -12,7 +12,6 @@ public class MayorRenderers {
 
     public static void initialize() {
         BlockEntityRendererFactories.register(MayorBlockEntities.VILLAGE_STORAGE, context -> new LumberStorageBlockEntityRenderer<>());
-
         HandledScreens.register(MayorBlockEntities.BALLOT_URN_SCREEN_HANDLER, BallotUrnBlockScreen::new);
     }
 }

@@ -12,6 +12,7 @@ public class CustomC2SNetworking {
         ServerPlayNetworking.registerGlobalReceiver(MayorUpdatePacket.PACKET_ID, MayorUpdatePacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(ElectionPacket.PACKET_ID, ElectionPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(BallotPaperC2SPacket.PACKET_ID, BallotPaperC2SPacket::handlePacket);
+        ServerPlayNetworking.registerGlobalReceiver(CameraPullMovementPacket.PACKET_ID, CameraPullMovementPacket::handlePacket);
     }
 
     public static void initialize() {

@@ -3,7 +3,7 @@ package io.fabricatedatelier.mayor;
 import io.fabricatedatelier.mayor.entity.custom.client.CameraPullEntityRenderer;
 import io.fabricatedatelier.mayor.init.MayorClientEvents;
 import io.fabricatedatelier.mayor.init.MayorEntities;
-import io.fabricatedatelier.mayor.init.MayorKeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.init.MayorRenderers;
 import io.fabricatedatelier.mayor.network.CustomS2CNetworking;
 import net.fabricmc.api.ClientModInitializer;
@@ -17,7 +17,7 @@ public class MayorClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         CustomS2CNetworking.initialize();
-        MayorKeyBindings.initialize();
+        MayorKeyBind.initialize();
         MayorClientEvents.initialize();
         MayorRenderers.initialize();
 

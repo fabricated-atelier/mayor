@@ -67,44 +67,50 @@ public class RaidMixin {
 
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/village/raid/Raid$Status;VICTORY:Lnet/minecraft/village/raid/Raid$Status;"))
     private void tickMixin(CallbackInfo info) {
-        if (this.centerPos != null) {
-            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(this.world);
-            if (mayorVillageState != null && mayorVillageState.hasVillage(this.centerPos)) {
-                VillageData villageData = mayorVillageState.getVillageData(this.centerPos);
-                if (villageData.getMayorPlayerUuid() == null) {
-                    int maxReputation = 0;
-                    UUID mayorUuid = null;
-                    String mayorName = "";
-                    for (UUID uUID : this.heroesOfTheVillage) {
-                        if (this.world.getEntity(uUID) instanceof ServerPlayerEntity serverPlayerEntity) {
-                            int reputation = 0;
-                            for (UUID villager : villageData.getVillagers()) {
-                                if (this.world.getEntity(villager) instanceof VillagerEntity villagerEntity) {
-                                    reputation += villagerEntity.getReputation(serverPlayerEntity);
-                                }
-                            }
-                            if (reputation > maxReputation) {
-                                maxReputation = reputation;
-                                mayorUuid = uUID;
-                                mayorName = serverPlayerEntity.getName().getString();
-                            }
-                        }
-                    }
-                    if (mayorUuid != null) {
-                        villageData.setMayorPlayerUuid(mayorUuid);
-                        villageData.setMayorPlayerTime(this.world.getTime());
-                        mayorVillageState.markDirty();
+        if (this.centerPos == null) return;
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(this.world);
+        if (mayorVillageState == null || !mayorVillageState.hasVillage(this.centerPos)) return;
+        VillageData villageData = mayorVillageState.getVillageData(this.centerPos);
+        if (villageData.getMayorPlayerUuid() != null) return;
 
-                        for (ServerPlayerEntity serverPlayerEntity : this.world.getEntitiesByClass(ServerPlayerEntity.class, new Box(this.centerPos).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
-                            serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", mayorVillageState.getVillageData(this.centerPos).getName())));
-                            if (serverPlayerEntity.getUuid().equals(mayorUuid)) {
-                                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected_2")));
-                            } else {
-                                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected", mayorName)));
-                            }
-                        }
-                    }
+        int maxReputation = 0;
+        UUID mayorUuid = null;
+        String mayorName = "";
+
+        for (UUID uUID : this.heroesOfTheVillage) {
+            if (!(this.world.getEntity(uUID) instanceof ServerPlayerEntity serverPlayerEntity)) continue;
+            int reputation = 0;
+            for (UUID villager : villageData.getVillagers()) {
+                if (this.world.getEntity(villager) instanceof VillagerEntity villagerEntity) {
+                    reputation += villagerEntity.getReputation(serverPlayerEntity);
                 }
+            }
+            if (reputation > maxReputation) {
+                maxReputation = reputation;
+                mayorUuid = uUID;
+                mayorName = serverPlayerEntity.getName().getString();
+            }
+        }
+
+        if (mayorUuid != null) {
+            villageData.setMayorPlayerUuid(mayorUuid);
+            villageData.setMayorPlayerTime(this.world.getTime());
+            mayorVillageState.markDirty();
+
+            broadcastVillageNews(this.world, villageData, mayorVillageState, this.centerPos, mayorUuid, mayorName);
+        }
+    }
+
+    @Unique
+    private static void broadcastVillageNews(ServerWorld world, VillageData villageData, MayorVillageState villageState,
+                                             BlockPos centerPos, UUID mayorUuid, String mayorName) {
+        Box villageBoundingBox = new Box(centerPos).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()));
+        for (ServerPlayerEntity serverPlayerEntity : world.getEntitiesByClass(ServerPlayerEntity.class, villageBoundingBox, EntityPredicates.EXCEPT_SPECTATOR)) {
+            serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageState.getVillageData(centerPos).getName())));
+            if (serverPlayerEntity.getUuid().equals(mayorUuid)) {
+                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected_2")));
+            } else {
+                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected", mayorName)));
             }
         }
     }

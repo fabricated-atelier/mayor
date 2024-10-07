@@ -19,12 +19,10 @@ public class CarvedPumpkinBlockMixin {
 
     @Inject(method = "trySpawnEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/CarvedPumpkinBlock;spawnEntity(Lnet/minecraft/world/World;Lnet/minecraft/block/pattern/BlockPattern$Result;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/BlockPos;)V", ordinal = 1), locals = LocalCapture.CAPTURE_FAILSOFT)
     private void trySpawnEntityMixin(World world, BlockPos pos, CallbackInfo info, BlockPattern.Result result, BlockPattern.Result result2, IronGolemEntity ironGolemEntity) {
-        if (world instanceof ServerWorld serverWorld) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, pos);
-            if (villageData != null) {
-                villageData.getIronGolems().add(ironGolemEntity.getUuid());
-                MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
-            }
-        }
+        if (!(world instanceof ServerWorld serverWorld)) return;
+        VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, pos);
+        if (villageData == null) return;
+        villageData.getIronGolems().add(ironGolemEntity.getUuid());
+        MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
     }
 }

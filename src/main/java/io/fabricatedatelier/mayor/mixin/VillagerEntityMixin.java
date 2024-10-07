@@ -2,7 +2,6 @@ package io.fabricatedatelier.mayor.mixin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
@@ -15,11 +14,14 @@ import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.brain.Activity;
 import net.minecraft.entity.ai.brain.Brain;
 import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
+import net.minecraft.entity.ai.brain.sensor.Sensor;
+import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -56,6 +58,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -216,12 +219,25 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         setTaskValue(0);
     }
 
-    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
+/*    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
     private static ImmutableList<MemoryModuleType<?>> initMixin(ImmutableList<MemoryModuleType<?>> original) {
         List<MemoryModuleType<?>> list = new ArrayList<>(original);
         list.add(MayorVillagerUtilities.BUSY);
         return ImmutableList.copyOf(list);
+    }*/
+    @WrapOperation(method = "createBrainProfile",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/ai/brain/Brain;createProfile(Ljava/util/Collection;Ljava/util/Collection;)Lnet/minecraft/entity/ai/brain/Brain$Profile;")
+    )
+    private <E extends LivingEntity> Brain.Profile<E> addMemoryModules(Collection<? extends MemoryModuleType<?>> memoryModules,
+                                                                       Collection<? extends SensorType<? extends Sensor<? super E>>> sensors,
+                                                                       Operation<Brain.Profile<E>> original) {
+        List<MemoryModuleType<?>> memoryModuleTypes = new ArrayList<>(memoryModules);
+        memoryModuleTypes.add(MayorVillagerUtilities.BUSY);
+        return original.call(ImmutableList.copyOf(memoryModuleTypes), sensors);
     }
+
 
     @Shadow
     public abstract VillagerData getVillagerData();

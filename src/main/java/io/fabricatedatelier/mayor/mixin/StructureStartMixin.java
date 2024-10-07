@@ -48,63 +48,92 @@ public class StructureStartMixin {
     private BlockPos centerPos = BlockPos.ORIGIN;
 
     @Inject(method = "place", at = @At("HEAD"))
-    private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info) {
-        if (structure.getType().equals(StructureType.JIGSAW) && structure instanceof JigsawStructureAccess jigsawStructureAccess
-                && jigsawStructureAccess.getStartPool().isIn(MayorTags.StructurePools.VILLAGES)) {
-            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
-            BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
-            if (!mayorVillageState.hasVillage(centerPos)) {
-                VillageData villageData = mayorVillageState.createVillageData(centerPos);
-                if (villageData != null) {
-                    this.centerPos = centerPos;
-                }
-            }
+    private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator,
+                            Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info) {
+        if (!structure.getType().equals(StructureType.JIGSAW)) return;
+        if (!(structure instanceof JigsawStructureAccess jigsawStructureAccess)) return;
+        if (!jigsawStructureAccess.getStartPool().isIn(MayorTags.StructurePools.VILLAGES)) return;
+
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
+        BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
+        if (mayorVillageState.hasVillage(centerPos)) return;
+        VillageData villageData = mayorVillageState.createVillageData(centerPos);
+        if (villageData != null) {
+            this.centerPos = centerPos;
         }
     }
 
     @SuppressWarnings("rawtypes")
-    @Inject(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/structure/StructurePiece;generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockBox;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/BlockPos;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator, Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info,
-                            List list, BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11, StructurePiece structurePiece) {
-        if (!this.centerPos.equals(BlockPos.ORIGIN)) {
-            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
-            if (mayorVillageState.hasVillage(this.centerPos)) {
-                if (structurePiece instanceof PoolStructurePiece poolStructurePiece && poolStructurePiece.getPoolElement() instanceof SinglePoolElementAccess singlePoolElementAccess
-                        && singlePoolElementAccess.getLocation().left().isPresent()) {
-                    VillageData villageData = mayorVillageState.getVillageData(this.centerPos);
-                    if (singlePoolElementAccess.getStructureTemplate() instanceof StructureTemplateAccess structureTemplateAccess && !structureTemplateAccess.getSpawnedEntities().isEmpty()) {
-                        for (int i = 0; i < structureTemplateAccess.getSpawnedEntities().size(); i++) {
-                            if (structureTemplateAccess.getSpawnedEntities().get(i) instanceof VillagerEntity villagerEntity) {
-                                villageData.addVillager(villagerEntity.getUuid());
-                            } else if (structureTemplateAccess.getSpawnedEntities().get(i) instanceof IronGolemEntity ironGolemEntity) {
-                                villageData.addIronGolem(ironGolemEntity.getUuid());
-                            }
-                        }
-                        structureTemplateAccess.clearSpawnedEntities();
-                    }
-                    if (StringUtil.shouldStoreStructureIdentifier(singlePoolElementAccess.getLocation().left().get())) {
-                        Identifier structureIdentifier = StringUtil.getMayorStructureIdentifier(singlePoolElementAccess.getLocation().left().get());
-                        int experience = 0;
-                        int price = 8;
-                        if (MayorConfig.CONFIG.instance().generatedStructureXp) {
-                            if (StructureDataLoader.structureDataMap.containsKey(StringUtil.getMayorStructureString(structureIdentifier))) {
-                                experience = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(structureIdentifier)).get(0);
-//                                price = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(structureIdentifier)).get(1);
-                            } else {
-                                List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(world.toServerWorld(), structureIdentifier);
-                                experience = StructureHelper.getStructureExperience(requiredItemStacks);
-                                StructureDataLoader.structureDataMap.put(StringUtil.getMayorStructureString(structureIdentifier), List.of(experience, price));
-                            }
-                        }
+    @Inject(method = "place", at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/structure/StructurePiece;generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/StructureAccessor;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockBox;Lnet/minecraft/util/math/ChunkPos;Lnet/minecraft/util/math/BlockPos;)V",
+            shift = At.Shift.AFTER),
+            locals = LocalCapture.CAPTURE_FAILSOFT
+    )
+    private void placeMixin(StructureWorldAccess world, StructureAccessor structureAccessor, ChunkGenerator chunkGenerator,
+                            Random random, BlockBox chunkBox, ChunkPos chunkPos, CallbackInfo info, List list,
+                            BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11,
+                            StructurePiece structurePiece) {
+        if (this.centerPos.equals(BlockPos.ORIGIN)) return;
+        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
+        if (!mayorVillageState.hasVillage(this.centerPos)) return;
+        if (!(structurePiece instanceof PoolStructurePiece poolStructurePiece)) {
+            mayorVillageState.markDirty();
+            return;
+        }
+        if (!(poolStructurePiece.getPoolElement() instanceof SinglePoolElementAccess singlePoolElementAccess)) {
+            mayorVillageState.markDirty();
+            return;
+        }
 
-                        StructureData structureData = new StructureData(StructureHelper.getBottomCenterPos(structurePiece), structurePiece.getBoundingBox(), StructureHelper.getStructureRotation(structurePiece.getRotation()),
-                                structureIdentifier, StringUtil.getStructureLevelByIdentifier(structureIdentifier), experience);
-                        villageData.addStructure(structureData);
-                    }
-                }
-                mayorVillageState.markDirty();
+        singlePoolElementAccess.getLocation().left().ifPresent(locationIdentifier -> {
+            VillageData villageData = mayorVillageState.getVillageData(this.centerPos);
+            if (singlePoolElementAccess instanceof StructureTemplateAccess structureTemplate) {
+                addEntitiesToVillageData(structureTemplate, villageData);
+            }
+            addStructureToVillageData(locationIdentifier, world, structurePiece, villageData);
+        });
+        mayorVillageState.markDirty();
+    }
+
+
+    @Unique
+    private static void addEntitiesToVillageData(StructureTemplateAccess structureTemplate, VillageData villageData) {
+        for (int i = 0; i < structureTemplate.getSpawnedEntities().size(); i++) {
+            if (structureTemplate.getSpawnedEntities().get(i) instanceof VillagerEntity villagerEntity) {
+                villageData.addVillager(villagerEntity.getUuid());
+            } else if (structureTemplate.getSpawnedEntities().get(i) instanceof IronGolemEntity ironGolemEntity) {
+                villageData.addIronGolem(ironGolemEntity.getUuid());
+            }
+        }
+        structureTemplate.clearSpawnedEntities();
+    }
+
+    @Unique
+    private static void addStructureToVillageData(Identifier locationIdentifier, StructureWorldAccess world,
+                                                  StructurePiece structurePiece, VillageData villageData) {
+        if (!StringUtil.shouldStoreStructureIdentifier(locationIdentifier)) return;
+        Identifier structureIdentifier = StringUtil.getMayorStructureIdentifier(locationIdentifier);
+        int experience = 0;
+        int price = 8;
+
+        if (!MayorConfig.CONFIG.instance().generatedStructureXp) {
+            if (StructureDataLoader.structureDataMap.containsKey(StringUtil.getMayorStructureString(structureIdentifier))) {
+                experience = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(structureIdentifier)).getFirst();
+                // price = StructureDataLoader.structureDataMap.get(StringUtil.getMayorStructureString(structureIdentifier)).get(1);
+            } else {
+                List<ItemStack> requiredItemStacks = StructureHelper.getStructureItemRequirements(world.toServerWorld(), structureIdentifier);
+                experience = StructureHelper.getStructureExperience(requiredItemStacks);
+                StructureDataLoader.structureDataMap.put(StringUtil.getMayorStructureString(structureIdentifier), List.of(experience, price));
             }
         }
 
+        StructureData structureData = new StructureData(
+                StructureHelper.getBottomCenterPos(structurePiece),
+                structurePiece.getBoundingBox(),
+                StructureHelper.getStructureRotation(structurePiece.getRotation()),
+                structureIdentifier, StringUtil.getStructureLevelByIdentifier(structureIdentifier), experience);
+
+        villageData.addStructure(structureData);
     }
 }

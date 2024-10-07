@@ -1,11 +1,10 @@
 package io.fabricatedatelier.mayor.screen;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.init.MayorKeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
-import io.fabricatedatelier.mayor.network.packet.EntityListC2SPacket;
 import io.fabricatedatelier.mayor.network.packet.StructureBuildPacket;
 import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
@@ -292,7 +291,7 @@ public class MayorScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (MayorKeyBindings.mayorViewSelection.matchesKey(keyCode, scanCode) || MayorKeyBindings.mayorView.matchesKey(keyCode, scanCode)) {
+        if (MayorKeyBind.MAYOR_VIEW_SELECTION.get().matchesKey(keyCode, scanCode) || MayorKeyBind.MAYOR_VIEW.get().matchesKey(keyCode, scanCode)) {
             this.close();
             return true;
         }

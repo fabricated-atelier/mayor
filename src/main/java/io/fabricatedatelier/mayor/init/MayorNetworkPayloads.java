@@ -16,6 +16,7 @@ public class MayorNetworkPayloads {
         registerC2S(MayorUpdatePacket.PACKET_ID, MayorUpdatePacket.PACKET_CODEC);
         registerC2S(ElectionPacket.PACKET_ID, ElectionPacket.PACKET_CODEC);
         registerC2S(BallotPaperC2SPacket.PACKET_ID, BallotPaperC2SPacket.PACKET_CODEC);
+        registerC2S(CameraPullMovementPacket.PACKET_ID, CameraPullMovementPacket.PACKET_CODEC);
 
         // S2C
         registerS2C(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);

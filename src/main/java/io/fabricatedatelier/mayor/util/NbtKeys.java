@@ -5,4 +5,5 @@ public class NbtKeys {
     public static String CONNECTED_BLOCKS = "connected_pos";
 
     public static String USER_UUID = "user";
+    public static String DIRECTION_INPUT = "direction_input";
 }

@@ -1,15 +1,12 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.camera.CameraHandler;
-import io.fabricatedatelier.mayor.camera.mode.FreeFlyMode;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
-import io.fabricatedatelier.mayor.init.MayorKeyBindings;
+import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
@@ -27,7 +24,7 @@ public class KeyBindingMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         if (key.getCode() == 81 || key.getCode() == 69) {
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
-                if ((key.getCode() == 81 && MayorKeyBindings.rotateLeft.isDefault()) || (key.getCode() == 69 && MayorKeyBindings.rotateRight.isDefault())) {
+                if ((key.getCode() == 81 && MayorKeyBind.ROTATE_LEFT.get().isDefault()) || (key.getCode() == 69 && MayorKeyBind.ROTATE_RIGHT.get().isDefault())) {
                     info.cancel();
                 }
             }
@@ -46,11 +43,11 @@ public class KeyBindingMixin {
         if (key.getCode() == 81 || key.getCode() == 69) {
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null && ((MayorManagerAccess) client.player).getMayorManager().isInMajorView()) {
-                if (key.getCode() == 81 && MayorKeyBindings.rotateLeft.isDefault()) {
-                    MayorKeyBindings.rotateLeft.setPressed(pressed);
+                if (key.getCode() == 81 && MayorKeyBind.ROTATE_LEFT.get().isDefault()) {
+                    MayorKeyBind.ROTATE_LEFT.get().setPressed(pressed);
                     info.cancel();
-                } else if (key.getCode() == 69 && MayorKeyBindings.rotateRight.isDefault()) {
-                    MayorKeyBindings.rotateRight.setPressed(pressed);
+                } else if (key.getCode() == 69 && MayorKeyBind.ROTATE_RIGHT.get().isDefault()) {
+                    MayorKeyBind.ROTATE_RIGHT.get().setPressed(pressed);
                     info.cancel();
                 }
             }
