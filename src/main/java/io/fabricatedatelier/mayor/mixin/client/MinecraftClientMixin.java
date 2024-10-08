@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.init.MayorClientEvents;
 import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.util.KeyHelper;
 import net.fabricmc.api.EnvType;
@@ -8,11 +9,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 
+import net.minecraft.client.util.Window;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,6 +24,11 @@ public class MinecraftClientMixin {
     @Mutable
     @Nullable
     public ClientPlayerEntity player;
+
+    @Shadow
+    @Mutable
+    @Final
+    private Window window;
 
     @Unique
     private int majorKeyBindTicks = 0;
@@ -45,6 +49,11 @@ public class MinecraftClientMixin {
                 info.cancel();
             }
         }
+    }
+
+    @Inject(method = "onResolutionChanged", at = @At("TAIL"))
+    private void onResolutionChangedMixin(CallbackInfo info) {
+        MayorClientEvents.ALPHA_FRAMEBUFFER.get().resize(window.getFramebufferWidth(), window.getFramebufferHeight(), MinecraftClient.IS_SYSTEM_MAC);
     }
 
 }
