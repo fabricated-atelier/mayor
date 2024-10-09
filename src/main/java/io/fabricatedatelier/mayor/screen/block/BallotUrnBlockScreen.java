@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.block.screen;
+package io.fabricatedatelier.mayor.screen.block;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.config.MayorConfig;

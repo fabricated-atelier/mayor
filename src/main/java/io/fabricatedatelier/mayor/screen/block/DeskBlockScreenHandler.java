@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.block.screen;
+package io.fabricatedatelier.mayor.screen.block;
 
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import net.minecraft.entity.player.PlayerEntity;

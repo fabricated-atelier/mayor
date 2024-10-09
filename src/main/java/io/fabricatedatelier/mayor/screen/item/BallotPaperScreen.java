@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.item.screen;
+package io.fabricatedatelier.mayor.screen.item;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.fabricatedatelier.mayor.Mayor;
@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;

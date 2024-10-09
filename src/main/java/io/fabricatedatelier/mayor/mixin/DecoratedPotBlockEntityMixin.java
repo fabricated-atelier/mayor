@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.mixin;
 
 import io.fabricatedatelier.mayor.access.BallotUrnAccess;
-import io.fabricatedatelier.mayor.block.screen.BallotUrnBlockScreenHandler;
+import io.fabricatedatelier.mayor.screen.block.BallotUrnBlockScreenHandler;
 import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.MayorStateHelper;

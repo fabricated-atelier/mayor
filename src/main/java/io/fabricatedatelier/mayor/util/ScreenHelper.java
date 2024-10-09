@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.util;
 
-import io.fabricatedatelier.mayor.item.screen.BallotPaperScreen;
+import io.fabricatedatelier.mayor.screen.item.BallotPaperScreen;
 import io.fabricatedatelier.mayor.screen.VillageScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;

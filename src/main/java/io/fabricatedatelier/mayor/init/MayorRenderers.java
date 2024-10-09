@@ -2,8 +2,8 @@ package io.fabricatedatelier.mayor.init;
 
 import io.fabricatedatelier.mayor.block.entity.client.DeskBlockEntityRenderer;
 import io.fabricatedatelier.mayor.block.entity.client.LumberStorageBlockEntityRenderer;
-import io.fabricatedatelier.mayor.block.screen.BallotUrnBlockScreen;
-import io.fabricatedatelier.mayor.block.screen.DeskBlockScreen;
+import io.fabricatedatelier.mayor.screen.block.BallotUrnBlockScreen;
+import io.fabricatedatelier.mayor.screen.block.DeskBlockScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;

@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.block.entity;
 
 import io.fabricatedatelier.mayor.block.DeskBlock;
-import io.fabricatedatelier.mayor.block.screen.DeskBlockScreenHandler;
+import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;

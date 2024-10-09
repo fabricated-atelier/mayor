@@ -1,4 +1,4 @@
-package io.fabricatedatelier.mayor.block.screen;
+package io.fabricatedatelier.mayor.screen.block;
 
 import java.util.Objects;
 import net.fabricmc.api.EnvType;

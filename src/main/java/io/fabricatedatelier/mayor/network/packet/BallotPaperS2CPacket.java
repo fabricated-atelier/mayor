@@ -1,8 +1,6 @@
 package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.item.screen.BallotPaperScreen;
-import io.fabricatedatelier.mayor.util.BallotUrnHelper;
 import io.fabricatedatelier.mayor.util.ScreenHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
