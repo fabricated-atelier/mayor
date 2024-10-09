@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 public class StringUtil {
 
     @SuppressWarnings("unused")
-    private static List<String> replaceStrings = List.of("desert/", "plains/", "savanna/", "snowy/", "taiga/");
-    private static List<String> structureIds = List.of("houses", "town_centers");
+    private static final List<String> replaceStrings = List.of("desert/", "plains/", "savanna/", "snowy/", "taiga/");
+    private static final List<String> structureIds = List.of("houses", "town_centers");
 
     public static Identifier getMayorStructureIdentifier(Identifier structureIdentifier) {
         return Identifier.of(structureIdentifier.getNamespace(), getMayorStructureString(structureIdentifier));
