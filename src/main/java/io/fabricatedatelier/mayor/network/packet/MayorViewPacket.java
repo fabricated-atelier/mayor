@@ -93,7 +93,7 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
                         }
                         new MayorStructuresPacket(new MayorStructuresPacket.MayorStructureDatas(list.size(), list)).sendPacket(context.player());
                     }
-                    new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), Optional.ofNullable(villageData.getBallotUrnPos()), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures(), villageData.getConstructions()).sendPacket(context.player());
+                    new VillageDataPacket(villageData.getCenterPos(), villageData.getBiomeCategory().name(), villageData.getLevel(), villageData.getName(), villageData.getAge(), villageData.getFunds(), Optional.ofNullable(villageData.getMayorPlayerUuid()), villageData.getMayorPlayerTime(), Optional.ofNullable(villageData.getBallotUrnPos()), villageData.getStorageOriginBlockPosList(), villageData.getVillagers(), villageData.getIronGolems(), villageData.getStructures(), villageData.getConstructions()).sendPacket(context.player());
 
                     int availableBuilderCount = VillageHelper.getAvailableBuilderCount(context.player().getServerWorld(), villageData.getVillagers());
                     new ExtraVillageInfoPacket(availableBuilderCount).sendPacket(context.player());

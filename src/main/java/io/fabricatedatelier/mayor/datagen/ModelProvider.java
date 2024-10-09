@@ -6,6 +6,8 @@ import io.fabricatedatelier.mayor.init.MayorBlocks;
 import io.fabricatedatelier.mayor.init.MayorItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.LecternBlock;
 import net.minecraft.data.client.*;
 import net.minecraft.util.Identifier;
 
@@ -28,6 +30,13 @@ public class ModelProvider extends FabricModelProvider {
 
         blockStateModelGenerator.blockStateCollector.accept(VariantsBlockStateSupplier.create(MayorBlocks.STONE_STORAGE)
                 .coordinate(createMultiBlockStructureMap("lumber")));   //TODO: use different model?
+
+        blockStateModelGenerator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(MayorBlocks.CONSTRUCTION_TABLE, Mayor.identifierOf("block/construction_table")));
+        blockStateModelGenerator.blockStateCollector
+                .accept(
+                        VariantsBlockStateSupplier.create(MayorBlocks.DESK, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(MayorBlocks.DESK)))
+                                .coordinate(BlockStateModelGenerator.createNorthDefaultHorizontalRotationStates())
+                );
     }
 
     @Override
@@ -39,6 +48,9 @@ public class ModelProvider extends FabricModelProvider {
 
         itemModelGenerator.register(MayorItems.CONSTRUCTION_TABLE,
                 new Model(Optional.of(Mayor.identifierOf("block/construction_table")), Optional.empty()));
+
+        itemModelGenerator.register(MayorItems.DESK,
+                new Model(Optional.of(Mayor.identifierOf("block/desk")), Optional.empty()));
 
         itemModelGenerator.register(MayorItems.DECONSTRUCTION_HAMMER, Models.HANDHELD);
 

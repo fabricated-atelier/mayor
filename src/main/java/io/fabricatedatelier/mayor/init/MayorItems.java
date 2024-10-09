@@ -23,7 +23,9 @@ public class MayorItems {
     public static final Item STONE_STORAGE_BLOCK = register("stone_storage_block",
             new StorageBlockItem(MayorBlocks.STONE_STORAGE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
 
-    public static final Item CONSTRUCTION_TABLE = register("construction_table", new BlockItem(MayorBlocks.CONSTRUCTION_TABLE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_ITEMS));
+    public static final Item CONSTRUCTION_TABLE = register("construction_table", new BlockItem(MayorBlocks.CONSTRUCTION_TABLE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
+
+    public static final Item DESK = register("desk", new BlockItem(MayorBlocks.DESK, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
 
     public static final Item DECONSTRUCTION_HAMMER = register("deconstruction_hammer",
             new DeconstructionHammerItem(ToolMaterials.IRON,

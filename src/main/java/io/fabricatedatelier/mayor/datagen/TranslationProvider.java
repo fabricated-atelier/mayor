@@ -26,6 +26,9 @@ public class TranslationProvider extends FabricLanguageProvider {
         translationBuilder.add(MayorBlocks.LUMBER_STORAGE, cleanString(Registries.BLOCK.getId(MayorBlocks.LUMBER_STORAGE)));
         translationBuilder.add(MayorBlocks.STONE_STORAGE, cleanString(Registries.BLOCK.getId(MayorBlocks.STONE_STORAGE)));
 
+        translationBuilder.add(MayorBlocks.CONSTRUCTION_TABLE, cleanString(Registries.BLOCK.getId(MayorBlocks.CONSTRUCTION_TABLE)));
+        translationBuilder.add(MayorBlocks.DESK, cleanString(Registries.BLOCK.getId(MayorBlocks.DESK)));
+
         translationBuilder.add(MayorItems.DECONSTRUCTION_HAMMER, cleanString(Registries.ITEM.getId(MayorItems.DECONSTRUCTION_HAMMER)));
 
         translationBuilder.add(MayorItems.BALLOT_POTTERY_SHERD, cleanString(Registries.ITEM.getId(MayorItems.BALLOT_POTTERY_SHERD)));

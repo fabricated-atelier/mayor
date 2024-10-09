@@ -1,3 +1,5 @@
-// 1.21.1	2024-10-03T17:10:35.0387591	Mayor/Block Loot Tables
-2b2a4bde1a1c86393b28fa3ff9b81ef1ddeed22d data\mayor\loot_table\blocks\lumber_storage.json
-2b2a4bde1a1c86393b28fa3ff9b81ef1ddeed22d data\mayor\loot_table\blocks\stone_storage.json
+// 1.21.1	2024-10-09T21:12:46.3313852	Mayor/Block Loot Tables
+702377d90593ba7ec82f2ac6f3b0a70ca26c8c21 data\mayor\loot_table\blocks\construction_table.json
+fe1b968994a95f1824083addf382bd7cb60f8a5c data\mayor\loot_table\blocks\stone_storage.json
+348294cc83d27f7a6ae8559b3e22cda0aeb7358d data\mayor\loot_table\blocks\desk.json
+5ab8f3f6b766e707a20a6269008d3b0e28544172 data\mayor\loot_table\blocks\lumber_storage.json

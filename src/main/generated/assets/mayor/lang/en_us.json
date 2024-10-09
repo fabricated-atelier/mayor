@@ -1,5 +1,6 @@
 {
   "block.mayor.construction_table": "Construction Table",
+  "block.mayor.desk": "Desk",
   "block.mayor.lumber_storage": "Lumber Storage",
   "block.mayor.stone_storage": "Stone Storage",
   "building.buildings": "Buildings",
@@ -222,7 +223,7 @@
   "mayor.screen.category_values": "Category Values",
   "mayor.screen.dismiss": "Dismiss",
   "mayor.screen.dismiss.confirm": "Are you sure you want to dismiss as the mayor?",
-  "mayor.screen.election": "Election",
+  "mayor.screen.election": "Election:",
   "mayor.screen.election.none": "-",
   "mayor.screen.election.pos": "Ballot Urn: %s",
   "mayor.screen.iron_golems": "Iron Golems: %s",

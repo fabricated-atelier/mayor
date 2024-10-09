@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "mayor:block/desk",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "mayor:block/desk"
+    },
+    "facing=south": {
+      "model": "mayor:block/desk",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mayor:block/desk",
+      "y": 270
+    }
+  }
+}

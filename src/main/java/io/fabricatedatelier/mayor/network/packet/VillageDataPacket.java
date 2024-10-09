@@ -18,7 +18,8 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.*;
 
-public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int level, String name, long age, Optional<UUID> mayorPlayerUuid, long mayorPlayerTime, Optional<BlockPos> ballotUrnPos,
+public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int level, String name, long age, int funds, Optional<UUID> mayorPlayerUuid, long mayorPlayerTime,
+                                Optional<BlockPos> ballotUrnPos,
                                 List<BlockPos> storageOriginBlockPosList, List<UUID> villagers, List<UUID> ironGolems, Map<BlockPos, StructureData> structures,
                                 Map<BlockPos, ConstructionData> constructions) implements CustomPayload {
 
@@ -31,6 +32,7 @@ public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int le
         buf.writeInt(value.level);
         buf.writeString(value.name);
         buf.writeLong(value.age);
+        buf.writeInt(value.funds);
         buf.writeOptional(value.mayorPlayerUuid, (bufx, uuid) -> bufx.writeUuid(uuid));
         buf.writeLong(value.mayorPlayerTime);
         buf.writeOptional(value.ballotUrnPos, (buffer, pos) -> buffer.writeBlockPos(pos));
@@ -39,14 +41,13 @@ public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int le
         buf.writeCollection(value.ironGolems, (bufx, uuid) -> bufx.writeUuid(uuid));
         buf.writeMap(value.structures, (buffer, pos) -> buffer.writeBlockPos(pos), (buffer, data) -> buffer.writeNbt(data.writeDataToNbt()));
         buf.writeMap(value.constructions, (buffer, pos) -> buffer.writeBlockPos(pos), (buffer, data) -> buffer.writeNbt(data.writeDataToNbt()));
-    }, buf -> new VillageDataPacket(buf.readBlockPos(), buf.readString(), buf.readInt(), buf.readString(), buf.readLong(), buf.readOptional(bufx -> bufx.readUuid()), buf.readLong(), buf.readOptional(bufx -> bufx.readBlockPos()), buf.readList((bufx) -> bufx.readBlockPos()), buf.readList(bufx -> bufx.readUuid()),
+    }, buf -> new VillageDataPacket(buf.readBlockPos(), buf.readString(), buf.readInt(), buf.readString(), buf.readLong(), buf.readInt(), buf.readOptional(bufx -> bufx.readUuid()), buf.readLong(), buf.readOptional(bufx -> bufx.readBlockPos()), buf.readList((bufx) -> bufx.readBlockPos()), buf.readList(bufx -> bufx.readUuid()),
             buf.readList(bufx -> bufx.readUuid()), buf.readMap(BlockPos.PACKET_CODEC, (bufx) -> new StructureData(PacketByteBuf.readNbt(bufx))), buf.readMap(BlockPos.PACKET_CODEC, (bufx) -> new ConstructionData(PacketByteBuf.readNbt(bufx)))));
 
     @Override
     public Id<? extends CustomPayload> getId() {
         return PACKET_ID;
     }
-
 
     public void sendPacket(ServerPlayerEntity targetClient) {
         ServerPlayNetworking.send(targetClient, this);
@@ -60,6 +61,7 @@ public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int le
         int level = this.level();
         String name = this.name();
         long age = this.age();
+        int funds = this.funds();
         UUID mayorPlayerUuid = this.mayorPlayerUuid().orElse(null);
         long mayorPlayerTime = this.mayorPlayerTime();
         BlockPos ballotUrnPos = this.ballotUrnPos().orElse(null);
@@ -69,7 +71,7 @@ public record VillageDataPacket(BlockPos centerPos, String biomeCategory, int le
         Map<BlockPos, StructureData> structures = this.structures();
         Map<BlockPos, ConstructionData> constructions = this.constructions();
 
-        VillageData villageData = new VillageData(centerPos, biomeCategory, level, name, age, mayorPlayerUuid, mayorPlayerTime, ballotUrnPos, storageOriginBlockPosList, villagers, ironGolems, structures, constructions);
+        VillageData villageData = new VillageData(centerPos, biomeCategory, level, name, age, funds, mayorPlayerUuid, mayorPlayerTime, ballotUrnPos, storageOriginBlockPosList, villagers, ironGolems, structures, constructions);
         mayorManager.setVillageData(villageData);
         mayorManager.setBiomeCategory(biomeCategory);
     }

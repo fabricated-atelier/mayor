@@ -56,6 +56,7 @@ public class MayorVillageState extends PersistentState {
 
         VillageData villageData = new VillageData(centerPos);
         villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.getBiome(centerPos)));
+        villageData.setAge(world.getTime());
         this.villages.put(centerPos, villageData);
         this.markDirty();
         return villageData;

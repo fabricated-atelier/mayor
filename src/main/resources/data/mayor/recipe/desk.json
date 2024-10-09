@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "tag": "minecraft:planks"
+    },
+    "W": {
+      "tag": "minecraft:slabs"
+    }
+  },
+  "pattern": [
+    "WWW",
+    " # ",
+    "WWW"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mayor:desk"
+  }
+}

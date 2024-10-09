@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.manager;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -34,12 +35,19 @@ public class MayorManager {
 
     private final PlayerEntity playerEntity;
 
+    private final CitizenManager citizenManager;
+
     public MayorManager(PlayerEntity playerEntity) {
         this.playerEntity = playerEntity;
+        this.citizenManager = new CitizenManager();
     }
 
     public PlayerEntity playerEntity() {
         return this.playerEntity;
+    }
+
+    public CitizenManager getCitizenManager() {
+        return citizenManager;
     }
 
     // Mayor View
@@ -122,5 +130,38 @@ public class MayorManager {
 
     public void setOldPerspective(@Nullable Perspective oldPerspective) {
         this.oldPerspective = oldPerspective;
+    }
+
+    public static class CitizenManager {
+
+        @Nullable
+        private BlockPos villagePos = null;
+
+        public CitizenManager() {
+        }
+
+        public void readNbt(NbtCompound nbt) {
+            if (nbt.contains("VillagePos")) {
+                this.villagePos = BlockPos.ofFloored(nbt.getInt("VillageX"), nbt.getInt("VillageY"), nbt.getInt("VillageZ"));
+            }
+        }
+
+        public void writeNbt(NbtCompound nbt) {
+            if (this.villagePos != null) {
+                nbt.putInt("VillageX", this.villagePos.getX());
+                nbt.putInt("VillageY", this.villagePos.getY());
+                nbt.putInt("VillageZ", this.villagePos.getZ());
+            }
+        }
+
+        @Nullable
+        public BlockPos getVillagePos() {
+            return villagePos;
+        }
+
+        public void setVillagePos(@Nullable BlockPos villagePos) {
+            this.villagePos = villagePos;
+        }
+
     }
 }

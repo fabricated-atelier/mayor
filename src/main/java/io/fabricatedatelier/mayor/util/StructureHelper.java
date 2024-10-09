@@ -445,7 +445,7 @@ public class StructureHelper {
                         mayorManager.getVillageData().addStructure(structureData);
                         VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         // Sync village data to show structure name on hud
-                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions()).sendPacket(serverPlayerEntity);
+                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), mayorManager.getVillageData().getFunds(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions()).sendPacket(serverPlayerEntity);
                     } else {
                         Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), builder.getVillagerEntity().getUuid());
@@ -678,6 +678,8 @@ public class StructureHelper {
 
     public static final boolean isNumismaticLoaded = FabricLoader.getInstance().isModLoaded("numismatic-overhaul");
 
+
+    // Todo: Add funds check of villagedata
     public static boolean hasRequiredStructurePrice(PlayerInventory playerInventory, int price) {
         int calculatePrice = price;
         for (int i = 0; i < playerInventory.size(); i++) {
@@ -695,6 +697,7 @@ public class StructureHelper {
         return false;
     }
 
+    // Todo: Consume funds of villagedata
     public static void consumeStructurePrice(PlayerInventory playerInventory, int price) {
         int calculatePrice = price;
         for (int i = 0; i < playerInventory.size(); i++) {

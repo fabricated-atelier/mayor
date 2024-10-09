@@ -19,6 +19,11 @@ public class MayorConfig {
                     .setPath(FabricLoader.getInstance().getConfigDir().resolve("mayor.json5"))
                     .appendGsonBuilder(GsonBuilder::setPrettyPrinting).setJson5(true).build()).build();
 
+    @SerialEntry(comment = "0 = disabled")
+    @AutoGen(category = "main")
+    @IntField
+    public int villageCreatePrice = 0;
+
     @SerialEntry(comment = "Mayor gets removed when too long offline. 0 = disabled")
     @AutoGen(category = "main")
     @IntField

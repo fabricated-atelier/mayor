@@ -10,9 +10,8 @@
 
     "entity.minecraft.villager.builder": "Builder",
 
-    "block.mayor.construction_table": "Construction Table",
-
     "mayor.container.ballot_urn": "Ballot Urn",
+    "mayor.container.desk": "Desk",
 
     "mayor.village": "Village",
     "mayor.village.name": "%s",
@@ -269,5 +268,6 @@
     "yacl3.config.mayor:mayor.generatedStructureXp": "Generated Structure XP",
     "yacl3.config.mayor:mayor.maxTickMayorOffline": "Max Tick Mayor Offline",
     "yacl3.config.mayor:mayor.minVoteCount": "Min Vote Count",
-    "yacl3.config.mayor:mayor.minTickMayorTime": "Min Tick Mayor Time"
+    "yacl3.config.mayor:mayor.minTickMayorTime": "Min Tick Mayor Time",
+    "yacl3.config.mayor:mayor.villageCreatePrice": "Village Create Price"
 }

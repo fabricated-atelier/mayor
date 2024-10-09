@@ -21,6 +21,7 @@ public class VillageData {
     // private Text name = Text.translatable("mayor.village");
     private String name = "Village";
     private long age = 0;
+    private int funds = 0;
     @Nullable
     private UUID mayorPlayerUuid = null;
     private long mayorPlayerTime = 0;
@@ -36,13 +37,14 @@ public class VillageData {
         this.centerPos = centerPos;
     }
 
-    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, @Nullable BlockPos ballotUrnPos, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
+    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, int funds, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, @Nullable BlockPos ballotUrnPos, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
                        List<UUID> ironGolems, Map<BlockPos, StructureData> structures, Map<BlockPos, ConstructionData> constructions) {
         this.centerPos = centerPos;
         this.biomeCategory = biomeCategory;
         this.level = level;
         this.name = name;
         this.age = age;
+        this.funds = funds;
         this.mayorPlayerUuid = mayorPlayerUuid;
         this.mayorPlayerTime = mayorPlayerTime;
         this.ballotUrnPos = ballotUrnPos;
@@ -59,6 +61,7 @@ public class VillageData {
         this.level = nbt.getInt("Level");
         this.name = nbt.getString("Name");
         this.age = nbt.getLong("Age");
+        this.funds = nbt.getInt("Funds");
         if (nbt.getBoolean("HasMayor")) {
             this.mayorPlayerUuid = nbt.getUuid("MayorUuid");
             this.mayorPlayerTime = nbt.getLong("MayorPlayTime");
@@ -96,6 +99,7 @@ public class VillageData {
         nbt.putInt("Level", this.level);
         nbt.putString("Name", this.name);
         nbt.putLong("Age", this.age);
+        nbt.putInt("Funds", this.funds);
         nbt.putBoolean("HasMayor", this.mayorPlayerUuid != null);
         if (this.mayorPlayerUuid != null) {
             nbt.putUuid("MayorUuid", this.mayorPlayerUuid);
@@ -172,6 +176,15 @@ public class VillageData {
 
     public void setAge(long age) {
         this.age = age;
+    }
+
+    // Funds
+    public int getFunds(){
+        return funds;
+    }
+
+    public void setFunds(int funds) {
+        this.funds = funds;
     }
 
     // Mayor
