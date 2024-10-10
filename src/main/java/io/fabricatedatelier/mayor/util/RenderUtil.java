@@ -51,6 +51,7 @@ public class RenderUtil {
 
     private static Map<BlockPos, BlockState> FLUID_MAP = new HashMap<>();
 
+
     public static void renderVillageStructure(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
@@ -61,12 +62,10 @@ public class RenderUtil {
                     if (client.worldRenderer.isRenderingReady(entry.getKey())) {
                         // Todo: Maybe change this
                         BlockBox box = entry.getValue().getStructureData().getBlockBox();
-                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMinX(), box.getMinY(), box.getMinZ(), 0, 0, 0);
-                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMinX() + 1, box.getMinY(), box.getMinZ(), 0, 0, 0);
-                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMinX(), box.getMinY(), box.getMinZ() + 1, 0, 0, 0);
-                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMaxX(), box.getMaxY(), box.getMaxZ(), 0, 0, 0);
-                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMaxX() - 1, box.getMaxY(), box.getMaxZ(), 0, 0, 0);
-                        client.particleManager.addParticle(ParticleTypes.END_ROD, box.getMaxX(), box.getMaxY(), box.getMaxZ() - 1, 0, 0, 0);
+                        renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMinZ(), 1);
+                        renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ(), 2);
+                        renderParticlePole(client, box.getMaxX(), box.getMinY(), box.getMaxZ(), 3);
+                        renderParticlePole(client, box.getMaxX(), box.getMinY(), box.getMinZ(), 4);
                     }
                 }
             }
@@ -86,7 +85,6 @@ public class RenderUtil {
 
                     boolean canBuildStructure = StructureHelper.canPlaceStructure(mayorManager);
 
-//                    VertexBuffer
                     Framebuffer framebuffer = MayorClientEvents.ALPHA_FRAMEBUFFER.get();
                     framebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);
                     framebuffer.beginWrite(false);
@@ -208,5 +206,24 @@ public class RenderUtil {
         context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7 + width - 7, y + height, 39, 14, 7, 7, 128, 128);
     }
 
+    private static void renderParticlePole(MinecraftClient client, int x, int y, int z, int edge) {
+        addParticles(client, x, y, z);
+
+        if (edge == 1 || edge == 2) addParticles(client, x + 0.5f, y, z);
+        if (edge == 3 || edge == 4) addParticles(client, x - 0.5f, y, z);
+        if (edge == 2 || edge == 3) addParticles(client, x, y, z - 0.5f);
+        if (edge == 1 || edge == 4) addParticles(client, x, y, z + 0.5f);
+
+        if (edge == 1) addParticles(client, x + 0.5f, y, z + 0.5f);
+        else if (edge == 2) addParticles(client, x + 0.5f, y, z - 0.5f);
+        else if (edge == 3) addParticles(client, x - 0.5f, y, z - 0.5f);
+        else if (edge == 4) addParticles(client, x - 0.5f, y, z + 0.5f);
+    }
+
+    private static void addParticles(MinecraftClient client, float x, float y, float z) {
+        for (float i = 0; i <= 1; i += 0.5f) {
+            client.particleManager.addParticle(ParticleTypes.END_ROD, x, y + i, z, 0, 0, 0);
+        }
+    }
 
 }
