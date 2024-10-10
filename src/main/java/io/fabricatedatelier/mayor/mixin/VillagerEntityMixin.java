@@ -42,6 +42,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
+import net.minecraft.village.VillageGossipType;
 import net.minecraft.village.VillagerData;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameRules;
@@ -54,6 +55,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -227,6 +229,17 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
                 info.setReturnValue(false);
             }
         }
+    }
+
+    @ModifyVariable(method = "prepareOffersFor", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/passive/VillagerEntity;getReputation(Lnet/minecraft/entity/player/PlayerEntity;)I"), ordinal = 0)
+    private int prepareOffersForMixin(int original, PlayerEntity player) {
+        if (!this.getWorld().isClient()) {
+            VillageData villageData = StateHelper.getClosestVillage((ServerWorld) this.getWorld(), this.getBlockPos());
+            if (villageData != null && villageData.getLevel() > 1 && villageData.getVillagers().contains(this.getUuid()) && villageData.getCitizens().contains(player.getUuid())) {
+                original += 20 * (villageData.getLevel() - 1);
+            }
+        }
+        return original;
     }
 
     /*    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
