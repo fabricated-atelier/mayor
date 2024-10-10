@@ -24,6 +24,7 @@
     "mayor.village.mayor_election_start": "The election of the mayor has begun!",
     "mayor.village.mayor_election_end": "The election of the mayor has ended.\n%s is now the mayor of this village!",
     "mayor.village.mayor_election_failed": "The election of the mayor has ended.\nThere were not enough voters!",
+
     "mayor.village.ballot_urn_destroy": "The ballot urn has been destroyed!",
 
     "mayor.screen.title": "Mayor",
@@ -62,6 +63,9 @@
     "mayor.screen.start_vote": "Start",
 
     "mayor.screen.ballot_paper.title": "Ballot Paper",
+
+    "mayor.type.mayor": "Mayor",
+    "mayor.type.citizen": "Citizen",
 
     "commands.mayor.something_went_wrong": "Something went wrong!",
     "commands.mayor.created_village": "Created at position %s",
