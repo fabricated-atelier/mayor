@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.util.BallotUrnHelper;
+import io.fabricatedatelier.mayor.util.CitizenHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
@@ -29,6 +30,7 @@ public record ElectionPacket(BlockPos blockPos, int voteTicks) implements Custom
     }
 
     public void handlePacket(ServerPlayNetworking.Context context) {
+        if (!CitizenHelper.isCitizenOfNearbyVillage(context.player().getServerWorld(), context.player())) return;
         BallotUrnHelper.startElection(context.player().getServerWorld(), this.blockPos(), this.voteTicks());
     }
 }

@@ -1,13 +1,11 @@
 package io.fabricatedatelier.mayor.util;
 
-import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
-import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
+import io.fabricatedatelier.mayor.state.VillageState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +73,18 @@ public class StateHelper {
         return null;
     }
 
+    @Nullable
+    public static VillageData getVillage(ServerWorld serverWorld, BlockPos villageCenter) {
+        VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
+
+        for (int i = 0; i < villageState.getVillageCenterPoses().size(); i++) {
+            if (villageState.getVillageCenterPoses().get(i).equals(villageCenter)) {
+                return villageState.getVillageData(villageState.getVillageCenterPoses().get(i));
+            }
+        }
+        return null;
+    }
+
     public static List<VillageData> getVillages(ServerWorld serverWorld) {
         List<VillageData> list = new ArrayList<>();
         VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
@@ -104,15 +114,6 @@ public class StateHelper {
             }
             StateHelper.getMayorVillageState(serverWorld).markDirty();
         }
-    }
-
-    public static boolean isCitizenOfNearbyVillage(ServerWorld serverWorld, PlayerEntity playerEntity) {
-        BlockPos villageCenter = getVillageCenterPos(serverWorld, playerEntity.getBlockPos());
-        if (villageCenter != null) {
-            BlockPos citizenVillageCenter = ((MayorManagerAccess) playerEntity).getMayorManager().getCitizenManager().getVillagePos();
-            return villageCenter.equals(citizenVillageCenter);
-        }
-        return false;
     }
 
 }

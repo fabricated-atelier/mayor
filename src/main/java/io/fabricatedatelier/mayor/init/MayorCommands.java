@@ -45,7 +45,6 @@ public class MayorCommands {
                                                     })
 
                                                     .then(CommandManager.literal("mayor")
-
                                                             .then(CommandManager.literal("set").then(CommandManager.argument("player", EntityArgumentType.player()).executes((commandContext) -> {
                                                                 return executeVillageCommand(commandContext.getSource(), BlockPosArgumentType.getValidBlockPos(commandContext, "pos"), EntityArgumentType.getPlayer(commandContext, "player"), 0, null, 4);
                                                             })))
@@ -57,7 +56,6 @@ public class MayorCommands {
                                                             .then(CommandManager.literal("get").executes((commandContext) -> {
                                                                 return executeVillageCommand(commandContext.getSource(), BlockPosArgumentType.getValidBlockPos(commandContext, "pos"), null, 0, null, 6);
                                                             }))
-
                                                     )
 
                                                     .then(CommandManager.literal("level")
@@ -80,13 +78,23 @@ public class MayorCommands {
                                                             }))
                                                     )
 
+                                                    .then(CommandManager.literal("citizen")
+                                                            .then(CommandManager.literal("add").then(CommandManager.argument("player", EntityArgumentType.player()).executes((commandContext) -> {
+                                                                return executeVillageCommand(commandContext.getSource(), BlockPosArgumentType.getValidBlockPos(commandContext, "pos"), EntityArgumentType.getPlayer(commandContext, "player"), 0, null, 11);
+                                                            })))
+
+                                                            .then(CommandManager.literal("remove").then(CommandManager.argument("player", EntityArgumentType.player()).executes((commandContext) -> {
+                                                                return executeVillageCommand(commandContext.getSource(), BlockPosArgumentType.getValidBlockPos(commandContext, "pos"), EntityArgumentType.getPlayer(commandContext, "player"), 0, null, 12);
+                                                            })))
+                                                    )
+
                                     ))
                     )
             );
         });
     }
 
-    // code: 0 - create, 1 - delete, 2 - info, 3 - get, 4 - set mayor, 5 - remove mayor, 6 - get mayor, 7 - set level, 8 - get level, 9 - set name, 10 - get name
+    // code: 0 - create, 1 - delete, 2 - info, 3 - get, 4 - set mayor, 5 - remove mayor, 6 - get mayor, 7 - set level, 8 - get level, 9 - set name, 10 - get name, 11 - add citizen, 12 - remove citizen
     private static int executeVillageCommand(ServerCommandSource source, @Nullable BlockPos blockPos, @Nullable ServerPlayerEntity serverPlayerEntity, int level, @Nullable String name, int code) {
         if (blockPos == null && source.getPlayer() == null) {
             source.sendFeedback(() -> Text.translatable("commands.mayor.something_went_wrong"), false);
@@ -96,9 +104,9 @@ public class MayorCommands {
                 // Create
                 BlockPos pos = blockPos != null ? blockPos : source.getPlayer().getBlockPos();
                 VillageData villageData = villageState.createVillageData(pos);
-                if(villageData != null) {
+                if (villageData != null) {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.created_village", pos.toShortString()), true);
-                }else{
+                } else {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_creation_failed", pos.toShortString()), false);
                 }
             } else if (code == 1) {
@@ -123,10 +131,14 @@ public class MayorCommands {
                         source.sendFeedback(() -> Text.translatable("commands.mayor.village_nearby_not_found"), false);
                     }
                 }
-            } else if (code == 3 && blockPos != null) {
-                // Get
+            } else {
                 VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                if (villageData == null) {
+                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
+                    return 0;
+                }
+                if (code == 3 && blockPos != null) {
+                    // Get
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_info", villageData.getName(), villageData.getLevel(), villageData.getVillagers().size(), villageData.getIronGolems().size(), villageData.getStructures().size()), false);
                     if (villageData.getMayorPlayerUuid() != null) {
                         if (source.getServer().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()) != null) {
@@ -135,25 +147,15 @@ public class MayorCommands {
                     } else {
                         source.sendFeedback(() -> Text.translatable("commands.mayor.village_no_mayor_info", villageData.getName()), false);
                     }
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 4 && serverPlayerEntity != null) {
-                // Set mayor
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                } else if (code == 4 && serverPlayerEntity != null) {
+                    // Set mayor
                     if (villageData.getMayorPlayerUuid() == null || !villageData.getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
                         villageData.setMayorPlayerTime(source.getWorld().getTime());
                     }
                     villageData.setMayorPlayerUuid(serverPlayerEntity.getUuid());
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_set_mayor", serverPlayerEntity.getName(), villageData.getName(), blockPos.toShortString()), true);
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 5) {
-                // Remove mayor
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                } else if (code == 5) {
+                    // Remove mayor
                     if (villageData.getMayorPlayerUuid() != null) {
                         villageData.setMayorPlayerTime(0);
                         villageData.setMayorPlayerUuid(null);
@@ -161,14 +163,8 @@ public class MayorCommands {
                     } else {
                         source.sendFeedback(() -> Text.translatable("commands.mayor.village_no_mayor_info", villageData.getName()), false);
                     }
-
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 6) {
-                // Get mayor
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                } else if (code == 6) {
+                    // Get mayor
                     if (villageData.getMayorPlayerUuid() != null) {
                         Text text;
                         if (source.getServer().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()) != null) {
@@ -180,43 +176,36 @@ public class MayorCommands {
                     } else {
                         source.sendFeedback(() -> Text.translatable("commands.mayor.village_no_mayor_info", villageData.getName()), false);
                     }
-
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 7) {
-                // Set level
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null && level > 0) {
-                    villageData.setLevel(Math.min(level, VillageHelper.VILLAGE_MAX_LEVEL));
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_set_level", villageData.getLevel(), villageData.getName(), blockPos.toShortString()), true);
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 8) {
-                // Get level
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                } else if (code == 7) {
+                    // Set level
+                    if (level > 0) {
+                        villageData.setLevel(Math.min(level, VillageHelper.VILLAGE_MAX_LEVEL));
+                        source.sendFeedback(() -> Text.translatable("commands.mayor.village_set_level", villageData.getLevel(), villageData.getName(), blockPos.toShortString()), true);
+                    } else {
+                        source.sendFeedback(() -> Text.translatable("commands.mayor.village_level_error", villageData.getLevel(), villageData.getName()), false);
+                    }
+                } else if (code == 8) {
+                    // Get level
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_get_level", villageData.getName(), villageData.getLevel()), false);
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 9 && name != null) {
-                // Set name
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                } else if (code == 9 && name != null) {
+                    // Set name
                     villageData.setName(name);
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_set_name", name, blockPos.toShortString()), true);
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
-                }
-            } else if (code == 10) {
-                // Get level
-                VillageData villageData = villageState.getVillageData(blockPos);
-                if (villageData != null) {
+                } else if (code == 10) {
+                    // Get level
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_get_name", blockPos.toShortString(), villageData.getName()), false);
-                } else {
-                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
+                } else if (code == 11) {
+                    // Add citizen
+                    villageData.addCitizen(serverPlayerEntity.getUuid());
+                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_add_citizen", serverPlayerEntity.getName(), villageData.getName(), blockPos.toShortString()), true);
+                } else if (code == 12) {
+                    // Remove citizen
+                    if (villageData.getMayorPlayerUuid() != null && villageData.getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
+                        villageData.setMayorPlayerUuid(null);
+                        villageData.setMayorPlayerTime(0);
+                    }
+                    villageData.removeCitizen(serverPlayerEntity.getUuid());
+                    source.sendFeedback(() -> Text.translatable("commands.mayor.village_remove_citizen", serverPlayerEntity.getName(), villageData.getName(), blockPos.toShortString()), true);
                 }
             }
             villageState.markDirty();

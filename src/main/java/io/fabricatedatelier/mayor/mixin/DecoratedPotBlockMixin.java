@@ -4,6 +4,7 @@ import io.fabricatedatelier.mayor.access.BallotUrnAccess;
 import io.fabricatedatelier.mayor.init.MayorItems;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.BallotUrnHelper;
+import io.fabricatedatelier.mayor.util.CitizenHelper;
 import io.fabricatedatelier.mayor.util.StateHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -53,6 +54,7 @@ public abstract class DecoratedPotBlockMixin extends BlockWithEntity {
         if (!(world.getBlockEntity(pos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity)) return;
         if (isInvalidBallotPot(decoratedPotBlockEntity)) return;
         if (!(decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess)) return;
+        if (!CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) return;
         if (ballotUrnAccess.validated() && !ballotUrnAccess.getVotedPlayerUuids().contains(player.getUuid())) {
             ballotUrnAccess.addStack(stack);
             ballotUrnAccess.addVotedPlayerUuid(player.getUuid());
@@ -81,6 +83,7 @@ public abstract class DecoratedPotBlockMixin extends BlockWithEntity {
         VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
         if (villageData == null) return;
         if (villageData.getBallotUrnPos() == null || villageData.getBallotUrnPos().equals(pos)) {
+            if (!CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) return;
             if (decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess) {
                 ballotUrnAccess.setMayorPlayerTime(villageData.getMayorPlayerTime());
             }

@@ -28,6 +28,7 @@ public class VillageData {
     @Nullable
     private BlockPos ballotUrnPos = null;
     private List<BlockPos> storageOriginBlockPosList = new ArrayList<BlockPos>();
+    private List<UUID> citizens = new ArrayList<UUID>();
     private List<UUID> villagers = new ArrayList<UUID>();
     private List<UUID> ironGolems = new ArrayList<UUID>();
     private Map<BlockPos, StructureData> structures = new HashMap<>();
@@ -37,7 +38,7 @@ public class VillageData {
         this.centerPos = centerPos;
     }
 
-    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, int funds, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, @Nullable BlockPos ballotUrnPos, List<BlockPos> storageOriginBlockPosList, List<UUID> villagers,
+    public VillageData(BlockPos centerPos, MayorCategory.BiomeCategory biomeCategory, int level, String name, long age, int funds, @Nullable UUID mayorPlayerUuid, long mayorPlayerTime, @Nullable BlockPos ballotUrnPos, List<BlockPos> storageOriginBlockPosList, List<UUID> citizens, List<UUID> villagers,
                        List<UUID> ironGolems, Map<BlockPos, StructureData> structures, Map<BlockPos, ConstructionData> constructions) {
         this.centerPos = centerPos;
         this.biomeCategory = biomeCategory;
@@ -49,6 +50,7 @@ public class VillageData {
         this.mayorPlayerTime = mayorPlayerTime;
         this.ballotUrnPos = ballotUrnPos;
         this.storageOriginBlockPosList = storageOriginBlockPosList;
+        this.citizens = citizens;
         this.villagers = villagers;
         this.ironGolems = ironGolems;
         this.structures = structures;
@@ -70,6 +72,10 @@ public class VillageData {
         this.storageOriginBlockPosList.clear();
         for (int i = 0; i < nbt.getInt("Origins"); i++) {
             this.storageOriginBlockPosList.add(NbtHelper.toBlockPos(nbt, "Origin" + i).get());
+        }
+        this.citizens.clear();
+        for (int i = 0; i < nbt.getInt("CitizenUuids"); i++) {
+            this.citizens.add(nbt.getUuid("CitizenUuid" + i));
         }
         this.villagers.clear();
         for (int i = 0; i < nbt.getInt("VillagerUuids"); i++) {
@@ -111,6 +117,10 @@ public class VillageData {
         nbt.putInt("Origins", this.storageOriginBlockPosList.size());
         for (int i = 0; i < this.storageOriginBlockPosList.size(); i++) {
             nbt.put("Origin" + i, NbtHelper.fromBlockPos(this.storageOriginBlockPosList.get(i)));
+        }
+        nbt.putInt("CitizenUuids", this.citizens.size());
+        for (int i = 0; i < this.citizens.size(); i++) {
+            nbt.putUuid("CitizenUuid" + i, this.citizens.get(i));
         }
         nbt.putInt("VillagerUuids", this.villagers.size());
         for (int i = 0; i < this.villagers.size(); i++) {
@@ -179,7 +189,7 @@ public class VillageData {
     }
 
     // Funds
-    public int getFunds(){
+    public int getFunds() {
         return funds;
     }
 
@@ -233,6 +243,25 @@ public class VillageData {
 
     public void removeStorageOriginBlockPos(BlockPos blockPos) {
         this.storageOriginBlockPosList.remove(blockPos);
+    }
+
+    // Citizens
+    public List<UUID> getCitizens() {
+        return citizens;
+    }
+
+    public void setCitizens(List<UUID> citizens) {
+        this.citizens = citizens;
+    }
+
+    public void addCitizen(UUID citizen) {
+        if (!this.citizens.contains(citizen)) {
+            this.citizens.add(citizen);
+        }
+    }
+
+    public void removeCitizen(UUID citizen) {
+        this.citizens.remove(citizen);
     }
 
     // Villagers

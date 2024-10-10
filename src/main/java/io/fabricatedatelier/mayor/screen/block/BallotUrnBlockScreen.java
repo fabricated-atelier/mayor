@@ -111,31 +111,5 @@ public class BallotUrnBlockScreen extends HandledScreen<BallotUrnBlockScreenHand
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-//    private class Test extends  SliderWidget{
-//
-//        public Test(int x, int y, int width, int height, Text text, double value) {
-//            super(x, y, width, height, text, value);
-//        }
-//
-//        @Override
-//        protected void updateMessage() {
-//            super.updateMessage();
-//        }
-//
-//        @Override
-//        protected void applyValue() {
-//
-//        }
-//    }
-
-//    @Override
-//    public void onSlotUpdate(ScreenHandler var1, int var2, ItemStack var3) {
-//    }
-//
-//    @Override
-//    public void onPropertyUpdate(ScreenHandler var1, int var2, int var3) {
-//    }
-
-
 }
 

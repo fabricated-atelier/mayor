@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.block.entity;
 
-import io.fabricatedatelier.mayor.block.DeskBlock;
+import io.fabricatedatelier.mayor.block.custom.DeskBlock;
 import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import io.fabricatedatelier.mayor.screen.block.DeskCitizenScreenHandler;

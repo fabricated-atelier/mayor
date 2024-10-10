@@ -1,8 +1,8 @@
-package io.fabricatedatelier.mayor.block;
+package io.fabricatedatelier.mayor.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.DeskBlockEntity;
-import io.fabricatedatelier.mayor.util.StateHelper;
+import io.fabricatedatelier.mayor.util.CitizenHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.DataComponentTypes;
@@ -167,7 +167,7 @@ public class DeskBlock extends BlockWithEntity {
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
 
         if (!world.isClient()) {
-            if (!state.get(HAS_BOOK) && !StateHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) {
+            if (!state.get(HAS_BOOK) && !CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) {
                 return ActionResult.CONSUME;
             }
             BlockEntity blockEntity = world.getBlockEntity(pos);

@@ -76,8 +76,11 @@
     "commands.mayor.village_remove_mayor": "Removed mayor of %s at %s",
     "commands.mayor.village_set_level": "Set level %s for %s at %s",
     "commands.mayor.village_get_level": "%s is level %s",
+    "commands.mayor.village_level_error": "Failed to set level %s for %s, level must be greater than 1!",
     "commands.mayor.village_set_name": "Set name %s for village at %s",
     "commands.mayor.village_get_name": "Village at %s is called %s",
+    "commands.mayor.village_add_citizen": "Added %s as a citizen to %s at %s",
+    "commands.mayor.village_remove_citizen": "Removed %s as a citizen from %s at %s",
     "commands.mayor.village_creation_failed": "Village creation failed at position %s!\nToo close to next village",
 
     "building.category": "Categories",

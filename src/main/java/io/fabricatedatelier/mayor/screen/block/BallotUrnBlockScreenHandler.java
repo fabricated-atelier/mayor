@@ -5,6 +5,7 @@ import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import io.fabricatedatelier.mayor.init.MayorItems;
 import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
 import io.fabricatedatelier.mayor.util.BallotUrnHelper;
+import io.fabricatedatelier.mayor.util.CitizenHelper;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -56,7 +57,7 @@ public class BallotUrnBlockScreenHandler extends ScreenHandler {
                 if (!stack.isOf(MayorItems.BALLOT_PAPER)) {
                     return false;
                 }
-                return !playerEntity.getWorld().isClient() && getBallotUrn().validated();
+                return !playerEntity.getWorld().isClient() && getBallotUrn().validated() && CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) playerEntity.getWorld(), playerEntity);
             }
 
             @Override
@@ -135,7 +136,7 @@ public class BallotUrnBlockScreenHandler extends ScreenHandler {
         return (BallotUrnAccess) this.decoratedPotBlockEntity;
     }
 
-    public String getVillageName(){
+    public String getVillageName() {
         return this.villageName;
     }
 }
