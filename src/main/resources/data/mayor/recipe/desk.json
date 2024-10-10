@@ -7,12 +7,15 @@
     },
     "W": {
       "tag": "minecraft:slabs"
+    },
+    "X": {
+      "item": "smooth_stone_slab"
     }
   },
   "pattern": [
     "WWW",
     " # ",
-    "WWW"
+    "XXX"
   ],
   "result": {
     "count": 1,

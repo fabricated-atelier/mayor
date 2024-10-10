@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.block;
 
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.DeskBlockEntity;
+import io.fabricatedatelier.mayor.util.MayorStateHelper;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.DataComponentTypes;
@@ -14,6 +15,7 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.screen.NamedScreenHandlerFactory;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -41,7 +43,6 @@ public class DeskBlock extends BlockWithEntity {
     public static final MapCodec<DeskBlock> CODEC = createCodec(DeskBlock::new);
     public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
     public static final BooleanProperty HAS_BOOK = Properties.HAS_BOOK;
-
 
     private static final VoxelShape BOTTOM_SHAPE = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 2.0, 16.0);
     private static final VoxelShape MIDDLE_SHAPE = Block.createCuboidShape(4.0, 2.0, 4.0, 12.0, 12.0, 12.0);
@@ -164,53 +165,54 @@ public class DeskBlock extends BlockWithEntity {
 
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (state.get(HAS_BOOK)) {
-            if (!world.isClient()) {
-                BlockEntity blockEntity = world.getBlockEntity(pos);
-                if (blockEntity instanceof DeskBlockEntity deskBlockEntity) {
 
-                    // Todo: WORK HERE
-                    //RawFilteredPair<String> title, String author, int generation, List<RawFilteredPair<Text>> pages, boolean resolved
+        if (!world.isClient()) {
+            if (!state.get(HAS_BOOK) && !MayorStateHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) {
+                return ActionResult.CONSUME;
+            }
+            BlockEntity blockEntity = world.getBlockEntity(pos);
+            if (blockEntity instanceof DeskBlockEntity deskBlockEntity) {
 
-                    WrittenBookContentComponent writtenBookContentComponent = deskBlockEntity.getBook().get(DataComponentTypes.WRITTEN_BOOK_CONTENT);
-                    if (writtenBookContentComponent == null) {
-                        List<Text> test = new ArrayList<>();
-                        test.add(Text.of("Expenses         Value House                   1 Big House             20"));
-                        List<RawFilteredPair<Text>> list = new ArrayList<>();//test.stream().map(page-> RawFilteredPair.of(page).map(Text::literal)).toList();
-                        test.stream().forEach(page -> list.add(RawFilteredPair.of(page)));
+                // Todo: WORK HERE
+                //RawFilteredPair<String> title, String author, int generation, List<RawFilteredPair<Text>> pages, boolean resolved
 
-                        writtenBookContentComponent = new WrittenBookContentComponent(RawFilteredPair.of("Crash Book"), "Village", 0, list, false);
+                WrittenBookContentComponent writtenBookContentComponent = deskBlockEntity.getBook().get(DataComponentTypes.WRITTEN_BOOK_CONTENT);
+                if (writtenBookContentComponent == null) {
+                    List<Text> test = new ArrayList<>();
+                    test.add(Text.of("Expenses         Value House                   1 Big House             20"));
+                    List<RawFilteredPair<Text>> list = new ArrayList<>();//test.stream().map(page-> RawFilteredPair.of(page).map(Text::literal)).toList();
+                    test.stream().forEach(page -> list.add(RawFilteredPair.of(page)));
+
+                    writtenBookContentComponent = new WrittenBookContentComponent(RawFilteredPair.of("Crash Book"), "Village", 0, list, false);
 //                        List<RawFilteredPair<Text>> list = pages.stream().map(page -> this.toRawFilteredPair(page).map(Text::literal)).toList();
-                        deskBlockEntity.getBook().set(DataComponentTypes.WRITTEN_BOOK_CONTENT, writtenBookContentComponent);
-                    } else {
+                    deskBlockEntity.getBook().set(DataComponentTypes.WRITTEN_BOOK_CONTENT, writtenBookContentComponent);
+                } else {
 
 //                        pages=[RawFilteredPair[raw=literal{Expenses         Value
 //
 //                            House                   1
 //                            Big House             20}, filtered=Optional.empty]]
 // 22
-                        System.out.println(writtenBookContentComponent.getPages(false));
-                    }
-                    System.out.println(writtenBookContentComponent);
-
-                    player.openHandledScreen(deskBlockEntity);
+                    System.out.println(writtenBookContentComponent.getPages(false));
                 }
-            } else {
-                // Max Width: 112
+                System.out.println(writtenBookContentComponent);
+
+                player.openHandledScreen(deskBlockEntity);
+            }
+        } else {
+            // Max Width: 112
 //                MinecraftClient client = MinecraftClient.getInstance();
 //                System.out.println(client.textRenderer.getWidth(Text.of("Expenses         Value"))+ " : "+client.textRenderer.getWidth(Text.of("House                   1"))+ " : "+client.textRenderer.getWidth(Text.of("Big House             20")));
-            }
-
-            return ActionResult.success(world.isClient());
-        } else {
-            return ActionResult.CONSUME;
         }
+
+        return ActionResult.success(world.isClient());
+
     }
 
     @Nullable
     @Override
     protected NamedScreenHandlerFactory createScreenHandlerFactory(BlockState state, World world, BlockPos pos) {
-        return !state.get(HAS_BOOK) ? null : super.createScreenHandlerFactory(state, world, pos);
+        return super.createScreenHandlerFactory(state, world, pos);
     }
 
     @Override

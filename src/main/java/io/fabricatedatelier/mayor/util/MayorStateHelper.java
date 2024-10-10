@@ -1,11 +1,13 @@
 package io.fabricatedatelier.mayor.util;
 
+import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
 import io.fabricatedatelier.mayor.state.MayorVillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -102,6 +104,15 @@ public class MayorStateHelper {
             }
             MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
         }
+    }
+
+    public static boolean isCitizenOfNearbyVillage(ServerWorld serverWorld, PlayerEntity playerEntity) {
+        BlockPos villageCenter = getVillageCenterPos(serverWorld, playerEntity.getBlockPos());
+        if (villageCenter != null) {
+            BlockPos citizenVillageCenter = ((MayorManagerAccess) playerEntity).getMayorManager().getCitizenManager().getVillagePos();
+            return villageCenter.equals(citizenVillageCenter);
+        }
+        return false;
     }
 
 }

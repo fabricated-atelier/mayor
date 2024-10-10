@@ -7,6 +7,7 @@ import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.screen.block.BallotUrnBlockScreenHandler;
 import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
 import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
+import io.fabricatedatelier.mayor.screen.block.DeskCitizenScreenHandler;
 import io.fabricatedatelier.mayor.util.HandledInventory;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -34,6 +35,9 @@ public class MayorBlockEntities {
 
     public static final ScreenHandlerType<DeskBlockScreenHandler> DESK_SCREEN_HANDLER = new ScreenHandlerType<>(
             (syncId, playerInventory) -> new DeskBlockScreenHandler(syncId), FeatureFlags.VANILLA_FEATURES);
+
+    public static final ScreenHandlerType<DeskCitizenScreenHandler> DESK_CITIZEN_SCREEN_HANDLER = new ScreenHandlerType<>(
+            DeskCitizenScreenHandler::new, FeatureFlags.VANILLA_FEATURES);
 
     private static <T extends BlockEntity> BlockEntityType<T> register(
             String name, BlockEntityType.BlockEntityFactory<? extends T> entityFactory, Block... blocks) {

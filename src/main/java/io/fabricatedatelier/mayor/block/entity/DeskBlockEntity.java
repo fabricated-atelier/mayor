@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.block.entity;
 import io.fabricatedatelier.mayor.block.DeskBlock;
 import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
+import io.fabricatedatelier.mayor.screen.block.DeskCitizenScreenHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -41,7 +42,7 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
     private final Inventory inventory = new Inventory() {
         @Override
         public int size() {
-            return 1;
+            return 2;
         }
 
         @Override
@@ -138,7 +139,7 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
         return this.book;
     }
 
-    public boolean hasBook() {
+    private boolean hasBook() {
         return this.book.isOf(Items.WRITABLE_BOOK) || this.book.isOf(Items.WRITTEN_BOOK);
     }
 
@@ -146,7 +147,7 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
         this.setBook(book, null);
     }
 
-    void onBookRemoved() {
+    private void onBookRemoved() {
         this.currentPage = 0;
         this.pageCount = 0;
         BlockState blockState = this.getCachedState().with(DeskBlock.HAS_BOOK, false);
@@ -154,14 +155,14 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
         world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Emitter.of(null, blockState));
     }
 
-    public void setBook(ItemStack book, @Nullable PlayerEntity player) {
+    private void setBook(ItemStack book, @Nullable PlayerEntity player) {
         this.book = this.resolveBook(book, player);
         this.currentPage = 0;
         this.pageCount = getPageCount(this.book);
         this.markDirty();
     }
 
-    void setCurrentPage(int currentPage) {
+    private void setCurrentPage(int currentPage) {
         int i = MathHelper.clamp(currentPage, 0, this.pageCount - 1);
         if (i != this.currentPage) {
             this.currentPage = i;
@@ -181,15 +182,15 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
         String string;
         Text text;
         if (player == null) {
-            string = "Lectern";
-            text = Text.literal("Lectern");
+            string = "Desk";
+            text = Text.literal("Desk");
         } else {
             string = player.getName().getString();
             text = player.getDisplayName();
         }
 
         Vec3d vec3d = Vec3d.ofCenter(this.pos);
-        return new ServerCommandSource(CommandOutput.DUMMY, vec3d, Vec2f.ZERO, (ServerWorld)this.world, 2, string, text, this.world.getServer(), player);
+        return new ServerCommandSource(CommandOutput.DUMMY, vec3d, Vec2f.ZERO, (ServerWorld) this.world, 2, string, text, this.world.getServer(), player);
     }
 
     @Override
@@ -225,8 +226,12 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
     }
 
     @Override
-    public ScreenHandler createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-        return new DeskBlockScreenHandler(i, this.inventory, this.propertyDelegate);
+    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+        if (!this.hasBook()) {
+            return new DeskCitizenScreenHandler(syncId, playerInventory, this.inventory);
+        } else {
+            return new DeskBlockScreenHandler(syncId, this.inventory, this.propertyDelegate);
+        }
     }
 
     @Override
