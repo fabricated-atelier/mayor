@@ -114,9 +114,10 @@ public class VillageHelper {
             villageData.setLevel(villageData.getLevel() + 1);
             StateHelper.getMayorVillageState(serverWorld).markDirty();
 
-            List<ServerPlayerEntity> list = serverWorld.getPlayers(player -> player.getBlockPos().isWithinDistance(villageData.getCenterPos(), VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())));
-            for (ServerPlayerEntity serverPlayerEntity : list) {
-                serverPlayerEntity.sendMessage(Text.translatable("mayor.village.level_up", villageData.getName()), true);
+            for (UUID uuid : villageData.getCitizens()) {
+                if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity serverPlayerEntity) {
+                    serverPlayerEntity.sendMessage(Text.translatable("mayor.village.level_up", villageData.getName()), true);
+                }
             }
             // Todo: edge case: may sync level to mayor? if mayor is in mayor view
         }

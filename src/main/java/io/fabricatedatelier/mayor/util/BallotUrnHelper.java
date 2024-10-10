@@ -13,12 +13,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -71,9 +69,11 @@ public class BallotUrnHelper {
 
                     decoratedPotBlockEntity.markDirty();
 
-                    for (ServerPlayerEntity serverPlayerEntity : serverWorld.getEntitiesByClass(ServerPlayerEntity.class, new Box(villageData.getCenterPos()).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
-                        serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
-                        serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_election_start")));
+                    for (UUID uuid : villageData.getCitizens()) {
+                        if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                            player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
+                            player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_election_start")));
+                        }
                     }
                     StateHelper.getMayorVillageState(serverWorld).markDirty();
                 }
@@ -142,9 +142,12 @@ public class BallotUrnHelper {
                         } else {
                             text = Text.translatable("mayor.village.mayor_election_failed");
                         }
-                        for (ServerPlayerEntity serverPlayerEntity : serverWorld.getEntitiesByClass(ServerPlayerEntity.class, new Box(villageData.getCenterPos()).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
-                            serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
-                            serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(text));
+
+                        for (UUID uuid : villageData.getCitizens()) {
+                            if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                                player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
+                                player.networkHandler.sendPacket(new SubtitleS2CPacket(text));
+                            }
                         }
                     }
                 }
@@ -175,9 +178,11 @@ public class BallotUrnHelper {
         if (villageData != null) {
             if (villageData.getBallotUrnPos() != null && villageData.getBallotUrnPos().equals(blockPos)) {
                 villageData.setBallotUrnPos(null);
-                for (ServerPlayerEntity serverPlayerEntity : serverWorld.getEntitiesByClass(ServerPlayerEntity.class, new Box(villageData.getCenterPos()).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
-                    serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
-                    serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.ballot_urn_destroy")));
+                for (UUID uuid : villageData.getCitizens()) {
+                    if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                        player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
+                        player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.ballot_urn_destroy")));
+                    }
                 }
                 StateHelper.getMayorVillageState(serverWorld).markDirty();
             }
