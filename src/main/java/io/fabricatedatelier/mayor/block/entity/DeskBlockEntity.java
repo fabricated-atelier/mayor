@@ -42,7 +42,7 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
     private final Inventory inventory = new Inventory() {
         @Override
         public int size() {
-            return 2;
+            return 1;
         }
 
         @Override
