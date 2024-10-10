@@ -353,8 +353,8 @@ public class StructureHelper {
         String string = structureIdentifier.getPath();
         if (string.contains("animal_pen") || string.contains("stable")) {
             return MayorCategory.BuildingCategory.BARN;
-        } else if (string.contains("fountain")) {
-            return MayorCategory.BuildingCategory.FOUNTAIN;
+        } else if (string.contains("fountain") || string.contains("decoration") || string.contains("accessory") || string.contains("meeting_point")) {
+            return MayorCategory.BuildingCategory.DECORATION;
         } else if (string.contains("armorer")) {
             return MayorCategory.BuildingCategory.ARMORER;
         } else if (string.contains("farm")) {

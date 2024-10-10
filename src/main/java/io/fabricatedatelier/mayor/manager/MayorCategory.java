@@ -21,21 +21,21 @@ public class MayorCategory {
     }
 
     public static enum BuildingCategory {
-        HOUSE("building.category.house"),
-        BARN("building.category.barn"),
-        FOUNTAIN("building.category.fountain"),
         ARMORER("building.category.armorer"),
+        BARN("building.category.barn"),
         BUTCHER("building.category.butcher"),
         CARTOGRAPHER("building.category.cartographer"),
+        DECORATION("building.category.decoration"),
         FARMER("building.category.farm"),
         FISHER("building.category.fisher"),
         FLETCHER("building.category.fletcher"),
+        HOUSE("building.category.house"),
         LIBRARY("building.category.library"),
         MASON("building.category.mason"),
         SHEPHERD("building.category.shepherd"),
+        SMITH("building.category.smith"),
         TANNERY("building.category.tannery"),
-        TEMPLE("building.category.temple"),
-        SMITH("building.category.smith");
+        TEMPLE("building.category.temple");
 
         private final String category;
 

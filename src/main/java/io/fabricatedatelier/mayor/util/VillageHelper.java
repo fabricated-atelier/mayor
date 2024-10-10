@@ -158,7 +158,7 @@ public class VillageHelper {
                         return 40;
                 }
             }
-            case FOUNTAIN -> {
+            case DECORATION -> {
                 switch (nextVillageLevel) {
                     case 2:
                         return 10;
