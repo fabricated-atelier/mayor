@@ -17,6 +17,7 @@
     "PlayerSaveHandlerMixin",
     "VillagerEntityMixin",
     "RaidMixin",
+    "BeaconBlockEntityMixin",
     "DecoratedPotBlockEntityMixin",
     "DecoratedPotPatternsMixin",
     "DecoratedPotBlockMixin",
