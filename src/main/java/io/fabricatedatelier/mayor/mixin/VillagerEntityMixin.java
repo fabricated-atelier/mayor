@@ -219,12 +219,22 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
         setTaskValue(0);
     }
 
-/*    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
-    private static ImmutableList<MemoryModuleType<?>> initMixin(ImmutableList<MemoryModuleType<?>> original) {
-        List<MemoryModuleType<?>> list = new ArrayList<>(original);
-        list.add(MayorVillagerUtilities.BUSY);
-        return ImmutableList.copyOf(list);
-    }*/
+    @Inject(method = "canLevelUp", at = @At("RETURN"), cancellable = true)
+    private void canLevelUpMixin(CallbackInfoReturnable<Boolean> info) {
+        if (info.getReturnValue() && !this.getWorld().isClient()) {
+            VillageData villageData = StateHelper.getClosestVillage((ServerWorld) this.getWorld(), this.getBlockPos());
+            if (villageData != null && villageData.getVillagers().contains(this.getUuid()) && villageData.getLevel() < this.getVillagerData().getLevel() + 1) {
+                info.setReturnValue(false);
+            }
+        }
+    }
+
+    /*    @ModifyExpressionValue(method = "<clinit>", at = @At(value = "INVOKE", target = "Lcom/google/common/collect/ImmutableList;of(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;[Ljava/lang/Object;)Lcom/google/common/collect/ImmutableList;", ordinal = 0))
+        private static ImmutableList<MemoryModuleType<?>> initMixin(ImmutableList<MemoryModuleType<?>> original) {
+            List<MemoryModuleType<?>> list = new ArrayList<>(original);
+            list.add(MayorVillagerUtilities.BUSY);
+            return ImmutableList.copyOf(list);
+        }*/
     @WrapOperation(method = "createBrainProfile",
             at = @At(
                     value = "INVOKE",
