@@ -1,8 +1,8 @@
 package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.state.VillageState;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -39,18 +39,18 @@ public record MayorUpdatePacket(BlockPos centerPos, int villageLevel, UUID mayor
     }
 
     public void handlePacket(ServerPlayNetworking.Context context) {
-        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(context.player().getServerWorld());
-        if (mayorVillageState.hasVillage(this.centerPos())) {
+        VillageState villageState = StateHelper.getMayorVillageState(context.player().getServerWorld());
+        if (villageState.hasVillage(this.centerPos())) {
             if (this.dismiss() && !this.mayorUuid().equals(context.player().getUuid())) {
                 return;
             }
-            mayorVillageState.getVillageData(this.centerPos()).setMayorPlayerUuid(null);
-            mayorVillageState.getVillageData(this.centerPos()).setMayorPlayerTime(0);
-            mayorVillageState.markDirty();
+            villageState.getVillageData(this.centerPos()).setMayorPlayerUuid(null);
+            villageState.getVillageData(this.centerPos()).setMayorPlayerTime(0);
+            villageState.markDirty();
 
             String mayorName = context.player().getName().getString();
             for (ServerPlayerEntity serverPlayerEntity : context.player().getWorld().getEntitiesByClass(ServerPlayerEntity.class, new Box(this.centerPos()).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(this.villageLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
-                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", mayorVillageState.getVillageData(this.centerPos()).getName())));
+                serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageState.getVillageData(this.centerPos()).getName())));
                 if (serverPlayerEntity.getUuid().equals(this.mayorUuid())) {
                     serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_dismissed_2")));
                 } else {

@@ -1,8 +1,8 @@
 package io.fabricatedatelier.mayor.mixin;
 
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -45,7 +45,7 @@ public class RaidMixin {
 
     @Inject(method = "<init>(ILnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;)V", at = @At("TAIL"))
     private void initMixin(int id, ServerWorld world, BlockPos pos, CallbackInfo info) {
-        VillageData villageData = MayorStateHelper.getClosestVillage(world, pos);
+        VillageData villageData = StateHelper.getClosestVillage(world, pos);
         if (villageData != null) {
             this.centerPos = villageData.getCenterPos();
         }
@@ -68,9 +68,9 @@ public class RaidMixin {
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/village/raid/Raid$Status;VICTORY:Lnet/minecraft/village/raid/Raid$Status;"))
     private void tickMixin(CallbackInfo info) {
         if (this.centerPos == null) return;
-        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(this.world);
-        if (mayorVillageState == null || !mayorVillageState.hasVillage(this.centerPos)) return;
-        VillageData villageData = mayorVillageState.getVillageData(this.centerPos);
+        VillageState villageState = StateHelper.getMayorVillageState(this.world);
+        if (villageState == null || !villageState.hasVillage(this.centerPos)) return;
+        VillageData villageData = villageState.getVillageData(this.centerPos);
         if (villageData.getMayorPlayerUuid() != null) return;
 
         int maxReputation = 0;
@@ -95,14 +95,14 @@ public class RaidMixin {
         if (mayorUuid != null) {
             villageData.setMayorPlayerUuid(mayorUuid);
             villageData.setMayorPlayerTime(this.world.getTime());
-            mayorVillageState.markDirty();
+            villageState.markDirty();
 
-            broadcastVillageNews(this.world, villageData, mayorVillageState, this.centerPos, mayorUuid, mayorName);
+            broadcastVillageNews(this.world, villageData, villageState, this.centerPos, mayorUuid, mayorName);
         }
     }
 
     @Unique
-    private static void broadcastVillageNews(ServerWorld world, VillageData villageData, MayorVillageState villageState,
+    private static void broadcastVillageNews(ServerWorld world, VillageData villageData, VillageState villageState,
                                              BlockPos centerPos, UUID mayorUuid, String mayorName) {
         Box villageBoundingBox = new Box(centerPos).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()));
         for (ServerPlayerEntity serverPlayerEntity : world.getEntitiesByClass(ServerPlayerEntity.class, villageBoundingBox, EntityPredicates.EXCEPT_SPECTATOR)) {

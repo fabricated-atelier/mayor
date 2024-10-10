@@ -60,7 +60,7 @@ public class BallotUrnHelper {
 
     public static void startElection(ServerWorld serverWorld, BlockPos blockPos, int voteTicks) {
         if (serverWorld.getBlockState(blockPos).isOf(Blocks.DECORATED_POT) && serverWorld.getBlockEntity(blockPos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity && decoratedPotBlockEntity.getSherds().stream().stream().allMatch(item -> item.equals(MayorItems.BALLOT_POTTERY_SHERD)) && decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, blockPos);
+            VillageData villageData = StateHelper.getClosestVillage(serverWorld, blockPos);
             if (villageData != null && villageData.getBallotUrnPos() == null) {
                 if (villageData.getMayorPlayerUuid() == null || (int) (serverWorld.getTime() - villageData.getMayorPlayerTime()) > MayorConfig.CONFIG.instance().minTickMayorTime) {
                     villageData.setBallotUrnPos(blockPos);
@@ -75,7 +75,7 @@ public class BallotUrnHelper {
                         serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                         serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_election_start")));
                     }
-                    MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+                    StateHelper.getMayorVillageState(serverWorld).markDirty();
                 }
             }
 
@@ -84,7 +84,7 @@ public class BallotUrnHelper {
 
     public static void endElection(ServerWorld serverWorld, BlockPos blockPos) {
         if (serverWorld.getBlockState(blockPos).isOf(Blocks.DECORATED_POT) && serverWorld.getBlockEntity(blockPos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity && decoratedPotBlockEntity.getSherds().stream().stream().allMatch(item -> item.equals(MayorItems.BALLOT_POTTERY_SHERD)) && decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess && ballotUrnAccess.validated()) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, blockPos);
+            VillageData villageData = StateHelper.getClosestVillage(serverWorld, blockPos);
             if (villageData != null) {
                 if (villageData.getBallotUrnPos() != null && villageData.getBallotUrnPos().equals(blockPos)) {
                     if ((int) (serverWorld.getTime() - ballotUrnAccess.getVoteStartTime()) > ballotUrnAccess.getVoteTicks()) {
@@ -135,7 +135,7 @@ public class BallotUrnHelper {
                                 text = Text.translatable("mayor.village.mayor_election_end", playerName);
                                 villageData.setMayorPlayerUuid(electedMayorUuid);
                                 villageData.setMayorPlayerTime(serverWorld.getTime());
-                                MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+                                StateHelper.getMayorVillageState(serverWorld).markDirty();
                             } else {
                                 text = Text.translatable("mayor.village.mayor_election_failed");
                             }
@@ -154,7 +154,7 @@ public class BallotUrnHelper {
 
     public static boolean voteMayor(ServerWorld serverWorld, BlockPos blockPos, PlayerEntity playerEntity, ItemStack itemStack) {
         if (itemStack.isOf(MayorItems.BALLOT_PAPER) && itemStack.get(MayorComponents.VOTE_UUID) != null) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, blockPos);
+            VillageData villageData = StateHelper.getClosestVillage(serverWorld, blockPos);
             if (villageData != null) {
                 if (villageData.getBallotUrnPos() != null && villageData.getBallotUrnPos().equals(blockPos)) {
                     if (serverWorld.getBlockEntity(blockPos) instanceof BallotUrnAccess ballotUrnAccess && ballotUrnAccess.validated() && !ballotUrnAccess.getVotedPlayerUuids().contains(playerEntity.getUuid())) {
@@ -171,7 +171,7 @@ public class BallotUrnHelper {
     }
 
     public static void updateBallotUrn(ServerWorld serverWorld, BlockPos blockPos) {
-        VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, blockPos);
+        VillageData villageData = StateHelper.getClosestVillage(serverWorld, blockPos);
         if (villageData != null) {
             if (villageData.getBallotUrnPos() != null && villageData.getBallotUrnPos().equals(blockPos)) {
                 villageData.setBallotUrnPos(null);
@@ -179,7 +179,7 @@ public class BallotUrnHelper {
                     serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                     serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.ballot_urn_destroy")));
                 }
-                MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+                StateHelper.getMayorVillageState(serverWorld).markDirty();
             }
         }
     }

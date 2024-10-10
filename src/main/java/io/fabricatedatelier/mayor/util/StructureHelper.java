@@ -12,7 +12,7 @@ import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
 import io.fabricatedatelier.mayor.state.ConstructionData;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
@@ -37,7 +37,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Properties;
 import net.minecraft.structure.StructurePiece;
 import net.minecraft.structure.StructureTemplate;
@@ -456,8 +455,8 @@ public class StructureHelper {
                         mayorManager.getVillageData().addConstruction(constructionData);
                         // Todo: remove using items of available items, put in extra inventory for villager to use
                     }
-                    MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverPlayerEntity.getServerWorld());
-                    mayorVillageState.markDirty();
+                    VillageState villageState = StateHelper.getMayorVillageState(serverPlayerEntity.getServerWorld());
+                    villageState.markDirty();
 
                     mayorManager.setMayorStructure(null);
                     mayorManager.setStructureOriginBlockPos(null);

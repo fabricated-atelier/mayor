@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.EntityStatuses;
@@ -16,7 +16,6 @@ import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
@@ -45,8 +44,8 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
         }
         if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null && builder.hasTargetPosition()) {
             if (this.constructionData == null) {
-                if (MayorStateHelper.getMayorVillageState(serverWorld) != null) {
-                    VillageData villageData = MayorStateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                if (StateHelper.getMayorVillageState(serverWorld) != null) {
+                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
                     if (villageData != null) {
                         if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(builder.getTargetPosition())) {
                             this.constructionData = villageData.getConstructions().get(builder.getTargetPosition());
@@ -150,13 +149,13 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
         this.currentTarget = null;
         if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null) {
-            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
-            VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+            VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
+            VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
             if (villageData != null) {
                 if (builder.hasTargetPosition() && villageData.getConstructions().containsKey(builder.getTargetPosition())) {
                     villageData.addStructure(villageData.getConstructions().get(builder.getTargetPosition()).getStructureData());
                     villageData.getConstructions().remove(builder.getTargetPosition());
-                    mayorVillageState.markDirty();
+                    villageState.markDirty();
                 }
             }
 

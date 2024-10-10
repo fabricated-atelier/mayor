@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.mixin;
 
 import io.fabricatedatelier.mayor.access.MayorVillageStateAccess;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import net.minecraft.world.PersistentStateManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,16 +16,16 @@ import net.minecraft.server.world.ServerWorld;
 public class ServerWorldMixin implements MayorVillageStateAccess {
 
     @Unique
-    private MayorVillageState mayorVillageState;
+    private VillageState villageState;
 
     @Inject(at = @At("TAIL"), method = "<init>")
     private void initMixin(CallbackInfo info) {
-        this.mayorVillageState = this.getPersistentStateManager().getOrCreate(MayorVillageState.getPersistentStateType((ServerWorld) (Object) this), "villages");
+        this.villageState = this.getPersistentStateManager().getOrCreate(VillageState.getPersistentStateType((ServerWorld) (Object) this), "villages");
     }
 
     @Override
-    public MayorVillageState getMayorVillageState() {
-        return this.mayorVillageState;
+    public VillageState getMayorVillageState() {
+        return this.villageState;
     }
 
     @Shadow

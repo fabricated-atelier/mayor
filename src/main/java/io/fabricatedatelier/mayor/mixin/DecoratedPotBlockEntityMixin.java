@@ -4,7 +4,7 @@ import io.fabricatedatelier.mayor.access.BallotUrnAccess;
 import io.fabricatedatelier.mayor.screen.block.BallotUrnBlockScreenHandler;
 import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -83,7 +83,7 @@ public abstract class DecoratedPotBlockEntityMixin extends BlockEntity implement
     @Override
     public BallotUrnPacket getScreenOpeningData(ServerPlayerEntity player) {
         String villageName = "Village";
-        VillageData villageData = MayorStateHelper.getClosestVillage((ServerWorld) world, pos);
+        VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
         if (villageData != null) {
             villageName = villageData.getName();
         }

@@ -5,9 +5,9 @@ import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
@@ -57,9 +57,9 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
                 return false;
             }
             if (builder.getVillageCenterPosition() != null) {
-                MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
-                if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
-                    VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+                VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
+                if (villageState.getVillageData(builder.getVillageCenterPosition()) != null) {
+                    VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
                     if (builder.hasTargetPosition()) {
                         if (villageData.getConstructions().containsKey(builder.getTargetPosition())) {
                             ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
@@ -140,7 +140,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         if (this.currentTarget != null) {
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
                 if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Builder builder) {
-                    VillageData villageData = MayorStateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
                     if (villageData != null) {
                         VillageContainerBlockEntity villageContainerBlockEntity = containerBlockEntity.getStructureOriginBlockEntity().get();
                         for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {

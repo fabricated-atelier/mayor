@@ -13,7 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.PersistentState;
 import org.jetbrains.annotations.Nullable;
 
-public class MayorVillageState extends PersistentState {
+public class VillageState extends PersistentState {
 
     // public static final DSL.TypeReference MAYOR_VILLAGES = TypeReferences.create("mayor_village");
 
@@ -21,25 +21,25 @@ public class MayorVillageState extends PersistentState {
 
     private final Map<BlockPos, VillageData> villages = new HashMap<BlockPos, VillageData>();
 
-    public MayorVillageState(ServerWorld world) {
+    public VillageState(ServerWorld world) {
         this.world = world;
     }
 
-    public static PersistentState.Type<MayorVillageState> getPersistentStateType(ServerWorld world) {
-        return new PersistentState.Type<MayorVillageState>(() -> new MayorVillageState(world), (nbt, registryLookup) -> fromNbt(world, (NbtCompound) nbt), null);
+    public static PersistentState.Type<VillageState> getPersistentStateType(ServerWorld world) {
+        return new PersistentState.Type<VillageState>(() -> new VillageState(world), (nbt, registryLookup) -> fromNbt(world, (NbtCompound) nbt), null);
     }
 
-    public static MayorVillageState fromNbt(ServerWorld world, NbtCompound nbt) {
-        MayorVillageState mayorVillageState = new MayorVillageState(world);
+    public static VillageState fromNbt(ServerWorld world, NbtCompound nbt) {
+        VillageState villageState = new VillageState(world);
 
         NbtList nbtList = nbt.getList("VillageData", NbtElement.COMPOUND_TYPE);
         for (int i = 0; i < nbtList.size(); i++) {
             VillageData villageData = new VillageData(nbtList.getCompound(i));
             VillageHelper.updateOfflineMayor(world, villageData);
-            mayorVillageState.villages.put(villageData.getCenterPos(), villageData);
+            villageState.villages.put(villageData.getCenterPos(), villageData);
         }
 
-        return mayorVillageState;
+        return villageState;
     }
 
     public ServerWorld getWorld() {
@@ -95,6 +95,5 @@ public class MayorVillageState extends PersistentState {
         nbt.put("VillageData", nbtList);
         return nbt;
     }
-
 
 }

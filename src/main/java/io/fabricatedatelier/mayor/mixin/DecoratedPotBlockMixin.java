@@ -4,7 +4,7 @@ import io.fabricatedatelier.mayor.access.BallotUrnAccess;
 import io.fabricatedatelier.mayor.init.MayorItems;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.BallotUrnHelper;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.DecoratedPotBlock;
@@ -78,7 +78,7 @@ public abstract class DecoratedPotBlockMixin extends BlockWithEntity {
                             CallbackInfoReturnable<ActionResult> info, DecoratedPotBlockEntity decoratedPotBlockEntity) {
         if (world.isClient()) return;
         if (isInvalidBallotPot(decoratedPotBlockEntity)) return;
-        VillageData villageData = MayorStateHelper.getClosestVillage((ServerWorld) world, pos);
+        VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
         if (villageData == null) return;
         if (villageData.getBallotUrnPos() == null || villageData.getBallotUrnPos().equals(pos)) {
             if (decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess) {

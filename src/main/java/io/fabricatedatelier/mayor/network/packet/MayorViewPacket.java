@@ -5,7 +5,7 @@ import io.fabricatedatelier.mayor.access.BallotUrnAccess;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
@@ -69,7 +69,7 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
 
     public void handleClientPacket(ServerPlayNetworking.Context context) {
         if (this.mayorView) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());
+            VillageData villageData = StateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());
             if (villageData != null) {
                 if ((villageData.getMayorPlayerUuid() != null && villageData.getMayorPlayerUuid().equals(context.player().getUuid())) || context.player().isCreativeLevelTwoOp()) {
                     ((MayorManagerAccess) context.player()).getMayorManager().setVillageData(villageData);

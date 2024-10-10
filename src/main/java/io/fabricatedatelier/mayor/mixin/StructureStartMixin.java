@@ -6,10 +6,10 @@ import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.data.StructureDataLoader;
 import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.mixin.access.JigsawStructureAccess;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.minecraft.entity.passive.IronGolemEntity;
@@ -54,10 +54,10 @@ public class StructureStartMixin {
         if (!(structure instanceof JigsawStructureAccess jigsawStructureAccess)) return;
         if (!jigsawStructureAccess.getStartPool().isIn(MayorTags.StructurePools.VILLAGES)) return;
 
-        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
+        VillageState villageState = StateHelper.getMayorVillageState(world.toServerWorld());
         BlockPos centerPos = ((StructureStart) (Object) this).getBoundingBox().getCenter();
-        if (mayorVillageState.hasVillage(centerPos)) return;
-        VillageData villageData = mayorVillageState.createVillageData(centerPos);
+        if (villageState.hasVillage(centerPos)) return;
+        VillageData villageData = villageState.createVillageData(centerPos);
         if (villageData != null) {
             this.centerPos = centerPos;
         }
@@ -75,25 +75,25 @@ public class StructureStartMixin {
                             BlockBox blockBox, BlockPos blockPos, BlockPos blockPos2, Iterator var11,
                             StructurePiece structurePiece) {
         if (this.centerPos.equals(BlockPos.ORIGIN)) return;
-        MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(world.toServerWorld());
-        if (!mayorVillageState.hasVillage(this.centerPos)) return;
+        VillageState villageState = StateHelper.getMayorVillageState(world.toServerWorld());
+        if (!villageState.hasVillage(this.centerPos)) return;
         if (!(structurePiece instanceof PoolStructurePiece poolStructurePiece)) {
-            mayorVillageState.markDirty();
+            villageState.markDirty();
             return;
         }
         if (!(poolStructurePiece.getPoolElement() instanceof SinglePoolElementAccess singlePoolElementAccess)) {
-            mayorVillageState.markDirty();
+            villageState.markDirty();
             return;
         }
 
         singlePoolElementAccess.getLocation().left().ifPresent(locationIdentifier -> {
-            VillageData villageData = mayorVillageState.getVillageData(this.centerPos);
+            VillageData villageData = villageState.getVillageData(this.centerPos);
             if (singlePoolElementAccess instanceof StructureTemplateAccess structureTemplate) {
                 addEntitiesToVillageData(structureTemplate, villageData);
             }
             addStructureToVillageData(locationIdentifier, world, structurePiece, villageData);
         });
-        mayorVillageState.markDirty();
+        villageState.markDirty();
     }
 
 

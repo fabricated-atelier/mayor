@@ -1,9 +1,9 @@
 package io.fabricatedatelier.mayor.access;
 
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 
 public interface MayorVillageStateAccess {
 
-    public MayorVillageState getMayorVillageState();
+    public VillageState getMayorVillageState();
 
 }

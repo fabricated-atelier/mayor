@@ -10,7 +10,7 @@ import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
@@ -137,10 +137,10 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Inject(method = "initialize", at = @At("TAIL"))
     private void initializeMixin(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, EntityData entityData, CallbackInfoReturnable<EntityData> info) {
-        VillageData villageData = MayorStateHelper.getClosestVillage(world.toServerWorld(), this.getBlockPos());
+        VillageData villageData = StateHelper.getClosestVillage(world.toServerWorld(), this.getBlockPos());
         if (villageData != null) {
             villageData.addVillager(this.getUuid());
-            MayorStateHelper.getMayorVillageState(world.toServerWorld()).markDirty();
+            StateHelper.getMayorVillageState(world.toServerWorld()).markDirty();
         }
     }
 
@@ -148,7 +148,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     private void summonGolemMixin(ServerWorld world, long time, int requiredCount, CallbackInfo info) {
         List<IronGolemEntity> list = world.getEntitiesByClass(IronGolemEntity.class, Box.of(this.getBlockPos().toCenterPos(), 30, 30, 30), EntityPredicates.EXCEPT_SPECTATOR);
         if (!list.isEmpty()) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(world, this.getBlockPos());
+            VillageData villageData = StateHelper.getClosestVillage(world, this.getBlockPos());
             if (villageData != null) {
                 boolean foundNewIronGolem = false;
                 for (IronGolemEntity ironGolemEntity : list) {
@@ -158,7 +158,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
                     }
                 }
                 if (foundNewIronGolem) {
-                    MayorStateHelper.getMayorVillageState(world).markDirty();
+                    StateHelper.getMayorVillageState(world).markDirty();
                 }
             }
         }

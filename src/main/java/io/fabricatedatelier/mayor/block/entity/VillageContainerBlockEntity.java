@@ -4,7 +4,7 @@ import io.fabricatedatelier.mayor.api.StorageCallback;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.HandledInventory;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -120,15 +120,15 @@ return true;
 
     public void setStructureOriginPos(BlockPos newStructureOriginPos) {
         if (this.getWorld() instanceof ServerWorld serverWorld) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, this.getPos());
+            VillageData villageData = StateHelper.getClosestVillage(serverWorld, this.getPos());
             if (villageData != null) {
                 if (this.structureOriginPos == null) {
                     villageData.addStorageOriginBlockPos(newStructureOriginPos);
-                    MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+                    StateHelper.getMayorVillageState(serverWorld).markDirty();
                 } else if (!this.structureOriginPos.equals(newStructureOriginPos)) {
                     villageData.removeStorageOriginBlockPos(this.structureOriginPos);
                     villageData.addStorageOriginBlockPos(newStructureOriginPos);
-                    MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+                    StateHelper.getMayorVillageState(serverWorld).markDirty();
                 }
             }
         }

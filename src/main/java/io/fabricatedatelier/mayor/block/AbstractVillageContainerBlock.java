@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
@@ -155,7 +155,7 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
                     }
                 } else {
                     if (!world.isClient()) {
-                        VillageData villageData = MayorStateHelper.getClosestVillage((ServerWorld) world, pos);
+                        VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
                         if (villageData != null) {
                             villageData.removeStorageOriginBlockPos(pos);
                         }

@@ -5,7 +5,7 @@ import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.ConstructionData;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -54,17 +54,17 @@ public class VillageHelper {
 
     public static void updateBuildingVillagerBuilder(ServerWorld serverWorld, Builder builder, boolean freshBuilder) {
         if (builder.getVillageCenterPosition() == null) {
-            VillageData villageData = MayorStateHelper.getClosestVillage(serverWorld, builder.getVillagerEntity().getBlockPos());
+            VillageData villageData = StateHelper.getClosestVillage(serverWorld, builder.getVillagerEntity().getBlockPos());
             if (villageData != null) {
                 builder.setVillageCenterPosition(villageData.getCenterPos());
             }
         }
 
         if (builder.getVillageCenterPosition() != null) {
-            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(serverWorld);
+            VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
 
-            if (mayorVillageState.getVillageData(builder.getVillageCenterPosition()) != null) {
-                VillageData villageData = mayorVillageState.getVillageData(builder.getVillageCenterPosition());
+            if (villageState.getVillageData(builder.getVillageCenterPosition()) != null) {
+                VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
                 if (freshBuilder) {
                     for (ConstructionData constructionData : villageData.getConstructions().values()) {
                         if (constructionData.getVillagerUuid() == null) {
@@ -76,7 +76,7 @@ public class VillageHelper {
                     }
                 } else {
                     if (!builder.getVillagerEntity().isAlive()) {
-                        MayorStateHelper.updateVillageUuids(serverWorld, builder.getVillageCenterPosition(), builder.getVillagerEntity());
+                        StateHelper.updateVillageUuids(serverWorld, builder.getVillageCenterPosition(), builder.getVillagerEntity());
                     }
                     if (VillageHelper.getTasklessBuildingVillagerBuilder(villageData, serverWorld) instanceof Builder newBuilder) {
                         newBuilder.setTargetPosition(builder.getTargetPosition());
@@ -87,7 +87,7 @@ public class VillageHelper {
                     }
                     builder.setTargetPosition(null);
                 }
-                mayorVillageState.markDirty();
+                villageState.markDirty();
             }
         }
     }
@@ -112,7 +112,7 @@ public class VillageHelper {
                 }
             }
             villageData.setLevel(villageData.getLevel() + 1);
-            MayorStateHelper.getMayorVillageState(serverWorld).markDirty();
+            StateHelper.getMayorVillageState(serverWorld).markDirty();
 
             List<ServerPlayerEntity> list = serverWorld.getPlayers(player -> player.getBlockPos().isWithinDistance(villageData.getCenterPos(), VILLAGE_LEVEL_RADIUS.get(villageData.getLevel())));
             for (ServerPlayerEntity serverPlayerEntity : list) {

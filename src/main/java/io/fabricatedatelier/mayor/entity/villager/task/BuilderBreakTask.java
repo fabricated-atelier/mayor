@@ -1,12 +1,11 @@
 package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.entity.villager.access.Builder;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.TaskHelper;
 import net.minecraft.entity.ai.brain.BlockPosLookTarget;
@@ -15,8 +14,6 @@ import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
@@ -56,8 +53,8 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
         }
         if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null && builder.hasTargetPosition()) {
             if (this.constructionData == null) {
-                if (MayorStateHelper.getMayorVillageState(serverWorld) != null) {
-                    VillageData villageData = MayorStateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                if (StateHelper.getMayorVillageState(serverWorld) != null) {
+                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
                     if (villageData != null) {
                         if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(builder.getTargetPosition()) && !StructureHelper.getObStructiveBlockMap(serverWorld, villageData.getConstructions().get(builder.getTargetPosition())).isEmpty()) {
                             this.constructionData = villageData.getConstructions().get(builder.getTargetPosition());

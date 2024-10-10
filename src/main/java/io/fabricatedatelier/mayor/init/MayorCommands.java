@@ -3,10 +3,9 @@ package io.fabricatedatelier.mayor.init;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import io.fabricatedatelier.mayor.state.MayorVillageState;
+import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.VillageData;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
-import io.fabricatedatelier.mayor.util.StructureHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.CommandSource;
@@ -22,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class MayorCommands {
 
     private static final SuggestionProvider<ServerCommandSource> VILLAGE_BLOCKPOS_PROVIDER = (context, builder) -> CommandSource.suggestMatching(
-            MayorStateHelper.getVillages(context.getSource().getWorld()).stream().map(VillageData::getCenterPos).map(blockPos -> blockPos.toShortString().replace(",", "")), builder);
+            StateHelper.getVillages(context.getSource().getWorld()).stream().map(VillageData::getCenterPos).map(blockPos -> blockPos.toShortString().replace(",", "")), builder);
 
     public static void initialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> {
@@ -92,11 +91,11 @@ public class MayorCommands {
         if (blockPos == null && source.getPlayer() == null) {
             source.sendFeedback(() -> Text.translatable("commands.mayor.something_went_wrong"), false);
         } else {
-            MayorVillageState mayorVillageState = MayorStateHelper.getMayorVillageState(source.getWorld());
+            VillageState villageState = StateHelper.getMayorVillageState(source.getWorld());
             if (code == 0) {
                 // Create
                 BlockPos pos = blockPos != null ? blockPos : source.getPlayer().getBlockPos();
-                VillageData villageData = mayorVillageState.createVillageData(pos);
+                VillageData villageData = villageState.createVillageData(pos);
                 if(villageData != null) {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.created_village", pos.toShortString()), true);
                 }else{
@@ -104,9 +103,9 @@ public class MayorCommands {
                 }
             } else if (code == 1) {
                 // Delete
-                VillageData villageData = blockPos != null ? mayorVillageState.getVillageData(blockPos) : MayorStateHelper.getClosestVillage(source.getWorld(), source.getPlayer().getBlockPos());
+                VillageData villageData = blockPos != null ? villageState.getVillageData(blockPos) : StateHelper.getClosestVillage(source.getWorld(), source.getPlayer().getBlockPos());
                 if (villageData != null) {
-                    mayorVillageState.deleteVillageData(villageData.getCenterPos());
+                    villageState.deleteVillageData(villageData.getCenterPos());
                     source.sendFeedback(() -> Text.translatable("commands.mayor.deleted_village", villageData.getName(), villageData.getCenterPos().toShortString()), true);
                 } else {
                     Text text = blockPos != null ? Text.translatable("commands.mayor.village_not_found") : Text.translatable("commands.mayor.village_nearby_not_found");
@@ -117,7 +116,7 @@ public class MayorCommands {
                 if (source.getPlayer() == null) {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_nearby_not_found"), false);
                 } else {
-                    VillageData villageData = MayorStateHelper.getClosestVillage(source.getWorld(), source.getPlayer().getBlockPos());
+                    VillageData villageData = StateHelper.getClosestVillage(source.getWorld(), source.getPlayer().getBlockPos());
                     if (villageData != null) {
                         source.sendFeedback(() -> Text.translatable("commands.mayor.village_pos_info", villageData.getCenterPos().toShortString()), true);
                     } else {
@@ -126,7 +125,7 @@ public class MayorCommands {
                 }
             } else if (code == 3 && blockPos != null) {
                 // Get
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_info", villageData.getName(), villageData.getLevel(), villageData.getVillagers().size(), villageData.getIronGolems().size(), villageData.getStructures().size()), false);
                     if (villageData.getMayorPlayerUuid() != null) {
@@ -141,7 +140,7 @@ public class MayorCommands {
                 }
             } else if (code == 4 && serverPlayerEntity != null) {
                 // Set mayor
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     if (villageData.getMayorPlayerUuid() == null || !villageData.getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
                         villageData.setMayorPlayerTime(source.getWorld().getTime());
@@ -153,7 +152,7 @@ public class MayorCommands {
                 }
             } else if (code == 5) {
                 // Remove mayor
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     if (villageData.getMayorPlayerUuid() != null) {
                         villageData.setMayorPlayerTime(0);
@@ -168,7 +167,7 @@ public class MayorCommands {
                 }
             } else if (code == 6) {
                 // Get mayor
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     if (villageData.getMayorPlayerUuid() != null) {
                         Text text;
@@ -187,7 +186,7 @@ public class MayorCommands {
                 }
             } else if (code == 7) {
                 // Set level
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null && level > 0) {
                     villageData.setLevel(Math.min(level, VillageHelper.VILLAGE_MAX_LEVEL));
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_set_level", villageData.getLevel(), villageData.getName(), blockPos.toShortString()), true);
@@ -196,7 +195,7 @@ public class MayorCommands {
                 }
             } else if (code == 8) {
                 // Get level
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_get_level", villageData.getName(), villageData.getLevel()), false);
                 } else {
@@ -204,7 +203,7 @@ public class MayorCommands {
                 }
             } else if (code == 9 && name != null) {
                 // Set name
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     villageData.setName(name);
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_set_name", name, blockPos.toShortString()), true);
@@ -213,14 +212,14 @@ public class MayorCommands {
                 }
             } else if (code == 10) {
                 // Get level
-                VillageData villageData = mayorVillageState.getVillageData(blockPos);
+                VillageData villageData = villageState.getVillageData(blockPos);
                 if (villageData != null) {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_get_name", blockPos.toShortString(), villageData.getName()), false);
                 } else {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_not_found", blockPos.toShortString()), false);
                 }
             }
-            mayorVillageState.markDirty();
+            villageState.markDirty();
         }
         return 0;
     }

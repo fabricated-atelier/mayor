@@ -4,7 +4,7 @@ import io.fabricatedatelier.mayor.data.StructureDataLoader;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
-import io.fabricatedatelier.mayor.util.MayorStateHelper;
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
@@ -34,9 +34,9 @@ public class MayorCommonEvents {
 
     private static void handleAfterDeath(LivingEntity entity, DamageSource damageSource) {
         if (entity instanceof IronGolemEntity) {
-            BlockPos villageCenterPos = MayorStateHelper.getVillageCenterPos((ServerWorld) entity.getWorld(), entity.getBlockPos());
+            BlockPos villageCenterPos = StateHelper.getVillageCenterPos((ServerWorld) entity.getWorld(), entity.getBlockPos());
             if (villageCenterPos != null) {
-                MayorStateHelper.updateVillageUuids((ServerWorld) entity.getWorld(), villageCenterPos, entity);
+                StateHelper.updateVillageUuids((ServerWorld) entity.getWorld(), villageCenterPos, entity);
             }
         }
     }
