@@ -1,9 +1,8 @@
 package io.fabricatedatelier.mayor.block.entity;
 
 import io.fabricatedatelier.mayor.block.custom.DeskBlock;
-import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
-import io.fabricatedatelier.mayor.screen.block.DeskCitizenScreenHandler;
+import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -228,7 +227,9 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
         if (!this.hasBook()) {
-            return new DeskCitizenScreenHandler(syncId, playerInventory, this.inventory);
+            return null;
+            // Todo: HERE
+//            return new DeskCitizenScreenHandler(syncId, playerInventory, this.inventory);
         } else {
             return new DeskBlockScreenHandler(syncId, this.inventory, this.propertyDelegate);
         }
