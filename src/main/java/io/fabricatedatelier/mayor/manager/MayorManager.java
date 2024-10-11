@@ -3,7 +3,6 @@ package io.fabricatedatelier.mayor.manager;
 import io.fabricatedatelier.mayor.state.VillageData;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -35,19 +34,12 @@ public class MayorManager {
 
     private final PlayerEntity playerEntity;
 
-    private final CitizenManager citizenManager;
-
     public MayorManager(PlayerEntity playerEntity) {
         this.playerEntity = playerEntity;
-        this.citizenManager = new CitizenManager();
     }
 
     public PlayerEntity playerEntity() {
         return this.playerEntity;
-    }
-
-    public CitizenManager getCitizenManager() {
-        return citizenManager;
     }
 
     // Mayor View

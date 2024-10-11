@@ -57,7 +57,7 @@ public class BallotUrnBlockScreenHandler extends ScreenHandler {
                 if (!stack.isOf(MayorItems.BALLOT_PAPER)) {
                     return false;
                 }
-                return !playerEntity.getWorld().isClient() && getBallotUrn().validated() && CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) playerEntity.getWorld(), playerEntity);
+                return !playerEntity.getWorld().isClient() && getBallotUrn().validated() && CitizenHelper.isCitizenOfClosestVillage((ServerWorld) playerEntity.getWorld(), playerEntity);
             }
 
             @Override

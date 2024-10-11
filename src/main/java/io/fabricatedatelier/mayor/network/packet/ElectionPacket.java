@@ -30,7 +30,9 @@ public record ElectionPacket(BlockPos blockPos, int voteTicks) implements Custom
     }
 
     public void handlePacket(ServerPlayNetworking.Context context) {
-        if (!CitizenHelper.isCitizenOfNearbyVillage(context.player().getServerWorld(), context.player())) return;
+        if (!CitizenHelper.isCitizenOfClosestVillage(context.player().getServerWorld(), context.player())) {
+            return;
+        }
         BallotUrnHelper.startElection(context.player().getServerWorld(), this.blockPos(), this.voteTicks());
     }
 }

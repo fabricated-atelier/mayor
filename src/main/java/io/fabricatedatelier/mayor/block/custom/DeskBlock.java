@@ -165,9 +165,8 @@ public class DeskBlock extends BlockWithEntity {
 
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-
         if (!world.isClient()) {
-            if (!state.get(HAS_BOOK) && !CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) {
+            if (!state.get(HAS_BOOK) && !CitizenHelper.isCitizenOfClosestVillage((ServerWorld) world, player)) {
                 return ActionResult.CONSUME;
             }
             BlockEntity blockEntity = world.getBlockEntity(pos);

@@ -16,16 +16,16 @@ public class MayorCompats {
         if (FabricLoader.getInstance().isModLoaded("placeholder-api")) {
             Placeholders.register(Mayor.identifierOf("mayor"), (ctx, arg) -> {
                 if (ctx.hasPlayer()) {
-                    BlockPos villagePos = ((MayorManagerAccess) ctx.player()).getMayorManager().getCitizenManager().getVillagePos();
-                    if (villagePos != null) {
-                        if (StateHelper.getVillage(ctx.world(), villagePos) instanceof VillageData villageData && ctx.player().getUuid().equals(villageData.getMayorPlayerUuid())) {
-                            return PlaceholderResult.value(Text.translatable("mayor.type.mayor"));
-                        } else {
-                            return PlaceholderResult.value(Text.translatable("mayor.type.citizen"));
-                        }
-                    } else {
+//                    BlockPos villagePos = ((MayorManagerAccess) ctx.player()).getMayorManager().getCitizenManager().getVillagePos();
+//                    if (villagePos != null) {
+//                        if (StateHelper.getVillage(ctx.world(), villagePos) instanceof VillageData villageData && ctx.player().getUuid().equals(villageData.getMayorPlayerUuid())) {
+//                            return PlaceholderResult.value(Text.translatable("mayor.type.mayor"));
+//                        } else {
+//                            return PlaceholderResult.value(Text.translatable("mayor.type.citizen"));
+//                        }
+//                    } else {
                         return PlaceholderResult.value("");
-                    }
+//                    }
                 } else {
                     return PlaceholderResult.invalid("No player!");
                 }

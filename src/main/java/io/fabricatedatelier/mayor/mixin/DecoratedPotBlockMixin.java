@@ -50,11 +50,21 @@ public abstract class DecoratedPotBlockMixin extends BlockWithEntity {
     private void onUseWithItemMixin(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player,
                                     Hand hand, BlockHitResult hit, CallbackInfoReturnable<ItemActionResult> info) {
         // already on server world cause of injection point
-        if (!stack.isOf(MayorItems.BALLOT_PAPER)) return;
-        if (!(world.getBlockEntity(pos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity)) return;
-        if (isInvalidBallotPot(decoratedPotBlockEntity)) return;
-        if (!(decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess)) return;
-        if (!CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) return;
+        if (!stack.isOf(MayorItems.BALLOT_PAPER)) {
+            return;
+        }
+        if (!(world.getBlockEntity(pos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity)) {
+            return;
+        }
+        if (isInvalidBallotPot(decoratedPotBlockEntity)) {
+            return;
+        }
+        if (!(decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess)) {
+            return;
+        }
+        if (!CitizenHelper.isCitizenOfClosestVillage((ServerWorld) world, player)) {
+            return;
+        }
         if (ballotUrnAccess.validated() && !ballotUrnAccess.getVotedPlayerUuids().contains(player.getUuid())) {
             ballotUrnAccess.addStack(stack);
             ballotUrnAccess.addVotedPlayerUuid(player.getUuid());
@@ -78,12 +88,20 @@ public abstract class DecoratedPotBlockMixin extends BlockWithEntity {
     @Inject(method = "onUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;emitGameEvent(Lnet/minecraft/entity/Entity;Lnet/minecraft/registry/entry/RegistryEntry;Lnet/minecraft/util/math/BlockPos;)V"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
     private void onUseMixin(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit,
                             CallbackInfoReturnable<ActionResult> info, DecoratedPotBlockEntity decoratedPotBlockEntity) {
-        if (world.isClient()) return;
-        if (isInvalidBallotPot(decoratedPotBlockEntity)) return;
+        if (world.isClient()) {
+            return;
+        }
+        if (isInvalidBallotPot(decoratedPotBlockEntity)) {
+            return;
+        }
         VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
-        if (villageData == null) return;
+        if (villageData == null) {
+            return;
+        }
         if (villageData.getBallotUrnPos() == null || villageData.getBallotUrnPos().equals(pos)) {
-            if (!CitizenHelper.isCitizenOfNearbyVillage((ServerWorld) world, player)) return;
+            if (!CitizenHelper.isCitizenOfClosestVillage((ServerWorld) world, player)) {
+                return;
+            }
             if (decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess) {
                 ballotUrnAccess.setMayorPlayerTime(villageData.getMayorPlayerTime());
             }
@@ -102,8 +120,12 @@ public abstract class DecoratedPotBlockMixin extends BlockWithEntity {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         super.onPlaced(world, pos, state, placer, itemStack);
-        if (world.isClient()) return;
-        if (!(world.getBlockEntity(pos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity)) return;
+        if (world.isClient()) {
+            return;
+        }
+        if (!(world.getBlockEntity(pos) instanceof DecoratedPotBlockEntity decoratedPotBlockEntity)) {
+            return;
+        }
         if (decoratedPotBlockEntity instanceof BallotUrnAccess ballotUrnAccess) {
             ballotUrnAccess.setValidated(false);
             decoratedPotBlockEntity.markDirty();

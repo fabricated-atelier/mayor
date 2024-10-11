@@ -26,12 +26,10 @@ public class PlayerEntityMixin implements MayorManagerAccess {
 
     @Inject(method = "readCustomDataFromNbt",at = @At("TAIL"))
     private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        this.mayorManager.getCitizenManager().readNbt(nbt);
     }
 
     @Inject(method = "writeCustomDataToNbt",at = @At("TAIL"))
     private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        this.mayorManager.getCitizenManager().writeNbt(nbt);
     }
 
     @Inject(method = "damage", at = @At("HEAD"))
