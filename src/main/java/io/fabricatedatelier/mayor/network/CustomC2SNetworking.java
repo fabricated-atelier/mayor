@@ -11,7 +11,7 @@ public class CustomC2SNetworking {
         ServerPlayNetworking.registerGlobalReceiver(StructureBuildPacket.PACKET_ID, StructureBuildPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(MayorUpdatePacket.PACKET_ID, MayorUpdatePacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(ElectionPacket.PACKET_ID, ElectionPacket::handlePacket);
-        ServerPlayNetworking.registerGlobalReceiver(BallotPaperC2SPacket.PACKET_ID, BallotPaperC2SPacket::handlePacket);
+        ServerPlayNetworking.registerGlobalReceiver(BallotPaperPacket.PACKET_ID, BallotPaperPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(CameraPullMovementPacket.PACKET_ID, CameraPullMovementPacket::handlePacket);
     }
 

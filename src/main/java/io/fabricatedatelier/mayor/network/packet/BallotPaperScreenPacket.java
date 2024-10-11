@@ -15,16 +15,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 // Unused votedUuid field
-public record BallotPaperS2CPacket(Optional<UUID> votedUuid, Optional<String> votedName, Map<UUID, String> availablePlayers) implements CustomPayload {
+public record BallotPaperScreenPacket(Optional<UUID> votedUuid, Optional<String> votedName, Map<UUID, String> availablePlayers) implements CustomPayload {
 
-    public static final CustomPayload.Id<BallotPaperS2CPacket> PACKET_ID =
-            new CustomPayload.Id<>(Mayor.identifierOf("ballot_paper_s2c_packet"));
+    public static final CustomPayload.Id<BallotPaperScreenPacket> PACKET_ID =
+            new CustomPayload.Id<>(Mayor.identifierOf("ballot_paper_screen_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, BallotPaperS2CPacket> PACKET_CODEC = PacketCodec.of((value, buf) -> {
+    public static final PacketCodec<RegistryByteBuf, BallotPaperScreenPacket> PACKET_CODEC = PacketCodec.of((value, buf) -> {
         buf.writeOptional(value.votedUuid, (bufx, uuid) -> bufx.writeUuid(uuid));
         buf.writeOptional(value.votedName, PacketByteBuf::writeString);
         buf.writeMap(value.availablePlayers, (bufx, uuid) -> bufx.writeUuid(uuid), PacketByteBuf::writeString);
-    }, buf -> new BallotPaperS2CPacket(buf.readOptional(bufx -> bufx.readUuid()), buf.readOptional(PacketByteBuf::readString), buf.readMap(bufx -> bufx.readUuid(), PacketByteBuf::readString)));
+    }, buf -> new BallotPaperScreenPacket(buf.readOptional(bufx -> bufx.readUuid()), buf.readOptional(PacketByteBuf::readString), buf.readMap(bufx -> bufx.readUuid(), PacketByteBuf::readString)));
 
     @Override
     public Id<? extends CustomPayload> getId() {

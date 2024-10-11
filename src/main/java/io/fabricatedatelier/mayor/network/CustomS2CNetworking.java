@@ -10,7 +10,7 @@ public class CustomS2CNetworking {
         ClientPlayNetworking.registerGlobalReceiver(VillageDataPacket.PACKET_ID, VillageDataPacket::handlePacket);
         ClientPlayNetworking.registerGlobalReceiver(EntityListS2CPacket.PACKET_ID, EntityListS2CPacket::handlePacket);
         ClientPlayNetworking.registerGlobalReceiver(BallotUrnPacket.PACKET_ID, BallotUrnPacket::handlePacket);
-        ClientPlayNetworking.registerGlobalReceiver(BallotPaperS2CPacket.PACKET_ID, BallotPaperS2CPacket::handlePacket);
+        ClientPlayNetworking.registerGlobalReceiver(BallotPaperScreenPacket.PACKET_ID, BallotPaperScreenPacket::handlePacket);
         ClientPlayNetworking.registerGlobalReceiver(VillageViewPacket.PACKET_ID, VillageViewPacket::handlePacket);
         ClientPlayNetworking.registerGlobalReceiver(ExtraVillageInfoPacket.PACKET_ID, ExtraVillageInfoPacket::handlePacket);
     }

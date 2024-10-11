@@ -15,7 +15,7 @@ public class MayorNetworkPayloads {
         registerC2S(StructureBuildPacket.PACKET_ID, StructureBuildPacket.PACKET_CODEC);
         registerC2S(MayorUpdatePacket.PACKET_ID, MayorUpdatePacket.PACKET_CODEC);
         registerC2S(ElectionPacket.PACKET_ID, ElectionPacket.PACKET_CODEC);
-        registerC2S(BallotPaperC2SPacket.PACKET_ID, BallotPaperC2SPacket.PACKET_CODEC);
+        registerC2S(BallotPaperPacket.PACKET_ID, BallotPaperPacket.PACKET_CODEC);
         registerC2S(CameraPullMovementPacket.PACKET_ID, CameraPullMovementPacket.PACKET_CODEC);
 
         // S2C
@@ -24,7 +24,7 @@ public class MayorNetworkPayloads {
         registerS2C(MayorStructuresPacket.PACKET_ID, MayorStructuresPacket.PACKET_CODEC);
         registerS2C(EntityListS2CPacket.PACKET_ID, EntityListS2CPacket.PACKET_CODEC);
         registerS2C(BallotUrnPacket.PACKET_ID, BallotUrnPacket.PACKET_CODEC);
-        registerS2C(BallotPaperS2CPacket.PACKET_ID, BallotPaperS2CPacket.PACKET_CODEC);
+        registerS2C(BallotPaperScreenPacket.PACKET_ID, BallotPaperScreenPacket.PACKET_CODEC);
         registerS2C(VillageViewPacket.PACKET_ID, VillageViewPacket.PACKET_CODEC);
         registerS2C(ExtraVillageInfoPacket.PACKET_ID, ExtraVillageInfoPacket.PACKET_CODEC);
     }

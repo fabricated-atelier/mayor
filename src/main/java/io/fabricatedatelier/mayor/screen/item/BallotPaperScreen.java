@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.screen.item;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.network.packet.BallotPaperC2SPacket;
+import io.fabricatedatelier.mayor.network.packet.BallotPaperPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -57,7 +57,7 @@ public class BallotPaperScreen extends Screen {
             this.playersButtons[l] = this.addDrawableChild(new WidgetButtonPage(x + 14, k, l, button -> {
                 this.selectedIndex = ((WidgetButtonPage) button).getIndex() + this.indexStartOffset;
                 this.votedName = this.availablePlayers.values().stream().toList().get(this.selectedIndex);
-                new BallotPaperC2SPacket(this.availablePlayers.keySet().stream().toList().get(this.selectedIndex)).sendPacket();
+                new BallotPaperPacket(this.availablePlayers.keySet().stream().toList().get(this.selectedIndex)).sendPacket();
                 this.close();
             }));
             if (!this.votedName.isEmpty() && this.availablePlayers.size() > l && this.availablePlayers.values().stream().toList().get(l).equals(this.votedName)) {

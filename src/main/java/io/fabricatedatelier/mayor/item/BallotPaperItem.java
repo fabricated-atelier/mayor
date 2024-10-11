@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.item;
 
 import io.fabricatedatelier.mayor.init.MayorComponents;
-import io.fabricatedatelier.mayor.network.packet.BallotPaperS2CPacket;
+import io.fabricatedatelier.mayor.network.packet.BallotPaperScreenPacket;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -39,7 +39,7 @@ public class BallotPaperItem extends Item {
                     votedName = Optional.ofNullable(availablePlayers.get(votedUuid.get()));
                 }
             }
-            new BallotPaperS2CPacket(votedUuid, votedName, availablePlayers).sendPacket((ServerPlayerEntity) user);
+            new BallotPaperScreenPacket(votedUuid, votedName, availablePlayers).sendPacket((ServerPlayerEntity) user);
         }
         return TypedActionResult.success(user.getStackInHand(hand));
     }

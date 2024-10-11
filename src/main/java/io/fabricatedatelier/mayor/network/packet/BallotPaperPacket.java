@@ -11,14 +11,14 @@ import net.minecraft.network.packet.CustomPayload;
 
 import java.util.UUID;
 
-public record BallotPaperC2SPacket(UUID votedUuid) implements CustomPayload {
+public record BallotPaperPacket(UUID votedUuid) implements CustomPayload {
 
-    public static final CustomPayload.Id<BallotPaperC2SPacket> PACKET_ID =
-            new CustomPayload.Id<>(Mayor.identifierOf("ballot_paper_c2s_packet"));
+    public static final CustomPayload.Id<BallotPaperPacket> PACKET_ID =
+            new CustomPayload.Id<>(Mayor.identifierOf("ballot_paper_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, BallotPaperC2SPacket> PACKET_CODEC = PacketCodec.of((value, buf) -> {
+    public static final PacketCodec<RegistryByteBuf, BallotPaperPacket> PACKET_CODEC = PacketCodec.of((value, buf) -> {
         buf.writeUuid(value.votedUuid);
-    }, buf -> new BallotPaperC2SPacket(buf.readUuid()));
+    }, buf -> new BallotPaperPacket(buf.readUuid()));
 
     @Override
     public Id<? extends CustomPayload> getId() {
