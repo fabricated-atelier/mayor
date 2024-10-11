@@ -67,6 +67,7 @@ public class StateHelper {
                 if (villageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, VillageHelper.VILLAGE_LEVEL_RADIUS.get(villageData.getLevel()))) {
                     return villageData;
                 }
+                break;
             }
         }
 
