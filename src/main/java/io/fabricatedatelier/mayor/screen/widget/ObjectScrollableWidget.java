@@ -292,7 +292,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                 } else if (this.objects.get(this.selectedIndex) instanceof MayorStructure mayorStructure) {
                     mayorScreen.getMayorManager().setMayorStructure(mayorStructure);
                     mayorScreen.getRequiredItemScrollableWidget().setItemStacks(((MayorStructure) this.objects.get(this.selectedIndex)).getRequiredItemStacks());
-                    if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty() && StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice()))) {
+                    if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (InventoryUtil.getMissingItems(mayorScreen.getAvailableStacks(), mayorStructure.getRequiredItemStacks()).isEmpty() && InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice()))) {
                         if (mayorScreen.getMayorManager().getAvailableBuilder() > 0) {
                             mayorScreen.getBuildButton().active = true;
                         }
@@ -310,7 +310,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     if (mayorUpgradeStructure != null) {
                         List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorUpgradeStructure.getRequiredItemStacks());
                         mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
-                        if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (requiredItemStacks.isEmpty() && StructureHelper.hasRequiredStructurePrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice()))) {
+                        if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (requiredItemStacks.isEmpty() && InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice()))) {
                             if (mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
                                 mayorVillageScreen.getUpgradeButton().setUpgradeStructure(mayorUpgradeStructure);
                                 mayorVillageScreen.getUpgradeButton().setStructureData(structureData);

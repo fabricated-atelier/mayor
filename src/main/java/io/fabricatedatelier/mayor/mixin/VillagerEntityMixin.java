@@ -235,7 +235,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     private int prepareOffersForMixin(int original, PlayerEntity player) {
         if (!this.getWorld().isClient()) {
             VillageData villageData = StateHelper.getClosestVillage((ServerWorld) this.getWorld(), this.getBlockPos());
-            if (villageData != null && villageData.getLevel() > 1 && villageData.getVillagers().contains(this.getUuid()) && villageData.getCitizens().contains(player.getUuid())) {
+            if (villageData != null && villageData.getLevel() > 1 && villageData.getVillagers().contains(this.getUuid()) && villageData.getCitizenData().getCitizens().contains(player.getUuid())) {
                 original += 20 * (villageData.getLevel() - 1);
             }
         }

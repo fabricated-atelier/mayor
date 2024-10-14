@@ -42,7 +42,7 @@ public class BeaconBlockEntityMixin {
                 List<PlayerEntity> playerList = world.getNonSpectatingEntities(PlayerEntity.class, box);
                 List<PlayerEntity> newPlayerList = new ArrayList<>();
                 for (PlayerEntity playerEntity : playerList) {
-                    if (villageData.getCitizens().contains(playerEntity.getUuid()) && villageData.getCenterPos().isWithinDistance(playerEntity.getBlockPos(), expand)) {
+                    if (villageData.getCitizenData().getCitizens().contains(playerEntity.getUuid()) && villageData.getCenterPos().isWithinDistance(playerEntity.getBlockPos(), expand)) {
                         newPlayerList.add(playerEntity);
                     }
                 }

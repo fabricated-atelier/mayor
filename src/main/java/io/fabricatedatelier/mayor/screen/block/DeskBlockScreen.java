@@ -1,20 +1,30 @@
 package io.fabricatedatelier.mayor.screen.block;
 
-import java.util.Objects;
+import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.network.packet.DeskScreenPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.BookScreen;
 import net.minecraft.client.gui.screen.ingame.ScreenHandlerProvider;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.screen.ScreenTexts;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public class DeskBlockScreen extends BookScreen implements ScreenHandlerProvider<DeskBlockScreenHandler> {
+
+    public static final Identifier SWITCH_TEXTURE = Mayor.identifierOf("textures/gui/sprites/widget/switch_button.png");
+
     private final DeskBlockScreenHandler handler;
     private final ScreenHandlerListener listener = new ScreenHandlerListener() {
         @Override
@@ -39,6 +49,27 @@ public class DeskBlockScreen extends BookScreen implements ScreenHandlerProvider
     }
 
     @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+        if (this.handler.isValidated()) {
+            if (isMouseWithinBounds(this.width / 2 + 72, 3, 18, 10, mouseX, mouseY)) {
+                context.drawTexture(SWITCH_TEXTURE, this.width / 2 + 72, 3, 0, 10, 18, 10, 128, 128);
+            } else {
+                context.drawTexture(SWITCH_TEXTURE, this.width / 2 + 72, 3, 0, 0, 18, 10, 128, 128);
+            }
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.handler.isValidated() && isMouseWithinBounds(this.width / 2 + 72, 3, 18, 10, mouseX, mouseY)) {
+            this.client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            new DeskScreenPacket(this.handler.isMayor() ? 2 : 1, this.handler.getDeskPos()).sendPacket();
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
     protected void init() {
         super.init();
         this.handler.addListener(this.listener);
@@ -60,9 +91,7 @@ public class DeskBlockScreen extends BookScreen implements ScreenHandlerProvider
     protected void addCloseButton() {
         if (this.client.player.canModifyBlocks()) {
             this.addDrawableChild(ButtonWidget.builder(ScreenTexts.DONE, button -> this.close()).dimensions(this.width / 2 - 100, 196, 98, 20).build());
-            this.addDrawableChild(
-                    ButtonWidget.builder(Text.translatable("lectern.take_book"), button -> this.sendButtonPressPacket(3)).dimensions(this.width / 2 + 2, 196, 98, 20).build()
-            );
+            this.addDrawableChild(ButtonWidget.builder(Text.translatable("lectern.take_book"), button -> this.sendButtonPressPacket(3)).dimensions(this.width / 2 + 2, 196, 98, 20).build());
         } else {
             super.addCloseButton();
         }
@@ -71,11 +100,13 @@ public class DeskBlockScreen extends BookScreen implements ScreenHandlerProvider
     @Override
     protected void goToPreviousPage() {
         this.sendButtonPressPacket(1);
+        super.goToPreviousPage();
     }
 
     @Override
     protected void goToNextPage() {
         this.sendButtonPressPacket(2);
+        super.goToNextPage();
     }
 
     @Override
@@ -88,26 +119,30 @@ public class DeskBlockScreen extends BookScreen implements ScreenHandlerProvider
         }
     }
 
-    private void sendButtonPressPacket(int id) {
-        this.client.interactionManager.clickButton(this.handler.syncId, id);
-    }
-
     @Override
     public boolean shouldPause() {
         return false;
     }
 
-    void updatePageProvider() {
+    public void updatePageProvider() {
         ItemStack itemStack = this.handler.getBookItem();
         this.setPageProvider(Objects.requireNonNullElse(BookScreen.Contents.create(itemStack), BookScreen.EMPTY_PROVIDER));
-    }
-
-    void updatePage() {
-        this.setPage(this.handler.getPage());
     }
 
     @Override
     protected void closeScreen() {
         this.client.player.closeHandledScreen();
+    }
+
+    public void updatePage() {
+        this.setPage(this.handler.getPage());
+    }
+
+    private void sendButtonPressPacket(int id) {
+        this.client.interactionManager.clickButton(this.handler.syncId, id);
+    }
+
+    private boolean isMouseWithinBounds(int x, int y, int width, int height, double mouseX, double mouseY) {
+        return mouseX >= (double) (x - 1) && mouseX < (double) (x + width + 1) && mouseY >= (double) (y - 1) && mouseY < (double) (y + height + 1);
     }
 }

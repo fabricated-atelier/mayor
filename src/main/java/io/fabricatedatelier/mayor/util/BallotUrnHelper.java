@@ -69,7 +69,7 @@ public class BallotUrnHelper {
 
                     decoratedPotBlockEntity.markDirty();
 
-                    for (UUID uuid : villageData.getCitizens()) {
+                    for (UUID uuid : villageData.getCitizenData().getCitizens()) {
                         if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
                             player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                             player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_election_start")));
@@ -143,7 +143,7 @@ public class BallotUrnHelper {
                             text = Text.translatable("mayor.village.mayor_election_failed");
                         }
 
-                        for (UUID uuid : villageData.getCitizens()) {
+                        for (UUID uuid : villageData.getCitizenData().getCitizens()) {
                             if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
                                 player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                                 player.networkHandler.sendPacket(new SubtitleS2CPacket(text));
@@ -178,7 +178,7 @@ public class BallotUrnHelper {
         if (villageData != null) {
             if (villageData.getBallotUrnPos() != null && villageData.getBallotUrnPos().equals(blockPos)) {
                 villageData.setBallotUrnPos(null);
-                for (UUID uuid : villageData.getCitizens()) {
+                for (UUID uuid : villageData.getCitizenData().getCitizens()) {
                     if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
                         player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                         player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.ballot_urn_destroy")));

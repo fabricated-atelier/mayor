@@ -2,7 +2,12 @@ package io.fabricatedatelier.mayor.block.entity;
 
 import io.fabricatedatelier.mayor.block.custom.DeskBlock;
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
+import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
+import io.fabricatedatelier.mayor.network.packet.DeskPacket;
 import io.fabricatedatelier.mayor.screen.block.DeskBlockScreenHandler;
+import io.fabricatedatelier.mayor.state.VillageData;
+import io.fabricatedatelier.mayor.util.StateHelper;
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -23,6 +28,7 @@ import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Clearable;
@@ -33,10 +39,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
-public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScreenHandlerFactory {
-
-
-    // Todo: Add a slot to get and put emeralds for tax purpose for example
+public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScreenHandlerFactory, ExtendedScreenHandlerFactory<DeskPacket> {
 
     private final Inventory inventory = new Inventory() {
         @Override
@@ -126,12 +129,62 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
             return 1;
         }
     };
-    ItemStack book = ItemStack.EMPTY;
-    int currentPage;
+    private ItemStack book = ItemStack.EMPTY;
+    private int currentPage;
     private int pageCount;
+
+    private boolean validated = false;
 
     public DeskBlockEntity(BlockPos pos, BlockState state) {
         super(MayorBlockEntities.DESK, pos, state);
+    }
+
+    @Override
+    public boolean copyItemDataRequiresOperator() {
+        return true;
+    }
+
+    @Override
+    protected void readNbt(NbtCompound nbt, WrapperLookup registryLookup) {
+        super.readNbt(nbt, registryLookup);
+        if (nbt.contains("Book", NbtElement.COMPOUND_TYPE)) {
+            this.book = this.resolveBook(ItemStack.fromNbt(registryLookup, nbt.getCompound("Book")).orElse(ItemStack.EMPTY), null);
+        } else {
+            this.book = ItemStack.EMPTY;
+        }
+
+        this.pageCount = getPageCount(this.book);
+        this.currentPage = MathHelper.clamp(nbt.getInt("Page"), 0, this.pageCount - 1);
+        this.validated = nbt.getBoolean("Validated");
+    }
+
+    @Override
+    protected void writeNbt(NbtCompound nbt, WrapperLookup registryLookup) {
+        super.writeNbt(nbt, registryLookup);
+        if (!this.getBook().isEmpty()) {
+            nbt.put("Book", this.getBook().encode(registryLookup));
+            nbt.putInt("Page", this.currentPage);
+        }
+        nbt.putBoolean("Validated", this.validated);
+    }
+
+    @Override
+    public void clear() {
+        this.setBook(ItemStack.EMPTY);
+    }
+
+    @Nullable
+    @Override
+    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
+        if (this.hasBook()) {
+            return new DeskBlockScreenHandler(syncId, this.inventory, this.propertyDelegate, this.getPos(), this.validated);
+        }
+        return null;
+    }
+
+    @Override
+    public Text getDisplayName() {
+        return Text.translatable("mayor.container.desk");
     }
 
     public ItemStack getBook() {
@@ -192,52 +245,12 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
         return new ServerCommandSource(CommandOutput.DUMMY, vec3d, Vec2f.ZERO, (ServerWorld) this.world, 2, string, text, this.world.getServer(), player);
     }
 
-    @Override
-    public boolean copyItemDataRequiresOperator() {
-        return true;
+    public void setValidated(boolean validated) {
+        this.validated = validated;
     }
 
-    @Override
-    protected void readNbt(NbtCompound nbt, WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
-        if (nbt.contains("Book", NbtElement.COMPOUND_TYPE)) {
-            this.book = this.resolveBook(ItemStack.fromNbt(registryLookup, nbt.getCompound("Book")).orElse(ItemStack.EMPTY), null);
-        } else {
-            this.book = ItemStack.EMPTY;
-        }
-
-        this.pageCount = getPageCount(this.book);
-        this.currentPage = MathHelper.clamp(nbt.getInt("Page"), 0, this.pageCount - 1);
-    }
-
-    @Override
-    protected void writeNbt(NbtCompound nbt, WrapperLookup registryLookup) {
-        super.writeNbt(nbt, registryLookup);
-        if (!this.getBook().isEmpty()) {
-            nbt.put("Book", this.getBook().encode(registryLookup));
-            nbt.putInt("Page", this.currentPage);
-        }
-    }
-
-    @Override
-    public void clear() {
-        this.setBook(ItemStack.EMPTY);
-    }
-
-    @Override
-    public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity playerEntity) {
-        if (!this.hasBook()) {
-            return null;
-            // Todo: HERE
-//            return new DeskCitizenScreenHandler(syncId, playerInventory, this.inventory);
-        } else {
-            return new DeskBlockScreenHandler(syncId, this.inventory, this.propertyDelegate);
-        }
-    }
-
-    @Override
-    public Text getDisplayName() {
-        return Text.translatable("mayor.container.desk");
+    public boolean isValidated() {
+        return validated;
     }
 
     private static int getPageCount(ItemStack stack) {
@@ -248,6 +261,18 @@ public class DeskBlockEntity extends BlockEntity implements Clearable, NamedScre
             WritableBookContentComponent writableBookContentComponent = stack.get(DataComponentTypes.WRITABLE_BOOK_CONTENT);
             return writableBookContentComponent != null ? writableBookContentComponent.pages().size() : 0;
         }
+    }
+
+    @Override
+    public DeskPacket getScreenOpeningData(ServerPlayerEntity player) {
+        boolean mayor = false;
+        if (this.validated) {
+            VillageData villageData = StateHelper.getClosestVillage(player.getServerWorld(), this.getPos());
+            if (villageData != null && villageData.getMayorPlayerUuid() != null && villageData.getMayorPlayerUuid().equals(player.getUuid())) {
+                mayor = true;
+            }
+        }
+        return new DeskPacket(this.getPos(), this.validated, mayor);
     }
 }
 

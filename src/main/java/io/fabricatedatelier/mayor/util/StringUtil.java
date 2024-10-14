@@ -121,6 +121,19 @@ public class StringUtil {
         return offlinePlayerNames;
     }
 
+    public static String getPlayerNameByUuid(ServerWorld serverWorld, UUID uuid) {
+        Map<UUID, String> onlinePlayerNames = getOnlinePlayerUuidNames(serverWorld);
+        if (onlinePlayerNames.containsKey(uuid)) {
+            return onlinePlayerNames.get(uuid);
+        } else {
+            Map<UUID, String> offlinePlayerNames = getOfflinePlayerUuidNames(serverWorld);
+            if (offlinePlayerNames.containsKey(uuid)) {
+                return offlinePlayerNames.get(uuid);
+            }
+        }
+        return "";
+    }
+
     public static String getTimeString(int ticks) {
         int seconds = ticks / 20;
 

@@ -1,6 +1,7 @@
 package io.fabricatedatelier.mayor.screen.block;
 
 import io.fabricatedatelier.mayor.init.MayorBlockEntities;
+import io.fabricatedatelier.mayor.network.packet.DeskPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
@@ -9,21 +10,29 @@ import net.minecraft.screen.ArrayPropertyDelegate;
 import net.minecraft.screen.PropertyDelegate;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.util.math.BlockPos;
 
 public class DeskBlockScreenHandler extends ScreenHandler {
+
     private final Inventory inventory;
     private final PropertyDelegate propertyDelegate;
+    private final BlockPos deskPos;
+    private final boolean validated;
+    private boolean mayor;
 
-    public DeskBlockScreenHandler(int syncId) {
-        this(syncId, new SimpleInventory(1), new ArrayPropertyDelegate(1));
+    public DeskBlockScreenHandler(int syncId, DeskPacket buf) {
+        this(syncId, new SimpleInventory(1), new ArrayPropertyDelegate(1), buf.deskPos(), buf.validated());
+        this.mayor = buf.mayor();
     }
 
-    public DeskBlockScreenHandler(int syncId, Inventory inventory, PropertyDelegate propertyDelegate) {
+    public DeskBlockScreenHandler(int syncId, Inventory inventory, PropertyDelegate propertyDelegate, BlockPos deskPos, boolean validated) {
         super(MayorBlockEntities.DESK_SCREEN_HANDLER, syncId);
         checkSize(inventory, 1);
         checkDataCount(propertyDelegate, 1);
         this.inventory = inventory;
         this.propertyDelegate = propertyDelegate;
+        this.deskPos = deskPos;
+        this.validated = validated;
         this.addSlot(new Slot(inventory, 0, 0, 0) {
             @Override
             public void markDirty() {
@@ -59,6 +68,9 @@ public class DeskBlockScreenHandler extends ScreenHandler {
 
                     ItemStack itemStack = this.inventory.removeStack(0);
                     this.inventory.markDirty();
+                    // if (itemStack.isOf(Items.WRITABLE_BOOK)) {
+                    //     itemStack = itemStack.withItem(Items.WRITTEN_BOOK);
+                    // }
                     if (!player.getInventory().insertStack(itemStack)) {
                         player.dropItem(itemStack, false);
                     }
@@ -92,5 +104,17 @@ public class DeskBlockScreenHandler extends ScreenHandler {
 
     public int getPage() {
         return this.propertyDelegate.get(0);
+    }
+
+    public BlockPos getDeskPos() {
+        return deskPos;
+    }
+
+    public boolean isValidated() {
+        return validated;
+    }
+
+    public boolean isMayor() {
+        return mayor;
     }
 }

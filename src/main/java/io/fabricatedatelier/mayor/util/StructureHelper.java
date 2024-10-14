@@ -429,7 +429,7 @@ public class StructureHelper {
                     serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_items"));
                     return false;
                 }
-                if (!isCreativeLevelTwoOp && !StructureHelper.hasRequiredStructurePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice())) {
+                if (!isCreativeLevelTwoOp && !InventoryUtil.hasRequiredPrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice())) {
                     serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_funds"));
                     return false;
                 }
@@ -444,12 +444,12 @@ public class StructureHelper {
                         mayorManager.getVillageData().addStructure(structureData);
                         VillageHelper.tryLevelUpVillage(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         // Sync village data to show structure name on hud
-                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), mayorManager.getVillageData().getFunds(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getCitizens(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions()).sendPacket(serverPlayerEntity);
+                        new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), mayorManager.getVillageData().getFunds(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions(), mayorManager.getVillageData().getCitizenData()).sendPacket(serverPlayerEntity);
                     } else {
                         Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
                         ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), builder.getVillagerEntity().getUuid());
 
-                        consumeStructurePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice());
+                        InventoryUtil.consumePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice());
                         builder.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
                         builder.setTargetPosition(structureData.getBottomCenterPos());
                         mayorManager.getVillageData().addConstruction(constructionData);
@@ -674,50 +674,5 @@ public class StructureHelper {
         }
         return false;
     }
-
-    public static final boolean isNumismaticLoaded = FabricLoader.getInstance().isModLoaded("numismatic-overhaul");
-
-
-    // Todo: Add funds check of villagedata
-    public static boolean hasRequiredStructurePrice(PlayerInventory playerInventory, int price) {
-        int calculatePrice = price;
-        for (int i = 0; i < playerInventory.size(); i++) {
-            ItemStack stack = playerInventory.getStack(i);
-//            if(isNumismaticLoaded && Config Option lul){
-//
-//            } else
-            if (stack.isOf(Items.EMERALD)) {
-                calculatePrice -= stack.getCount();
-            }
-            if (calculatePrice <= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Todo: Consume funds of villagedata
-    public static void consumeStructurePrice(PlayerInventory playerInventory, int price) {
-        int calculatePrice = price;
-        for (int i = 0; i < playerInventory.size(); i++) {
-            ItemStack stack = playerInventory.getStack(i);
-//            if(isNumismaticLoaded){
-//
-//            } else
-            if (stack.isOf(Items.EMERALD)) {
-                if (stack.getCount() > calculatePrice) {
-                    stack.decrement(calculatePrice);
-                    break;
-                } else {
-                    calculatePrice -= stack.getCount();
-                    stack.decrement(stack.getCount());
-                }
-            }
-            if (calculatePrice <= 0) {
-                break;
-            }
-        }
-    }
-
 
 }

@@ -11,10 +11,7 @@ import io.fabricatedatelier.mayor.network.packet.StructureBuildPacket;
 import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
-import io.fabricatedatelier.mayor.util.RenderUtil;
-import io.fabricatedatelier.mayor.util.StringUtil;
-import io.fabricatedatelier.mayor.util.StructureHelper;
-import io.fabricatedatelier.mayor.util.VillageHelper;
+import io.fabricatedatelier.mayor.util.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -214,15 +211,11 @@ public class MayorVillageScreen extends Screen {
                 Text buildingConst = Text.translatable("mayor.screen.building_cost", buildingCost);
 
                 int extraWidth = 8; // cause of emeralds
-                // Numismatic Overhaul Compatibility
-                if (StructureHelper.isNumismaticLoaded) {
-
-                }
                 context.drawText(this.textRenderer, buildingConst, this.width / 2 - this.textRenderer.getWidth(buildingConst) / 2 - extraWidth, this.height / 2 + 75, Colors.GRAY, false);
                 int priceX = this.width / 2 + this.textRenderer.getWidth(buildingConst) / 2 - extraWidth + 4;
                 context.drawItem(EMERALD, priceX, this.height / 2 + 70);
                 context.drawItemInSlot(this.textRenderer, EMERALD, priceX, this.height / 2 + 70, String.valueOf(buildingCost));
-                if (this.client != null && this.client.player != null && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.upgradeButton.getUpgradeStructure().getPrice())) {
+                if (this.client != null && this.client.player != null && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.upgradeButton.getUpgradeStructure().getPrice())) {
                     context.drawTexture(MayorScreen.VILLAGE, priceX + 12, this.height / 2 + 70, 46, 0, 7, 6, 128, 128);
                 }
             }

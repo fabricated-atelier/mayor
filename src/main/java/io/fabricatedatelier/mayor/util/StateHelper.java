@@ -19,6 +19,21 @@ public class StateHelper {
         return ((MayorVillageStateAccess) serverWorld).getMayorVillageState();
     }
 
+    // Used for village create check by desk block
+    public static boolean isVillageTooClose(ServerWorld serverWorld, BlockPos blockPos) {
+        VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
+
+        int maxDistance = VillageHelper.VILLAGE_LEVEL_RADIUS.values().stream().toList().get(VillageHelper.VILLAGE_LEVEL_RADIUS.size() - 1);
+
+        for (int i = 0; i < villageState.getVillageCenterPoses().size(); i++) {
+            if (villageState.getVillageCenterPoses().get(i).isWithinDistance(blockPos, maxDistance)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static boolean isInVillageRange(ServerWorld serverWorld, BlockPos blockPos) {
         VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
 

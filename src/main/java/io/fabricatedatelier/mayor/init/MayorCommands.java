@@ -196,7 +196,7 @@ public class MayorCommands {
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_get_name", blockPos.toShortString(), villageData.getName()), false);
                 } else if (code == 11) {
                     // Add citizen
-                    villageData.addCitizen(serverPlayerEntity.getUuid());
+                    villageData.getCitizenData().addCitizen(serverPlayerEntity.getUuid());
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_add_citizen", serverPlayerEntity.getName(), villageData.getName(), blockPos.toShortString()), true);
                 } else if (code == 12) {
                     // Remove citizen
@@ -204,7 +204,7 @@ public class MayorCommands {
                         villageData.setMayorPlayerUuid(null);
                         villageData.setMayorPlayerTime(0);
                     }
-                    villageData.removeCitizen(serverPlayerEntity.getUuid());
+                    villageData.getCitizenData().removeCitizen(serverPlayerEntity.getUuid());
                     source.sendFeedback(() -> Text.translatable("commands.mayor.village_remove_citizen", serverPlayerEntity.getName(), villageData.getName(), blockPos.toShortString()), true);
                 }
             }

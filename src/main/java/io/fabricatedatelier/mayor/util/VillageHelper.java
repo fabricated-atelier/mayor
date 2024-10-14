@@ -114,7 +114,7 @@ public class VillageHelper {
             villageData.setLevel(villageData.getLevel() + 1);
             StateHelper.getMayorVillageState(serverWorld).markDirty();
 
-            for (UUID uuid : villageData.getCitizens()) {
+            for (UUID uuid : villageData.getCitizenData().getCitizens()) {
                 if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity serverPlayerEntity) {
                     serverPlayerEntity.sendMessage(Text.translatable("mayor.village.level_up", villageData.getName()), true);
                 }

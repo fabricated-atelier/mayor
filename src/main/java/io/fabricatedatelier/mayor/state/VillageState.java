@@ -57,6 +57,7 @@ public class VillageState extends PersistentState {
         VillageData villageData = new VillageData(centerPos);
         villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.getBiome(centerPos)));
         villageData.setAge(world.getTime());
+        villageData.setCitizenData(new CitizenData(new ArrayList<>(), null, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>()));
         this.villages.put(centerPos, villageData);
         this.markDirty();
         return villageData;

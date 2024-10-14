@@ -9,10 +9,7 @@ import io.fabricatedatelier.mayor.network.packet.StructureBuildPacket;
 import io.fabricatedatelier.mayor.screen.widget.ItemScrollableWidget;
 import io.fabricatedatelier.mayor.screen.widget.ObjectScrollableWidget;
 import io.fabricatedatelier.mayor.state.StructureData;
-import io.fabricatedatelier.mayor.util.InventoryUtil;
-import io.fabricatedatelier.mayor.util.RenderUtil;
-import io.fabricatedatelier.mayor.util.StringUtil;
-import io.fabricatedatelier.mayor.util.StructureHelper;
+import io.fabricatedatelier.mayor.util.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -41,8 +38,6 @@ public class MayorScreen extends Screen {
     public static final Identifier VILLAGE = Mayor.identifierOf("textures/gui/sprites/hud/mayor_village.png");
 
     private final MayorManager mayorManager;
-
-    private static final ItemStack EMERALD = new ItemStack(Items.EMERALD);
 
     private Map<MayorCategory.BuildingCategory, List<MayorStructure>> availableStructureMap = new HashMap<>();
     private Map<Integer, List<StructureData>> villageStructureMap = new HashMap<>();
@@ -154,7 +149,7 @@ public class MayorScreen extends Screen {
 
         if (this.mayorManager.getMayorStructure() != null) {
             this.requiredItemScrollableWidget.setItemStacks(this.mayorManager.getMayorStructure().getRequiredItemStacks());
-            if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || (InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty() && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice()))))) {
+            if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || (InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty() && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice()))))) {
                 if (this.mayorManager.getAvailableBuilder() > 0) {
                     this.buildButton.active = true;
                 }
@@ -263,15 +258,10 @@ public class MayorScreen extends Screen {
                 Text buildingConst = Text.translatable("mayor.screen.building_cost", buildingCost);
 
                 int extraWidth = 8; // cause of emeralds
-                // Numismatic Overhaul Compatibility
-                if (StructureHelper.isNumismaticLoaded) {
-
-                }
                 context.drawText(this.textRenderer, buildingConst, this.width / 2 - this.textRenderer.getWidth(buildingConst) / 2 - extraWidth, this.height / 2 - 5, Colors.GRAY, false);
                 int priceX = this.width / 2 + this.textRenderer.getWidth(buildingConst) / 2 - extraWidth + 4;
-                context.drawItem(EMERALD, priceX, this.height / 2 - 10);
-                context.drawItemInSlot(this.textRenderer, EMERALD, priceX, this.height / 2 - 10, String.valueOf(buildingCost));
-                if (this.client != null && this.client.player != null && StructureHelper.hasRequiredStructurePrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
+                ScreenHelper.drawPrice(context,this.textRenderer,priceX,this.height / 2 - 10, buildingCost);
+                if (this.client != null && this.client.player != null && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
                     context.drawTexture(VILLAGE, priceX + 12, this.height / 2 - 10, 46, 0, 7, 6, 128, 128);
                 }
             }

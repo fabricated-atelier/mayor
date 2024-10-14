@@ -3,7 +3,10 @@ package io.fabricatedatelier.mayor.util;
 import io.fabricatedatelier.mayor.block.AbstractVillageContainerBlock;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -12,6 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class InventoryUtil {
+
+    public static final boolean isNumismaticLoaded = FabricLoader.getInstance().isModLoaded("numismatic-overhaul");
 
     public static List<ItemStack> getMissingItems(List<ItemStack> availableStacksList, List<ItemStack> requiredStacksList) {
         List<ItemStack> availableStacks = new ArrayList<>();
@@ -155,6 +160,53 @@ public class InventoryUtil {
             }
         }
         return stack;
+    }
+
+    // Todo: Add funds check of villagedata
+    public static boolean hasRequiredPrice(PlayerInventory playerInventory, int price) {
+        if(playerInventory.player.isCreativeLevelTwoOp()){
+            return true;
+        }
+        int calculatePrice = price;
+        for (int i = 0; i < playerInventory.size(); i++) {
+            ItemStack stack = playerInventory.getStack(i);
+//            if(isNumismaticLoaded && Config Option lul){
+//
+//            } else
+            if (stack.isOf(Items.EMERALD)) {
+                calculatePrice -= stack.getCount();
+            }
+            if (calculatePrice <= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Todo: Consume funds of villagedata
+    public static void consumePrice(PlayerInventory playerInventory, int price) {
+        if(playerInventory.player.isCreativeLevelTwoOp()){
+            return;
+        }
+        int calculatePrice = price;
+        for (int i = 0; i < playerInventory.size(); i++) {
+            ItemStack stack = playerInventory.getStack(i);
+//            if(isNumismaticLoaded){
+//
+//            } else
+            if (stack.isOf(Items.EMERALD)) {
+                if (stack.getCount() > calculatePrice) {
+                    stack.decrement(calculatePrice);
+                    break;
+                } else {
+                    calculatePrice -= stack.getCount();
+                    stack.decrement(stack.getCount());
+                }
+            }
+            if (calculatePrice <= 0) {
+                break;
+            }
+        }
     }
 
 }

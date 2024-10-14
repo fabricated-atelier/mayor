@@ -22,7 +22,12 @@ public class MayorConfig {
     @SerialEntry(comment = "0 = disabled")
     @AutoGen(category = "main")
     @IntField
-    public int villageCreatePrice = 0;
+    public int villageFoundingCost = 0;
+
+    @SerialEntry(comment = "Costs to rename a village")
+    @AutoGen(category = "main")
+    @IntField
+    public int villageRenameCost = 12;
 
     @SerialEntry(comment = "Mayor gets removed when too long offline. 0 = disabled")
     @AutoGen(category = "main")
