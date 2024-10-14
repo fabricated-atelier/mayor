@@ -12,6 +12,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -34,15 +35,15 @@ public class DeskMayorScreen extends Screen {
     private int x;
     private int y;
 
-    private BlockPos deskPos;
+    private final BlockPos deskPos;
     private String villageName;
-    private int villageLevel;
-    private boolean mayor;
+    private final int villageLevel;
+    private final boolean mayor;
     private int taxAmount;
     private int taxInterval;
     private long taxTime;
     private int registrationFee;
-    private int villagerCount;
+    private final int villagerCount;
     private int funds;
     private int foundingCost;
     private Map<UUID, String> registeredCitizens;
@@ -120,8 +121,7 @@ public class DeskMayorScreen extends Screen {
             this.taxFieldWidget.setChangedListener(this::onTaxField);
             this.addSelectableChild(this.taxFieldWidget);
 
-            Text taxButtonText = Text.translatable("mayor.screen.desk.change");
-            this.taxButton = this.addDrawableChild(ButtonWidget.builder(taxButtonText, button -> {
+            this.taxButton = this.addDrawableChild(ButtonWidget.builder(changeText, button -> {
                 int taxAmount = 0;
                 try {
                     taxAmount = Integer.parseInt(this.taxFieldWidget.getText());
@@ -131,7 +131,7 @@ public class DeskMayorScreen extends Screen {
                     new DeskMayorDataPacket(this.deskPos, 1, taxAmount, "").sendPacket();
                     button.active = false;
                 }
-            }).width(this.textRenderer.getWidth(taxButtonText) + 8).position(this.x + 87 + 28, this.y + 68).build());
+            }).width(this.textRenderer.getWidth(changeText) + 8).position(this.x + 87 + 28, this.y + 68).build());
             this.taxButton.setHeight(16);
             this.taxButton.active = false;
 
@@ -141,6 +141,7 @@ public class DeskMayorScreen extends Screen {
             this.taxIntervalFieldWidget.setMaxLength(4);
             this.taxIntervalFieldWidget.setText(Integer.toString(this.taxInterval));
             this.taxIntervalFieldWidget.setChangedListener(this::onTaxIntervalField);
+            this.taxIntervalFieldWidget.setTooltip(Tooltip.of(Text.translatable("mayor.screen.desk.tax_interval.tooltip")));
             this.addSelectableChild(this.taxIntervalFieldWidget);
 
             this.taxIntervalButton = this.addDrawableChild(ButtonWidget.builder(changeText, button -> {
@@ -165,8 +166,7 @@ public class DeskMayorScreen extends Screen {
             this.registrationFeeFieldWidget.setChangedListener(this::onRegistrationFeeField);
             this.addSelectableChild(this.registrationFeeFieldWidget);
 
-            Text registrationFeeText = Text.translatable("mayor.screen.desk.change");
-            this.registrationFeeButton = this.addDrawableChild(ButtonWidget.builder(registrationFeeText, button -> {
+            this.registrationFeeButton = this.addDrawableChild(ButtonWidget.builder(changeText, button -> {
                 int registrationFee = 0;
                 try {
                     registrationFee = Integer.parseInt(this.registrationFeeFieldWidget.getText());
@@ -176,7 +176,7 @@ public class DeskMayorScreen extends Screen {
                     new DeskMayorDataPacket(this.deskPos, 3, registrationFee, "").sendPacket();
                     button.active = false;
                 }
-            }).width(this.textRenderer.getWidth(registrationFeeText) + 8).position(this.x + 87 + 28, this.y + 100).build());
+            }).width(this.textRenderer.getWidth(changeText) + 8).position(this.x + 87 + 28, this.y + 100).build());
             this.registrationFeeButton.setHeight(16);
             this.registrationFeeButton.active = false;
 

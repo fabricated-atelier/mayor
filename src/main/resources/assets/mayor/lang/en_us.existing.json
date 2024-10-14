@@ -68,6 +68,7 @@
     "mayor.screen.desk.tax": "Tax:",
     "mayor.screen.desk.tax_settings": "Tax Settings",
     "mayor.screen.desk.tax_interval": "Tax Interval",
+    "mayor.screen.desk.tax_interval.tooltip": "Time in Minutes",
     "mayor.screen.desk.tax_amount": "Tax Amount",
     "mayor.screen.desk.payday": "Payday: %s",
     "mayor.screen.desk.tax_pay": "Pay",
