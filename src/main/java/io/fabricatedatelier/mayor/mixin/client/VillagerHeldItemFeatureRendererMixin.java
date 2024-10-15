@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorItems;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import net.fabricmc.api.EnvType;
@@ -16,6 +16,7 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.*;
@@ -32,9 +33,12 @@ public abstract class VillagerHeldItemFeatureRendererMixin<T extends LivingEntit
     @Final
     private HeldItemRenderer heldItemRenderer;
 
-    // Todo: Replace with hammer
     @Unique
     private static final ItemStack HAMMER = new ItemStack(MayorItems.DECONSTRUCTION_HAMMER);
+    @Unique
+    private static final ItemStack AXE = new ItemStack(Items.IRON_AXE);
+    @Unique
+    private static final ItemStack PICKAXE = new ItemStack(Items.IRON_PICKAXE);
 
     public VillagerHeldItemFeatureRendererMixin(FeatureRendererContext<T, M> context) {
         super(context);
@@ -42,18 +46,18 @@ public abstract class VillagerHeldItemFeatureRendererMixin<T extends LivingEntit
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("HEAD"), cancellable = true)
     private void renderMixin(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo info) {
-        if (livingEntity instanceof Builder builder && builder.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !builder.getVillagerEntity().isSleeping()) {
+        if (livingEntity instanceof Worker worker && worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !worker.getVillagerEntity().isSleeping()) {
             matrixStack.push();
-            if (!builder.getCarryItemStack().isEmpty()) {
-                if (builder.getTaskValue() == 1) {
+            if (!worker.getCarryItemStack().isEmpty()) {
+                if (worker.getTaskValue() == 1) {
                     matrixStack.translate(0.0F, 0.7F, -0.5F);
                 } else {
                     matrixStack.translate(0.0F, 0.62F, 0.3F);
                 }
                 matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0F));
                 matrixStack.scale(2.8f, 2.8f, 2.8f);
-                this.heldItemRenderer.renderItem(livingEntity, builder.getCarryItemStack(), ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i);
-            } else if (builder.getTaskValue() == 2) {
+                this.heldItemRenderer.renderItem(livingEntity, worker.getCarryItemStack(), ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i);
+            } else if (worker.getTaskValue() == 2) {
                 if (this.getContextModel() instanceof ModelWithArms modelWithArms) {
                     modelWithArms.setArmAngle(Arm.RIGHT, matrixStack);
                 }

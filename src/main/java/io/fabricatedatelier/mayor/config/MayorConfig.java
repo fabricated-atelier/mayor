@@ -59,8 +59,8 @@ public class MayorConfig {
     @AutoGen(category = "main")
     @ListGroup(valueFactory = TestListFactory.class, controllerFactory = TestListFactory.class)
     public List<String> villageNames = Lists.newArrayList(
-            "Drakenford", "Wyvernstone", "Eldermoor", "Ravenwood", "Brightwater",
-            "Stormwick", "Ironhold", "Frostfall", "Greystone", "Blackmoor", "Redbrook", "Hallowshade",
+            "Drakenford", "Wyvernstone", "Eldermoor", "Brightwater",
+            "Stormwick", "Ironhold", "Frostfall", "Greystone", "Redbrook",
             "Riverhelm", "Oakshade", "Thornwall", "Emberhollow", "Windmere", "Darkreach", "Silverleaf",
             "Goldspire", "Hollowglen", "Stormglen", "Greenhollow", "Briarcliff", "Grimshade", "Oakendale",
             "Briarstone", "Darkstone", "Hearthwood", "Willowbrook", "Stonehollow", "Ashgrove", "Moondale",
@@ -70,7 +70,7 @@ public class MayorConfig {
             "Frostgrove", "Moonfall", "Ravenshire", "Redfield", "Blackthorn", "Windford", "Darkpine",
             "Hallowbrook", "Greenwatch", "Silverglen", "Ironhill", "Frostpine", "Mistvale", "Ravenfall",
             "Brighthaven", "Stonebridge", "Briarhill", "Darkwater", "Westbrook", "Frostwick", "Emberhill",
-            "Hollowspire", "Ironcliff", "Greenspire", "Hallowshade", "Moonridge", "Shadowbrook", "Frostmoor",
+            "Hollowspire", "Ironcliff", "Greenspire", "Hallowshade", "Moonridge", "Shadowbrook",
             "Emberfield", "Darkspire", "Mistmoor", "Ironwood", "Redhill", "Windhaven", "Greenglen",
             "Frostford", "Ravenwood", "Brightshade", "Shadowridge", "Emberstone", "Wolfspire", "Oakspire",
             "Darkridge", "Greengate", "Frostbrook", "Ironspire", "Willowshade", "Briarwood", "Stormhaven",
@@ -82,7 +82,7 @@ public class MayorConfig {
             "Mistfield", "Emberfall", "Hollowhill", "Blackfield", "Windcliff", "Frostgate", "Ironstone",
             "Oakfield", "Silverfall", "Grimvale", "Darkfield", "Windmoor", "Redgrove", "Greenhill",
             "Willowgrove", "Hollowstone", "Mistfield", "Embercliff", "Frosthill", "Blackbrook", "Greycliff",
-            "Highgate", "Briarstone", "Darkgrove", "Emberfield", "Stormbrook", "Hollowford", "Silvergate",
+            "Highgate", "Darkgrove", "Emberfield", "Stormbrook", "Hollowford", "Silvergate",
             "Mistcliff", "Frostbriar", "Ironbrook", "Oakwood", "Windmoor", "Grimwatch", "Dragonbrook",
             "Redvale", "Greenmoor", "Hollowgate", "Emberwood", "Frostvale", "Shadowwood",
             "Willowfield", "Darkstone", "Brightmoor", "Silvermoor", "Oakridge", "Frostgate", "Mistgate",

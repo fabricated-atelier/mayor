@@ -1,10 +1,7 @@
 package io.fabricatedatelier.mayor.init;
 
 import io.fabricatedatelier.mayor.Mayor;
-import io.fabricatedatelier.mayor.block.custom.DeskBlock;
-import io.fabricatedatelier.mayor.block.custom.CameraDebugBlock;
-import io.fabricatedatelier.mayor.block.custom.LumberStorageBlock;
-import io.fabricatedatelier.mayor.block.custom.StoneStorageBlock;
+import io.fabricatedatelier.mayor.block.custom.*;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -20,6 +17,10 @@ public class MayorBlocks {
 
     public static final Block CONSTRUCTION_TABLE = register("construction_table", new Block(AbstractBlock.Settings.copy(Blocks.SMOOTH_STONE_SLAB)), false);
     public static final Block DESK = register("desk", new DeskBlock(AbstractBlock.Settings.copy(Blocks.LECTERN)), false);
+    public static final Block POLE = register("pole", new PoleBlock(AbstractBlock.Settings.copy(Blocks.STONE_SLAB)), false);
+
+    public static final Block LUMBERJACK_TABLE = register("lumberjack_table", new Block(AbstractBlock.Settings.copy(Blocks.STONE_SLAB)), false);
+    public static final Block MINER_TABLE = register("miner_table", new Block(AbstractBlock.Settings.copy(Blocks.STONE_SLAB)), false);
 
     /**
      * If you need a custom {@link BlockItem}, register it in the {@link MayorItems} class with the corresponding Block entry.

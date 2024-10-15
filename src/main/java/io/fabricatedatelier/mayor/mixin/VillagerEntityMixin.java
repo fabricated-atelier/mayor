@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.datafixers.util.Pair;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
-import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
+import io.fabricatedatelier.mayor.entity.villager.access.WorkerInventory;
 import io.fabricatedatelier.mayor.entity.villager.task.BuilderTaskListProvider;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.VillageData;
@@ -42,7 +42,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.village.VillageGossipType;
 import net.minecraft.village.VillagerData;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameRules;
@@ -65,7 +64,7 @@ import java.util.List;
 import java.util.Set;
 
 @Mixin(VillagerEntity.class)
-public abstract class VillagerEntityMixin extends MerchantEntity implements Builder {
+public abstract class VillagerEntityMixin extends MerchantEntity implements Worker {
 
     @Nullable
     @Unique
@@ -83,7 +82,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     @Unique
     private static final TrackedData<Integer> TASK_VALUE = DataTracker.registerData(VillagerEntityMixin.class, TrackedDataHandlerRegistry.INTEGER);
     @Unique
-    private BuilderInventory builderInventory = new BuilderInventory(2);
+    private WorkerInventory workerInventory = new WorkerInventory(2);
 
 
     public VillagerEntityMixin(EntityType<? extends MerchantEntity> entityType, World world) {
@@ -100,7 +99,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     private void writeCustomDataToNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        writeBuilderInventory(nbt, this.getRegistryManager());
+        writeWorkerInventory(nbt, this.getRegistryManager());
         if (this.villageCenterPos != null) {
             nbt.put("VillageCenterPos", NbtHelper.fromBlockPos(this.villageCenterPos));
         }
@@ -113,9 +112,9 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     private void readCustomDataFromNbtMixin(NbtCompound nbt, CallbackInfo info) {
-        this.builderInventory = new BuilderInventory(this.getVillagerEntity().getVillagerData().getLevel() + 1);
+        this.workerInventory = new WorkerInventory(this.getVillagerEntity().getVillagerData().getLevel() + 1);
 
-        readBuilderInventory(nbt, this.getRegistryManager());
+        readWorkerInventory(nbt, this.getRegistryManager());
         this.villageCenterPos = NbtHelper.toBlockPos(nbt, "VillageCenterPos").orElse(null);
         this.dataTracker.set(TARGET_POS, NbtHelper.toBlockPos(nbt, "TargetPosition").orElse(BlockPos.ORIGIN));
 
@@ -131,7 +130,7 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     private void onDeathMixin(DamageSource damageSource, CallbackInfo info) {
         if (this.getWorld() instanceof ServerWorld serverWorld) {
             if (serverWorld.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-                ItemScatterer.spawn(serverWorld, this.getBlockPos(), this.builderInventory);
+                ItemScatterer.spawn(serverWorld, this.getBlockPos(), this.workerInventory);
             }
             VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
         }
@@ -191,11 +190,11 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
                     VillageHelper.updateBuildingVillagerBuilder(serverWorld, this, false);
                 } else {
                     // level up
-                    BuilderInventory newBuilderInventory = new BuilderInventory(this.builderInventory.size() + 1);
-                    for (int i = 0; i < this.builderInventory.size(); i++) {
-                        newBuilderInventory.addStack(this.builderInventory.getStack(i));
+                    WorkerInventory newWorkerInventory = new WorkerInventory(this.workerInventory.size() + 1);
+                    for (int i = 0; i < this.workerInventory.size(); i++) {
+                        newWorkerInventory.addStack(this.workerInventory.getStack(i));
                     }
-                    this.builderInventory = newBuilderInventory;
+                    this.workerInventory = newWorkerInventory;
                 }
             }
         }
@@ -319,8 +318,8 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Buil
     }
 
     @Override
-    public BuilderInventory getBuilderInventory() {
-        return this.builderInventory;
+    public WorkerInventory getWorkerInventory() {
+        return this.workerInventory;
     }
 
     @Override

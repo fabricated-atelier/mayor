@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.init;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.block.entity.CameraDebugBlockEntity;
 import io.fabricatedatelier.mayor.block.entity.DeskBlockEntity;
+import io.fabricatedatelier.mayor.block.entity.PoleBlockEntity;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.network.packet.BallotUrnPacket;
 import io.fabricatedatelier.mayor.network.packet.DeskPacket;
@@ -28,6 +29,9 @@ public class MayorBlockEntities {
 
     public static final BlockEntityType<DeskBlockEntity> DESK =
             register("desk", DeskBlockEntity::new, MayorBlocks.DESK);
+
+    public static final BlockEntityType<PoleBlockEntity> POLE =
+            register("pole", PoleBlockEntity::new, MayorBlocks.POLE);
 
     public static final ScreenHandlerType<BallotUrnBlockScreenHandler> BALLOT_URN_SCREEN_HANDLER = new ExtendedScreenHandlerType<>(
             BallotUrnBlockScreenHandler::new, BallotUrnPacket.PACKET_CODEC);

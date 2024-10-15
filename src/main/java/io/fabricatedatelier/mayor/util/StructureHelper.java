@@ -4,8 +4,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.access.StructureTemplateAccess;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
-import io.fabricatedatelier.mayor.entity.villager.access.BuilderInventory;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
+import io.fabricatedatelier.mayor.entity.villager.access.WorkerInventory;
 import io.fabricatedatelier.mayor.init.MayorTags;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
@@ -14,7 +14,6 @@ import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -23,10 +22,8 @@ import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.RegistryEntryLookup;
@@ -446,12 +443,12 @@ public class StructureHelper {
                         // Sync village data to show structure name on hud
                         new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), mayorManager.getVillageData().getFunds(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions(), mayorManager.getVillageData().getCitizenData()).sendPacket(serverPlayerEntity);
                     } else {
-                        Builder builder = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
-                        ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), builder.getVillagerEntity().getUuid());
+                        Worker worker = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
+                        ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), worker.getVillagerEntity().getUuid());
 
                         InventoryUtil.consumePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice());
-                        builder.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
-                        builder.setTargetPosition(structureData.getBottomCenterPos());
+                        worker.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
+                        worker.setTargetPosition(structureData.getBottomCenterPos());
                         mayorManager.getVillageData().addConstruction(constructionData);
                         // Todo: remove using items of available items, put in extra inventory for villager to use
                     }
@@ -600,12 +597,12 @@ public class StructureHelper {
         return stacks;
     }
 
-    public static boolean hasMissingConstructionItem(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory builderInventory) {
+    public static boolean hasMissingConstructionItem(ServerWorld serverWorld, ConstructionData constructionData, WorkerInventory workerInventory) {
         List<ItemStack> stacks = getMissingConstructionItemStacks(serverWorld, constructionData);
-        return InventoryUtil.containsItem(stacks, builderInventory.getHeldStacks());
+        return InventoryUtil.containsItem(stacks, workerInventory.getHeldStacks());
     }
 
-    public static boolean placeBlock(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory inventory) {
+    public static boolean placeBlock(ServerWorld serverWorld, ConstructionData constructionData, WorkerInventory inventory) {
         if (inventory.isEmpty()) {
             return false;
         }
@@ -649,11 +646,11 @@ public class StructureHelper {
         return false;
     }
 
-    public static boolean breakBlock(ServerWorld serverWorld, ConstructionData constructionData, BuilderInventory builderInventory) {
+    public static boolean breakBlock(ServerWorld serverWorld, ConstructionData constructionData, WorkerInventory workerInventory) {
         Optional<Map.Entry<BlockPos, BlockState>> optional = getObStructiveBlockMap(serverWorld, constructionData).entrySet().stream().findFirst();
         if (optional.isPresent()) {
-            if (!builderInventory.isInventoryFull(optional.get().getValue().getBlock().asItem())) {
-                ItemStack itemStack = builderInventory.addStack(new ItemStack(optional.get().getValue().getBlock().asItem()));
+            if (!workerInventory.isInventoryFull(optional.get().getValue().getBlock().asItem())) {
+                ItemStack itemStack = workerInventory.addStack(new ItemStack(optional.get().getValue().getBlock().asItem()));
                 if (!itemStack.isEmpty()) {
                     ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
                 }
@@ -661,7 +658,7 @@ public class StructureHelper {
             if (serverWorld.getBlockEntity(optional.get().getKey()) instanceof Inventory inventory) {
                 for (int i = 0; i < inventory.size(); i++) {
                     if (!inventory.getStack(i).isEmpty()) {
-                        ItemStack itemStack = builderInventory.addStack(inventory.getStack(i));
+                        ItemStack itemStack = workerInventory.addStack(inventory.getStack(i));
                         inventory.removeStack(i);
                         if (!itemStack.isEmpty()) {
                             ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);

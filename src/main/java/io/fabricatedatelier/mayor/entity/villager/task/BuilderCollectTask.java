@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageState;
@@ -61,13 +61,13 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         if (serverWorld.getTime() < this.nextResponseTime) {
             return false;
         }
-        if (villagerEntity instanceof Builder builder) {
-            if (builder.getVillageCenterPosition() != null && builder.hasTargetPosition() && builder.getBuilderInventory().isEmpty()) {
+        if (villagerEntity instanceof Worker worker) {
+            if (worker.getVillageCenterPosition() != null && worker.hasTargetPosition() && worker.getWorkerInventory().isEmpty()) {
                 VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
-                if (villageState.getVillageData(builder.getVillageCenterPosition()) != null) {
-                    VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
-                    if (villageData.getConstructions().get(builder.getTargetPosition()) != null) {
-                        ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+                if (villageState.getVillageData(worker.getVillageCenterPosition()) != null) {
+                    VillageData villageData = villageState.getVillageData(worker.getVillageCenterPosition());
+                    if (villageData.getConstructions().get(worker.getTargetPosition()) != null) {
+                        ConstructionData constructionData = villageData.getConstructions().get(worker.getTargetPosition());
 
                         if (!StructureHelper.getObStructiveBlockMap(serverWorld, constructionData).isEmpty()) {
                             this.currentTarget = null;
@@ -183,16 +183,16 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         if (this.currentTarget != null) {
 
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
-                if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Builder builder) {
+                if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Worker worker) {
 //                    villageContainerBlockEntity.getItems();
 //                    villageContainerBlockEntity.getori
 //                    if(builder.getBuilderInventory().){
 //
 //                    }
-                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(worker.getVillageCenterPosition());
                     if (villageData != null) {
 
-                        List<ItemStack> missingItemStacks = StructureHelper.getMissingConstructionItemStacks(serverWorld, villageData.getConstructions().get(builder.getTargetPosition()));
+                        List<ItemStack> missingItemStacks = StructureHelper.getMissingConstructionItemStacks(serverWorld, villageData.getConstructions().get(worker.getTargetPosition()));
                         if (!missingItemStacks.isEmpty()) {
                             VillageContainerBlockEntity villageContainerBlockEntity = containerBlockEntity.getStructureOriginBlockEntity().get();
 //                            List<ItemStack> availableItemStacks = containerBlockEntity.getStructureOriginBlockEntity().get().getItems();
@@ -224,11 +224,11 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
 
                             System.out.println("REQUIRED STACKS: " + requiredStacks);
-                            System.out.println("COLLECTED INVENTORY: " + builder.getBuilderInventory());
+                            System.out.println("COLLECTED INVENTORY: " + worker.getWorkerInventory());
 
                             for (ItemStack requiredStack : requiredStacks) {
-                                if (!builder.getBuilderInventory().isInventoryFull(requiredStack)) {
-                                    builder.getBuilderInventory().addStack(requiredStack.copy());
+                                if (!worker.getWorkerInventory().isInventoryFull(requiredStack)) {
+                                    worker.getWorkerInventory().addStack(requiredStack.copy());
                                     villageContainerBlockEntity.removeStack(requiredStack);
 
                                     System.out.println("REMOVE STACK FROM VILLAGE CONTAINER BLOCK: " + requiredStack);
@@ -238,7 +238,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
                                 }
                             }
 
-                            System.out.println("SET COLLECT STACKS: " + builder.getBuilderInventory());
+                            System.out.println("SET COLLECT STACKS: " + worker.getWorkerInventory());
                             villageContainerBlockEntity.markDirty();
                             serverWorld.updateListeners(villageContainerBlockEntity.getPos(), villageContainerBlockEntity.getCachedState(), villageContainerBlockEntity.getCachedState(), 0);
 //                            System.out.println("FILL INVENTORY :D " + builder.getBuilderInventory().getHeldStacks());
@@ -260,7 +260,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-        if (villagerEntity instanceof Builder builder && (!builder.getBuilderInventory().isEmpty() || !builder.hasTargetPosition())) {
+        if (villagerEntity instanceof Worker worker && (!worker.getWorkerInventory().isEmpty() || !worker.hasTargetPosition())) {
             return false;
         }
         return this.ticksRan < MAX_RUN_TIME;

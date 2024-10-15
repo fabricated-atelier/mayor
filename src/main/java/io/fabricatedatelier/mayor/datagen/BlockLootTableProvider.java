@@ -19,5 +19,6 @@ public class BlockLootTableProvider extends FabricBlockLootTableProvider {
         addDrop(MayorBlocks.STONE_STORAGE, MayorBlocks.STONE_STORAGE);
         addDrop(MayorBlocks.CONSTRUCTION_TABLE, MayorBlocks.CONSTRUCTION_TABLE);
         addDrop(MayorBlocks.DESK, MayorBlocks.DESK);
+        addDrop(MayorBlocks.POLE, MayorBlocks.POLE);
     }
 }

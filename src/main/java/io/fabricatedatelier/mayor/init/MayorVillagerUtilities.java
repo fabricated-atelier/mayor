@@ -37,8 +37,12 @@ public class MayorVillagerUtilities {
     public static final RegistryKey<PointOfInterestType> BUILDER_POI_KEY = RegistryKey.of(RegistryKeys.POINT_OF_INTEREST_TYPE, Mayor.identifierOf("builder"));
 
     public static final PointOfInterestType BUILDER_POI = PointOfInterestHelper.register(Mayor.identifierOf("builder"), 1, 1, MayorBlocks.CONSTRUCTION_TABLE);
+    public static final PointOfInterestType LUMBERJACK_POI = PointOfInterestHelper.register(Mayor.identifierOf("lumberjack"), 1, 1, MayorBlocks.CONSTRUCTION_TABLE);
+    public static final PointOfInterestType MINER_POI = PointOfInterestHelper.register(Mayor.identifierOf("miner"), 1, 1, MayorBlocks.CONSTRUCTION_TABLE);
 
     public static final VillagerProfession BUILDER = register("builder", entry -> entry.value().equals(BUILDER_POI), entry -> entry.value().equals(BUILDER_POI), ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_MASON);
+    public static final VillagerProfession LUMBERJACK = register("lumberjack", entry -> entry.value().equals(BUILDER_POI), entry -> entry.value().equals(BUILDER_POI), ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_MASON);
+    public static final VillagerProfession MINER = register("miner", entry -> entry.value().equals(BUILDER_POI), entry -> entry.value().equals(BUILDER_POI), ImmutableSet.of(), ImmutableSet.of(), SoundEvents.ENTITY_VILLAGER_WORK_MASON);
 
     private static VillagerProfession register(String id, Predicate<RegistryEntry<PointOfInterestType>> heldWorkstation, Predicate<RegistryEntry<PointOfInterestType>> acquirableWorkstation, ImmutableSet<Item> gatherableItems, ImmutableSet<Block> secondaryJobSites, @Nullable SoundEvent workSound) {
         return Registry.register(Registries.VILLAGER_PROFESSION, Mayor.identifierOf(id), new VillagerProfession(id, heldWorkstation, acquirableWorkstation, gatherableItems, secondaryJobSites, workSound));

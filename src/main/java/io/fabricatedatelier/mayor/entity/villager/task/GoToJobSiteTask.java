@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.entity.villager.task;
 
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import net.minecraft.entity.ai.FuzzyTargeting;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -21,7 +21,7 @@ public class GoToJobSiteTask {
         return TaskTriggerer.task(
                 context -> context.group(context.queryMemoryAbsent(MayorVillagerUtilities.BUSY), context.queryMemoryOptional(MemoryModuleType.WALK_TARGET), context.queryMemoryValue(posModule))
                         .apply(context, (busy, walkTarget, pos) -> (world, entity, time) -> {
-                            if (entity instanceof Builder builder && builder.hasTargetPosition()) {
+                            if (entity instanceof Worker worker && worker.hasTargetPosition()) {
                                 return false;
                             }
                             GlobalPos globalPos = context.getValue(pos);

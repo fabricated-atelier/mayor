@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.datagen.TagProvider;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.PathAwareEntity;
@@ -85,13 +85,13 @@ public class TaskHelper {
     }
 
     public static void updateCarryItemStack(VillagerEntity villagerEntity) {
-        if (villagerEntity instanceof Builder builder) {
-            if (builder.getBuilderInventory().isEmpty()) {
-                builder.setCarryItemStack(ItemStack.EMPTY);
+        if (villagerEntity instanceof Worker worker) {
+            if (worker.getWorkerInventory().isEmpty()) {
+                worker.setCarryItemStack(ItemStack.EMPTY);
             } else {
-                for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
+                for (ItemStack stack : worker.getWorkerInventory().getHeldStacks()) {
                     if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
-                        builder.setCarryItemStack(stack);
+                        worker.setCarryItemStack(stack);
                         System.out.println("CARRY LOL " + stack);
                         break;
                     }

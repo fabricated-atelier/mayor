@@ -5,9 +5,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class BuilderInventory extends SimpleInventory {
+public class WorkerInventory extends SimpleInventory {
 
-    public BuilderInventory(int size) {
+    public WorkerInventory(int size) {
         super(size);
     }
 

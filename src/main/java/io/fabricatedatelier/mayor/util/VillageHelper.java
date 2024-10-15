@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.util;
 
 import io.fabricatedatelier.mayor.config.MayorConfig;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.state.ConstructionData;
@@ -28,8 +28,8 @@ public class VillageHelper {
     public static boolean hasTasklessBuildingVillager(VillageData villageData, ServerWorld serverWorld) {
         for (int i = 0; i < villageData.getVillagers().size(); i++) {
             if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
-                if (villagerEntity instanceof Builder builder) {
-                    if (!builder.hasTargetPosition()) {
+                if (villagerEntity instanceof Worker worker) {
+                    if (!worker.hasTargetPosition()) {
                         return true;
                     }
                 }
@@ -39,12 +39,12 @@ public class VillageHelper {
     }
 
     @Nullable
-    public static Builder getTasklessBuildingVillagerBuilder(VillageData villageData, ServerWorld serverWorld) {
+    public static Worker getTasklessBuildingVillagerBuilder(VillageData villageData, ServerWorld serverWorld) {
         for (int i = 0; i < villageData.getVillagers().size(); i++) {
             if (serverWorld.getEntity(villageData.getVillagers().get(i)) instanceof VillagerEntity villagerEntity) {
-                if (villagerEntity instanceof Builder builder) {
-                    if (!builder.hasTargetPosition()) {
-                        return builder;
+                if (villagerEntity instanceof Worker worker) {
+                    if (!worker.hasTargetPosition()) {
+                        return worker;
                     }
                 }
             }
@@ -52,40 +52,40 @@ public class VillageHelper {
         return null;
     }
 
-    public static void updateBuildingVillagerBuilder(ServerWorld serverWorld, Builder builder, boolean freshBuilder) {
-        if (builder.getVillageCenterPosition() == null) {
-            VillageData villageData = StateHelper.getClosestVillage(serverWorld, builder.getVillagerEntity().getBlockPos());
+    public static void updateBuildingVillagerBuilder(ServerWorld serverWorld, Worker worker, boolean freshBuilder) {
+        if (worker.getVillageCenterPosition() == null) {
+            VillageData villageData = StateHelper.getClosestVillage(serverWorld, worker.getVillagerEntity().getBlockPos());
             if (villageData != null) {
-                builder.setVillageCenterPosition(villageData.getCenterPos());
+                worker.setVillageCenterPosition(villageData.getCenterPos());
             }
         }
 
-        if (builder.getVillageCenterPosition() != null) {
+        if (worker.getVillageCenterPosition() != null) {
             VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
 
-            if (villageState.getVillageData(builder.getVillageCenterPosition()) != null) {
-                VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
+            if (villageState.getVillageData(worker.getVillageCenterPosition()) != null) {
+                VillageData villageData = villageState.getVillageData(worker.getVillageCenterPosition());
                 if (freshBuilder) {
                     for (ConstructionData constructionData : villageData.getConstructions().values()) {
                         if (constructionData.getVillagerUuid() == null) {
-                            constructionData.setVillagerUuid(builder.getVillagerEntity().getUuid());
-                            builder.setTargetPosition(constructionData.getBottomCenterPos());
-                            builder.setVillageCenterPosition(villageData.getCenterPos());
+                            constructionData.setVillagerUuid(worker.getVillagerEntity().getUuid());
+                            worker.setTargetPosition(constructionData.getBottomCenterPos());
+                            worker.setVillageCenterPosition(villageData.getCenterPos());
                             break;
                         }
                     }
                 } else {
-                    if (!builder.getVillagerEntity().isAlive()) {
-                        StateHelper.updateVillageUuids(serverWorld, builder.getVillageCenterPosition(), builder.getVillagerEntity());
+                    if (!worker.getVillagerEntity().isAlive()) {
+                        StateHelper.updateVillageUuids(serverWorld, worker.getVillageCenterPosition(), worker.getVillagerEntity());
                     }
-                    if (VillageHelper.getTasklessBuildingVillagerBuilder(villageData, serverWorld) instanceof Builder newBuilder) {
-                        newBuilder.setTargetPosition(builder.getTargetPosition());
-                        newBuilder.setVillageCenterPosition(builder.getVillageCenterPosition());
-                        villageData.getConstructions().get(builder.getTargetPosition()).setVillagerUuid(newBuilder.getVillagerEntity().getUuid());
+                    if (VillageHelper.getTasklessBuildingVillagerBuilder(villageData, serverWorld) instanceof Worker newWorker) {
+                        newWorker.setTargetPosition(worker.getTargetPosition());
+                        newWorker.setVillageCenterPosition(worker.getVillageCenterPosition());
+                        villageData.getConstructions().get(worker.getTargetPosition()).setVillagerUuid(newWorker.getVillagerEntity().getUuid());
                     } else {
-                        villageData.getConstructions().get(builder.getTargetPosition()).setVillagerUuid(null);
+                        villageData.getConstructions().get(worker.getTargetPosition()).setVillagerUuid(null);
                     }
-                    builder.setTargetPosition(null);
+                    worker.setTargetPosition(null);
                 }
                 villageState.markDirty();
             }
@@ -323,7 +323,7 @@ public class VillageHelper {
     public static int getAvailableBuilderCount(ServerWorld serverWorld, List<UUID> villagers) {
         int availableBuilder = 0;
         for (UUID villager : villagers) {
-            if (serverWorld.getEntity(villager) instanceof VillagerEntity villagerEntity && villagerEntity.getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && villagerEntity instanceof Builder builder && !builder.hasTargetPosition()) {
+            if (serverWorld.getEntity(villager) instanceof VillagerEntity villagerEntity && villagerEntity.getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && villagerEntity instanceof Worker worker && !worker.hasTargetPosition()) {
                 availableBuilder++;
             }
         }

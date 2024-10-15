@@ -1,6 +1,6 @@
 package io.fabricatedatelier.mayor.mixin.client;
 
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -53,12 +53,12 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
 
     @Inject(method = "setAngles", at = @At("TAIL"))
     private void setAnglesMixin(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, CallbackInfo info) {
-        if (entity instanceof Builder builder && builder.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !builder.getVillagerEntity().isSleeping()) {
+        if (entity instanceof Worker worker && worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !worker.getVillagerEntity().isSleeping()) {
             this.head.xScale = 1.0005f;
-            if (builder.getTaskValue() == 2) {
+            if (worker.getTaskValue() == 2) {
                 this.root.getChild(EntityModelPartNames.ARMS).visible = false;
-            } else if (!builder.getCarryItemStack().isEmpty()) {
-                if (builder.getTaskValue() == 1) {
+            } else if (!worker.getCarryItemStack().isEmpty()) {
+                if (worker.getTaskValue() == 1) {
                     this.head.pivotZ = 4f;
                     this.head.pivotY = 3.2f;
                     this.root.getChild(EntityModelPartNames.BODY).pitch = -0.5f;
@@ -88,6 +88,7 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
                 this.leftArm.visible = true;
                 // hit animation
                 this.rightArm.pitch = MathHelper.cos(animationProgress * 0.3332F + (float) Math.PI) * 0.85f - 1.9f;
+
                 // walk animation
                 // this.rightArm.pitch = MathHelper.cos(limbAngle * 0.6662F + (float) Math.PI) * 2.0F * limbDistance * 0.5F;
                 this.leftArm.pitch = MathHelper.cos(limbAngle * 0.6662F) * 2.0F * limbDistance * 0.5F;
@@ -110,6 +111,36 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
         this.root.getChild(EntityModelPartNames.ARMS).pivotZ = -1f;
         this.root.getChild(EntityModelPartNames.ARMS).pivotY = 3f;
     }
+
+//    @Unique
+//    private void animateArms(Entity entity, float animationProgress) {
+//        if (!(this.handSwingProgress <= 0.0F)) {
+//            Arm arm = this.getPreferredArm(entity);
+//            ModelPart modelPart = this.getArm(arm);
+//            float f = this.handSwingProgress;
+//            this.body.yaw = MathHelper.sin(MathHelper.sqrt(f) * (float) (Math.PI * 2)) * 0.2F;
+//            if (arm == Arm.LEFT) {
+//                this.body.yaw *= -1.0F;
+//            }
+//
+//            this.rightArm.pivotZ = MathHelper.sin(this.body.yaw) * 5.0F;
+//            this.rightArm.pivotX = -MathHelper.cos(this.body.yaw) * 5.0F;
+//            this.leftArm.pivotZ = -MathHelper.sin(this.body.yaw) * 5.0F;
+//            this.leftArm.pivotX = MathHelper.cos(this.body.yaw) * 5.0F;
+//            this.rightArm.yaw = this.rightArm.yaw + this.body.yaw;
+//            this.leftArm.yaw = this.leftArm.yaw + this.body.yaw;
+//            this.leftArm.pitch = this.leftArm.pitch + this.body.yaw;
+//            f = 1.0F - this.handSwingProgress;
+//            f *= f;
+//            f *= f;
+//            f = 1.0F - f;
+//            float g = MathHelper.sin(f * (float) Math.PI);
+//            float h = MathHelper.sin(this.handSwingProgress * (float) Math.PI) * -(this.head.pitch - 0.7F) * 0.75F;
+//            modelPart.pitch -= g * 1.2F + h;
+//            modelPart.yaw = modelPart.yaw + this.body.yaw * 2.0F;
+//            modelPart.roll = modelPart.roll + MathHelper.sin(this.handSwingProgress * (float) Math.PI) * -0.4F;
+//        }
+//    }
 
     @Override
     public void setArmAngle(Arm arm, MatrixStack matrices) {

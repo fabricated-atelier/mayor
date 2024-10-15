@@ -1,7 +1,7 @@
 package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageState;
@@ -42,17 +42,17 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
         if (serverWorld.getTime() < this.nextResponseTime) {
             return false;
         }
-        if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null && builder.hasTargetPosition()) {
+        if (villagerEntity instanceof Worker worker && worker.getVillageCenterPosition() != null && worker.hasTargetPosition()) {
             if (this.constructionData == null) {
                 if (StateHelper.getMayorVillageState(serverWorld) != null) {
-                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(worker.getVillageCenterPosition());
                     if (villageData != null) {
-                        if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(builder.getTargetPosition())) {
-                            this.constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+                        if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(worker.getTargetPosition())) {
+                            this.constructionData = villageData.getConstructions().get(worker.getTargetPosition());
 
                             if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
                                 this.constructionFinished = true;
-                            } else if (!StructureHelper.hasMissingConstructionItem(serverWorld, this.constructionData, builder.getBuilderInventory())) {
+                            } else if (!StructureHelper.hasMissingConstructionItem(serverWorld, this.constructionData, worker.getWorkerInventory())) {
                                 this.constructionData = null;
                             }
 
@@ -63,7 +63,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                 }
             }
             if (this.constructionData != null) {
-                if (builder.getBuilderInventory().isEmpty() && !this.constructionFinished) {
+                if (worker.getWorkerInventory().isEmpty() && !this.constructionFinished) {
                     return false;
                 }
 
@@ -109,10 +109,10 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
 
         if (this.currentTarget != null && this.constructionData != null) {
-            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1 && villagerEntity instanceof Builder builder && (!builder.getBuilderInventory().isEmpty() || this.constructionFinished)) {
+            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1 && villagerEntity instanceof Worker worker && (!worker.getWorkerInventory().isEmpty() || this.constructionFinished)) {
 
                 if (this.ticksRan % 20 == 0) {
-                    boolean placedBlock = StructureHelper.placeBlock(serverWorld, this.constructionData, builder.getBuilderInventory());
+                    boolean placedBlock = StructureHelper.placeBlock(serverWorld, this.constructionData, worker.getWorkerInventory());
 
 //                    System.out.println("CHECK "+builder.getBuilderInventory());
 //                    System.out.println("PLACE BLOCK " + placedBlock);
@@ -120,7 +120,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                     if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
                         this.constructionFinished = true;
                         finishBuildTask(serverWorld, villagerEntity, time);
-                    } else if (!placedBlock && !builder.getBuilderInventory().isEmpty()) {
+                    } else if (!placedBlock && !worker.getWorkerInventory().isEmpty()) {
                         stop(serverWorld, villagerEntity, time);
                     }
                 }
@@ -136,7 +136,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-        if (villagerEntity instanceof Builder builder && (builder.getBuilderInventory().isEmpty() || !builder.hasTargetPosition()) && !this.constructionFinished) {
+        if (villagerEntity instanceof Worker worker && (worker.getWorkerInventory().isEmpty() || !worker.hasTargetPosition()) && !this.constructionFinished) {
             return false;
         }
         return this.ticksRan < MAX_RUN_TIME;
@@ -148,13 +148,13 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
         System.out.println("FINALLY FINISHED STRUCTURE BUILD");
 
         this.currentTarget = null;
-        if (villagerEntity instanceof Builder builder && builder.getVillageCenterPosition() != null) {
+        if (villagerEntity instanceof Worker worker && worker.getVillageCenterPosition() != null) {
             VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
-            VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
+            VillageData villageData = villageState.getVillageData(worker.getVillageCenterPosition());
             if (villageData != null) {
-                if (builder.hasTargetPosition() && villageData.getConstructions().containsKey(builder.getTargetPosition())) {
-                    villageData.addStructure(villageData.getConstructions().get(builder.getTargetPosition()).getStructureData());
-                    villageData.getConstructions().remove(builder.getTargetPosition());
+                if (worker.hasTargetPosition() && villageData.getConstructions().containsKey(worker.getTargetPosition())) {
+                    villageData.addStructure(villageData.getConstructions().get(worker.getTargetPosition()).getStructureData());
+                    villageData.getConstructions().remove(worker.getTargetPosition());
                     villageState.markDirty();
                 }
             }
@@ -164,7 +164,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
             serverWorld.sendEntityStatus(villagerEntity, EntityStatuses.ADD_VILLAGER_HAPPY_PARTICLES);
 
             this.constructionFinished = false;
-            builder.setTargetPosition(null);
+            worker.setTargetPosition(null);
         }
     }
 }

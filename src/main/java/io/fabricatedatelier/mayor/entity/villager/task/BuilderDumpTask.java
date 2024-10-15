@@ -2,7 +2,7 @@ package io.fabricatedatelier.mayor.entity.villager.task;
 
 import com.google.common.collect.ImmutableMap;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
-import io.fabricatedatelier.mayor.entity.villager.access.Builder;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageState;
@@ -52,28 +52,28 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         if (serverWorld.getTime() < this.nextResponseTime) {
             return false;
         }
-        if (villagerEntity instanceof Builder builder) {
-            if (builder.getBuilderInventory().isEmpty()) {
+        if (villagerEntity instanceof Worker worker) {
+            if (worker.getWorkerInventory().isEmpty()) {
                 return false;
             }
-            if (builder.getVillageCenterPosition() != null) {
+            if (worker.getVillageCenterPosition() != null) {
                 VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
-                if (villageState.getVillageData(builder.getVillageCenterPosition()) != null) {
-                    VillageData villageData = villageState.getVillageData(builder.getVillageCenterPosition());
-                    if (builder.hasTargetPosition()) {
-                        if (villageData.getConstructions().containsKey(builder.getTargetPosition())) {
-                            ConstructionData constructionData = villageData.getConstructions().get(builder.getTargetPosition());
+                if (villageState.getVillageData(worker.getVillageCenterPosition()) != null) {
+                    VillageData villageData = villageState.getVillageData(worker.getVillageCenterPosition());
+                    if (worker.hasTargetPosition()) {
+                        if (villageData.getConstructions().containsKey(worker.getTargetPosition())) {
+                            ConstructionData constructionData = villageData.getConstructions().get(worker.getTargetPosition());
 
 //                            if (StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).isEmpty()) {
-                            if (!StructureHelper.hasMissingConstructionItem(serverWorld, constructionData, builder.getBuilderInventory())) {
-                                this.currentTarget = getTarget(serverWorld, builder, villageData);
+                            if (!StructureHelper.hasMissingConstructionItem(serverWorld, constructionData, worker.getWorkerInventory())) {
+                                this.currentTarget = getTarget(serverWorld, worker, villageData);
                             } else {
                                 System.out.println("DUMP NOT?");
                                 this.nextResponseTime = serverWorld.getTime() + 100L;
                             }
                         }
                     } else {
-                        this.currentTarget = getTarget(serverWorld, builder, villageData);
+                        this.currentTarget = getTarget(serverWorld, worker, villageData);
                     }
                 }
                 return this.currentTarget != null;
@@ -83,19 +83,19 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
     }
 
     @Nullable
-    private BlockPos getTarget(ServerWorld serverWorld, Builder builder, VillageData villageData) {
-        if (villageData.getStorageOriginBlockPosList().size() <= 0 || builder.getBuilderInventory().isEmpty()) {
+    private BlockPos getTarget(ServerWorld serverWorld, Worker worker, VillageData villageData) {
+        if (villageData.getStorageOriginBlockPosList().size() <= 0 || worker.getWorkerInventory().isEmpty()) {
             return null;
         }
-        ItemStack stack = builder.getBuilderInventory().getFirstStack();
+        ItemStack stack = worker.getWorkerInventory().getFirstStack();
         for (int i = 0; i < villageData.getStorageOriginBlockPosList().size(); i++) {
             if (serverWorld.getBlockEntity(villageData.getStorageOriginBlockPosList().get(i)) instanceof VillageContainerBlockEntity villageContainerBlockEntity) {
                 if (!villageContainerBlockEntity.isFull(stack)) {
-                    if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && TaskHelper.canReachSite(builder.getVillagerEntity(), villageContainerBlockEntity.getStructureOriginPos().get())) {
+                    if (villageContainerBlockEntity.getStructureOriginPos().isPresent() && TaskHelper.canReachSite(worker.getVillagerEntity(), villageContainerBlockEntity.getStructureOriginPos().get())) {
                         return villageContainerBlockEntity.getStructureOriginPos().get();
                     } else {
                         for (BlockPos pos : villageContainerBlockEntity.getConnectedBlocks()) {
-                            if (TaskHelper.canReachSite(builder.getVillagerEntity(), pos)) {
+                            if (TaskHelper.canReachSite(worker.getVillagerEntity(), pos)) {
                                 return pos;
                             }
                         }
@@ -139,11 +139,11 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
 
         if (this.currentTarget != null) {
             if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
-                if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Builder builder) {
-                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(builder.getVillageCenterPosition());
+                if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Worker worker) {
+                    VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(worker.getVillageCenterPosition());
                     if (villageData != null) {
                         VillageContainerBlockEntity villageContainerBlockEntity = containerBlockEntity.getStructureOriginBlockEntity().get();
-                        for (ItemStack stack : builder.getBuilderInventory().getHeldStacks()) {
+                        for (ItemStack stack : worker.getWorkerInventory().getHeldStacks()) {
                             if (villageContainerBlockEntity.tryAddingStack(stack.copy())) {
                                 stack.decrement(stack.getCount());
                             }
@@ -151,8 +151,8 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
 //                      villageContainerBlockEntity.markDirty(); already done at tryAddingStack method
                         serverWorld.updateListeners(villageContainerBlockEntity.getPos(), villageContainerBlockEntity.getCachedState(), villageContainerBlockEntity.getCachedState(), 0);
 
-                        if (!builder.getBuilderInventory().isEmpty()) {
-                            this.currentTarget = this.getTarget(serverWorld, builder, villageData);
+                        if (!worker.getWorkerInventory().isEmpty()) {
+                            this.currentTarget = this.getTarget(serverWorld, worker, villageData);
                             if (this.currentTarget != null) {
                                 villagerEntity.getBrain().remember(MemoryModuleType.LOOK_TARGET, new BlockPosLookTarget(this.currentTarget));
                                 villagerEntity.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(new BlockPosLookTarget(this.currentTarget), 0.7F, 1));
@@ -172,7 +172,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
 
     @Override
     protected boolean shouldKeepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long l) {
-        if (villagerEntity instanceof Builder builder && builder.getBuilderInventory().isEmpty()) {
+        if (villagerEntity instanceof Worker worker && worker.getWorkerInventory().isEmpty()) {
             return false;
         }
         return this.ticksRan < MAX_RUN_TIME;

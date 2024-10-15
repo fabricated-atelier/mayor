@@ -8,11 +8,11 @@ import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
-public interface Builder {
+public interface Worker {
 
     VillagerEntity getVillagerEntity();
 
-    BuilderInventory getBuilderInventory();
+    WorkerInventory getWorkerInventory();
 
     @Nullable
     BlockPos getVillageCenterPosition();
@@ -31,16 +31,21 @@ public interface Builder {
 
     int getTaskValue();
 
+    /**
+     * 0: Nothing
+     * 1: Front Carry Task
+     * 2: Breaking Task
+     */
     void setTaskValue(int taskValue);
 
-    default void readBuilderInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
-        if (nbt.contains("BuilderInventory", NbtElement.LIST_TYPE)) {
-            this.getBuilderInventory().readNbtList(nbt.getList("BuilderInventory", NbtElement.COMPOUND_TYPE), wrapperLookup);
+    default void readWorkerInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
+        if (nbt.contains("WorkerInventory", NbtElement.LIST_TYPE)) {
+            this.getWorkerInventory().readNbtList(nbt.getList("WorkerInventory", NbtElement.COMPOUND_TYPE), wrapperLookup);
         }
     }
 
-    default void writeBuilderInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
-        nbt.put("BuilderInventory", this.getBuilderInventory().toNbtList(wrapperLookup));
+    default void writeWorkerInventory(NbtCompound nbt, RegistryWrapper.WrapperLookup wrapperLookup) {
+        nbt.put("WorkerInventory", this.getWorkerInventory().toNbtList(wrapperLookup));
     }
 }
 

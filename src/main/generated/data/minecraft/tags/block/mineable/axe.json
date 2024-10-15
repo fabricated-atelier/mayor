@@ -1,6 +1,7 @@
 {
   "values": [
     "mayor:lumber_storage",
-    "mayor:stone_storage"
+    "mayor:stone_storage",
+    "mayor:desk"
   ]
 }
