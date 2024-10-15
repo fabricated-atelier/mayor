@@ -52,9 +52,9 @@ public record MayorUpdatePacket(BlockPos centerPos, int villageLevel, UUID mayor
             for (ServerPlayerEntity serverPlayerEntity : context.player().getWorld().getEntitiesByClass(ServerPlayerEntity.class, new Box(this.centerPos()).expand(VillageHelper.VILLAGE_LEVEL_RADIUS.get(this.villageLevel())), EntityPredicates.EXCEPT_SPECTATOR)) {
                 serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageState.getVillageData(this.centerPos()).getName())));
                 if (serverPlayerEntity.getUuid().equals(this.mayorUuid())) {
-                    serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_dismissed_2")));
+                    serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor.dismissed.2")));
                 } else {
-                    serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_dismissed", mayorName)));
+                    serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor.dismissed", mayorName)));
                 }
             }
         }

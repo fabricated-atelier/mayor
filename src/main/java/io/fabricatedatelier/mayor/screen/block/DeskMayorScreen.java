@@ -155,7 +155,7 @@ public class DeskMayorScreen extends Screen {
             this.taxIntervalFieldWidget.setMaxLength(4);
             this.taxIntervalFieldWidget.setText(Integer.toString(this.taxInterval));
             this.taxIntervalFieldWidget.setChangedListener(this::onTaxIntervalField);
-            this.taxIntervalFieldWidget.setTooltip(Tooltip.of(Text.translatable("mayor.screen.desk.tax_interval.tooltip")));
+            this.taxIntervalFieldWidget.setTooltip(Tooltip.of(Text.translatable("mayor.screen.desk.tax.interval.tooltip")));
             this.addSelectableChild(this.taxIntervalFieldWidget);
 
             this.taxIntervalButton = this.addDrawableChild(ButtonWidget.builder(changeText, button -> {
@@ -273,7 +273,7 @@ public class DeskMayorScreen extends Screen {
 
             context.drawText(this.textRenderer, Text.translatable("mayor.screen.desk.tax_amount", this.taxAmount), this.x + 87, this.y + 58, 4210752, false);
 
-            Text taxIntervalText = Text.translatable("mayor.screen.desk.tax_interval", this.taxTime);
+            Text taxIntervalText = Text.translatable("mayor.screen.desk.tax.interval", this.taxTime);
             context.drawText(this.textRenderer, taxIntervalText, this.x + this.backgroundWidth - (this.textRenderer.getWidth(taxIntervalText) + 8), this.y + 58, 4210752, false);
 
             if (this.client != null && this.client.world != null) {

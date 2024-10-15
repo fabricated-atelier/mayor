@@ -72,7 +72,7 @@ public class BallotUrnHelper {
                     for (UUID uuid : villageData.getCitizenData().getCitizens()) {
                         if (serverWorld.getServer().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
                             player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
-                            player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_election_start")));
+                            player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor.election.start")));
                         }
                     }
                     StateHelper.getMayorVillageState(serverWorld).markDirty();
@@ -132,15 +132,15 @@ public class BallotUrnHelper {
                                     // New mayor is offline
                                     playerName = StringUtil.getOfflinePlayerUuidNames(serverWorld).getOrDefault(electedMayorUuid, "");
                                 }
-                                text = Text.translatable("mayor.village.mayor_election_end", playerName);
+                                text = Text.translatable("mayor.village.mayor.election.end", playerName);
                                 villageData.setMayorPlayerUuid(electedMayorUuid);
                                 villageData.setMayorPlayerTime(serverWorld.getTime());
                                 StateHelper.getMayorVillageState(serverWorld).markDirty();
                             } else {
-                                text = Text.translatable("mayor.village.mayor_election_failed");
+                                text = Text.translatable("mayor.village.mayor.election.failed");
                             }
                         } else {
-                            text = Text.translatable("mayor.village.mayor_election_failed");
+                            text = Text.translatable("mayor.village.mayor.election.failed");
                         }
 
                         for (UUID uuid : villageData.getCitizenData().getCitizens()) {

@@ -93,7 +93,7 @@ public class DeskCitizenScreen extends Screen {
         this.addSelectableChild(this.donateFieldWidget);
 
         if (this.citizen) {
-            Text payTaxText = Text.translatable("mayor.screen.desk.tax_pay");
+            Text payTaxText = Text.translatable("mayor.screen.desk.tax.pay");
             this.payTaxButton = this.addDrawableChild(ButtonWidget.builder(payTaxText, button -> {
                 button.active = false;
                 // Pay tax

@@ -108,9 +108,9 @@ public class RaidMixin {
         for (ServerPlayerEntity serverPlayerEntity : world.getEntitiesByClass(ServerPlayerEntity.class, villageBoundingBox, EntityPredicates.EXCEPT_SPECTATOR)) {
             serverPlayerEntity.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageState.getVillageData(centerPos).getName())));
             if (serverPlayerEntity.getUuid().equals(mayorUuid)) {
-                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected_2")));
+                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor.elected.2")));
             } else {
-                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_elected", mayorName)));
+                serverPlayerEntity.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor.elected", mayorName)));
             }
         }
     }

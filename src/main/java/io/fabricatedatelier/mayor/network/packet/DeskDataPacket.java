@@ -68,7 +68,7 @@ public record DeskDataPacket(BlockPos deskPos, int code, int donationAmount) imp
                         for (UUID uuid : villageData.getCitizenData().getCitizens()) {
                             if (context.server().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
                                 player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
-                                player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_dismissed", StringUtil.getPlayerNameByUuid(context.player().getServerWorld(), villageData.getMayorPlayerUuid()))));
+                                player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor.dismissed", StringUtil.getPlayerNameByUuid(context.player().getServerWorld(), villageData.getMayorPlayerUuid()))));
                             }
                         }
                         villageData.setMayorPlayerUuid(null);
