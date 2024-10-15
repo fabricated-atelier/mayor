@@ -13,13 +13,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 // code: 0 = book, 1 = citizen, 2 = mayor
 public record DeskScreenPacket(int code, BlockPos deskPos) implements CustomPayload {
@@ -55,7 +51,7 @@ public record DeskScreenPacket(int code, BlockPos deskPos) implements CustomPayl
                         mayorName = StringUtil.getPlayerNameByUuid(context.player().getServerWorld(), villageData.getMayorPlayerUuid());
                     }
                     boolean citizen = CitizenHelper.isCitizenOfClosestVillage(context.player().getServerWorld(), context.player()) || context.player().isCreativeLevelTwoOp();
-                    new DeskCitizenScreenPacket(this.deskPos(), villageData.getName(), villageData.getLevel(), mayorName, citizen, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getCitizenData().getCitizens().size(), villageData.getVillagers().size(), villageData.getFunds(), villageData.getCitizenData().getTaxPayedCitizens().contains(context.player().getUuid()), villageData.getCitizenData().getRequestCitizens().contains(context.player().getUuid())).sendPacket(context.player());
+                    new DeskCitizenScreenPacket(this.deskPos(), villageData.getName(), villageData.getLevel(), mayorName, citizen, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getCitizenData().getCitizens().size(), villageData.getVillagers().size(), villageData.getFunds(), villageData.getCitizenData().getTaxPaidCitizens().contains(context.player().getUuid()), villageData.getCitizenData().getRequestCitizens().contains(context.player().getUuid())).sendPacket(context.player());
                 } else if (this.code() == 2) {
                     Map<UUID, String> registeredCitizens = new HashMap<>();
                     if (!villageData.getCitizenData().getCitizens().isEmpty()) {
@@ -69,13 +65,15 @@ public record DeskScreenPacket(int code, BlockPos deskPos) implements CustomPayl
                             requestingCitizens.put(uuid, StringUtil.getPlayerNameByUuid(context.player().getServerWorld(), uuid));
                         }
                     }
-                    Map<UUID, String> taxPayedCitizens = new HashMap<>();
-                    if (!villageData.getCitizenData().getTaxPayedCitizens().isEmpty()) {
-                        for (UUID uuid : villageData.getCitizenData().getTaxPayedCitizens()) {
-                            taxPayedCitizens.put(uuid, StringUtil.getPlayerNameByUuid(context.player().getServerWorld(), uuid));
-                        }
+                    List<UUID> taxPaidCitizens = new ArrayList<>();
+                    if (!villageData.getCitizenData().getTaxPaidCitizens().isEmpty()) {
+                        taxPaidCitizens.addAll(villageData.getCitizenData().getTaxPaidCitizens());
                     }
-                    new DeskMayorScreenPacket(this.deskPos(), villageData.getName(), villageData.getLevel(), true, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxInterval(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getVillagers().size(), villageData.getFunds(), MayorConfig.CONFIG.instance().villageFoundingCost, registeredCitizens, requestingCitizens, taxPayedCitizens).sendPacket(context.player());
+                    List<UUID> taxUnpaidCitizens = new ArrayList<>();
+                    if (!villageData.getCitizenData().getTaxUnpaidCitizens().isEmpty()) {
+                        taxUnpaidCitizens.addAll(villageData.getCitizenData().getTaxUnpaidCitizens());
+                    }
+                    new DeskMayorScreenPacket(this.deskPos(), villageData.getName(), villageData.getLevel(), true, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxInterval(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getVillagers().size(), villageData.getFunds(), MayorConfig.CONFIG.instance().villageFoundingCost, registeredCitizens, requestingCitizens, taxPaidCitizens, taxUnpaidCitizens).sendPacket(context.player());
                 }
             }
         }

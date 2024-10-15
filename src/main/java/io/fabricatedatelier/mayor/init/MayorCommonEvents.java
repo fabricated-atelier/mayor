@@ -4,18 +4,24 @@ import io.fabricatedatelier.mayor.data.StructureDataLoader;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
+import io.fabricatedatelier.mayor.state.VillageData;
 import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StringUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.BlockRotation;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -30,6 +36,20 @@ public class MayorCommonEvents {
     public static void initialize() {
         ServerLivingEntityEvents.AFTER_DEATH.register(MayorCommonEvents::handleAfterDeath);
         ServerLifecycleEvents.SERVER_STARTED.register(MayorCommonEvents::handleServerStarted);
+        ServerPlayConnectionEvents.JOIN.register(MayorCommonEvents::handleJoinWorld);
+    }
+
+    private static void handleJoinWorld(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
+        if (StateHelper.isInVillageRange(handler.getPlayer().getServerWorld(), handler.getPlayer().getBlockPos())) {
+            VillageData villageData = StateHelper.getClosestVillage(handler.getPlayer().getServerWorld(), handler.getPlayer().getBlockPos());
+            if (villageData != null && villageData.getMayorPlayerUuid() != null && villageData.getMayorPlayerUuid().equals(handler.getPlayer().getUuid())) {
+                if (!villageData.getCitizenData().getRequestCitizens().isEmpty()) {
+                    handler.getPlayer().sendMessage(Text.translatable("mayor.village.mayor.requests"), true);
+                } else if (!villageData.getCitizenData().getTaxUnpaidCitizens().isEmpty()) {
+                    handler.getPlayer().sendMessage(Text.translatable("mayor.village.mayor.unpaid"), true);
+                }
+            }
+        }
     }
 
     private static void handleAfterDeath(LivingEntity entity, DamageSource damageSource) {

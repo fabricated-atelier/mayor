@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.state;
 
 import java.util.*;
 
+import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
 import net.minecraft.nbt.NbtCompound;
@@ -27,6 +28,14 @@ public class VillageState extends PersistentState {
 
     public static PersistentState.Type<VillageState> getPersistentStateType(ServerWorld world) {
         return new PersistentState.Type<VillageState>(() -> new VillageState(world), (nbt, registryLookup) -> fromNbt(world, (NbtCompound) nbt), null);
+    }
+
+    public void tick() {
+        if (this.world.getTime() % 1200 == 0) {
+            for (VillageData villageData : this.villages.values()) {
+                StateHelper.tickVillageData(this.world, villageData);
+            }
+        }
     }
 
     public static VillageState fromNbt(ServerWorld world, NbtCompound nbt) {
@@ -57,7 +66,7 @@ public class VillageState extends PersistentState {
         VillageData villageData = new VillageData(centerPos);
         villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.getBiome(centerPos)));
         villageData.setAge(world.getTime());
-        villageData.setCitizenData(new CitizenData(new ArrayList<>(), null, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>()));
+        villageData.setCitizenData(new CitizenData(new ArrayList<>(), null, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         this.villages.put(centerPos, villageData);
         this.markDirty();
         return villageData;

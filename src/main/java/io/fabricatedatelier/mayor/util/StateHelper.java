@@ -6,12 +6,17 @@ import io.fabricatedatelier.mayor.state.VillageState;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class StateHelper {
 
@@ -129,6 +134,32 @@ public class StateHelper {
                 villageData.getIronGolems().add(livingEntity.getUuid());
             }
             StateHelper.getMayorVillageState(serverWorld).markDirty();
+        }
+    }
+
+    // Gets ticked once every minute
+    public static void tickVillageData(ServerWorld serverWorld, VillageData villageData) {
+        if (villageData.getCitizenData().getTaxTime() > 0) {
+            if (serverWorld.getTime() - villageData.getCitizenData().getTaxTime() > 0) {
+                for (UUID citizen : villageData.getCitizenData().getCitizens()) {
+                    if (!villageData.getCitizenData().getTaxPaidCitizens().contains(citizen)) {
+                        villageData.getCitizenData().addTaxUnpaidCitizen(citizen);
+                    }
+                }
+                villageData.getCitizenData().setTaxPaidCitizens(new ArrayList<>());
+
+                if (villageData.getCitizenData().getTaxInterval() > 0) {
+                    villageData.getCitizenData().setTaxTime(serverWorld.getTime() + villageData.getCitizenData().getTaxInterval());
+
+                    for (UUID uuid : villageData.getCitizenData().getCitizens()) {
+                        if (serverWorld.getServer().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
+                            player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
+                            player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.citizen.taxes")));
+                        }
+                    }
+                }
+                StateHelper.getMayorVillageState(serverWorld).markDirty();
+            }
         }
     }
 

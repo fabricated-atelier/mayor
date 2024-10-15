@@ -18,17 +18,19 @@ public class CitizenData {
     private int taxInterval;
     private long taxTime;
     private int registrationFee;
-    private List<UUID> taxPayedCitizens = new ArrayList<>();
+    private List<UUID> taxPaidCitizens = new ArrayList<>();
+    private List<UUID> taxUnpaidCitizens = new ArrayList<>();
     private List<UUID> requestCitizens = new ArrayList<>();
 
-    public CitizenData(List<UUID> citizens, @Nullable BlockPos deskPos, int taxAmount, int taxInterval,long taxTime, int registrationFee, List<UUID> taxPayedCitizens, List<UUID> requestCitizens) {
+    public CitizenData(List<UUID> citizens, @Nullable BlockPos deskPos, int taxAmount, int taxInterval, long taxTime, int registrationFee, List<UUID> taxPaidCitizens, List<UUID> taxUnpaidCitizens, List<UUID> requestCitizens) {
         this.citizens = citizens;
         this.deskPos = deskPos;
         this.taxAmount = taxAmount;
         this.taxInterval = taxInterval;
         this.taxTime = taxTime;
         this.registrationFee = registrationFee;
-        this.taxPayedCitizens = taxPayedCitizens;
+        this.taxPaidCitizens = taxPaidCitizens;
+        this.taxUnpaidCitizens = taxUnpaidCitizens;
         this.requestCitizens = requestCitizens;
     }
 
@@ -42,9 +44,9 @@ public class CitizenData {
         this.taxInterval = nbt.getInt("TaxInterval");
         this.taxTime = nbt.getLong("TaxTime");
         this.registrationFee = nbt.getInt("RegistrationFee");
-        this.taxPayedCitizens.clear();
+        this.taxPaidCitizens.clear();
         for (int i = 0; i < nbt.getInt("TaxPayedCitizenUuids"); i++) {
-            this.taxPayedCitizens.add(nbt.getUuid("TaxPayedCitizenUuid" + i));
+            this.taxPaidCitizens.add(nbt.getUuid("TaxPayedCitizenUuid" + i));
         }
         this.requestCitizens.clear();
         for (int i = 0; i < nbt.getInt("RequestCitizenUuids"); i++) {
@@ -64,9 +66,9 @@ public class CitizenData {
         nbt.putInt("TaxInterval", this.taxInterval);
         nbt.putLong("TaxTime", this.taxTime);
         nbt.putInt("RegistrationFee", this.registrationFee);
-        nbt.putInt("TaxPayedCitizenUuids", this.taxPayedCitizens.size());
-        for (int i = 0; i < this.taxPayedCitizens.size(); i++) {
-            nbt.putUuid("TaxPayedCitizenUuid" + i, this.taxPayedCitizens.get(i));
+        nbt.putInt("TaxPayedCitizenUuids", this.taxPaidCitizens.size());
+        for (int i = 0; i < this.taxPaidCitizens.size(); i++) {
+            nbt.putUuid("TaxPayedCitizenUuid" + i, this.taxPaidCitizens.get(i));
         }
         nbt.putInt("RequestCitizenUuids", this.requestCitizens.size());
         for (int i = 0; i < this.requestCitizens.size(); i++) {
@@ -86,9 +88,9 @@ public class CitizenData {
         nbt.putInt("TaxAmount", this.taxAmount);
         nbt.putLong("TaxTime", this.taxTime);
         nbt.putInt("RegistrationFee", this.registrationFee);
-        nbt.putInt("TaxPayedCitizenUuids", this.taxPayedCitizens.size());
-        for (int i = 0; i < this.taxPayedCitizens.size(); i++) {
-            nbt.putUuid("TaxPayedCitizenUuid" + i, this.taxPayedCitizens.get(i));
+        nbt.putInt("TaxPayedCitizenUuids", this.taxPaidCitizens.size());
+        for (int i = 0; i < this.taxPaidCitizens.size(); i++) {
+            nbt.putUuid("TaxPayedCitizenUuid" + i, this.taxPaidCitizens.get(i));
         }
         nbt.putInt("RequestCitizenUuids", this.requestCitizens.size());
         for (int i = 0; i < this.requestCitizens.size(); i++) {
@@ -118,8 +120,11 @@ public class CitizenData {
     // Don't forget to remove mayor if citizen is mayor
     public void removeCitizen(UUID citizen) {
         this.citizens.remove(citizen);
-        if (this.taxPayedCitizens.contains(citizen)) {
-            this.taxPayedCitizens.remove(citizen);
+        if (this.taxPaidCitizens.contains(citizen)) {
+            this.taxPaidCitizens.remove(citizen);
+        }
+        if(this.taxUnpaidCitizens.contains(citizen)){
+            this.taxUnpaidCitizens.remove(citizen);
         }
     }
 
@@ -169,23 +174,42 @@ public class CitizenData {
         this.registrationFee = registrationFee;
     }
 
-    // Tax Payed
-    public List<UUID> getTaxPayedCitizens() {
-        return taxPayedCitizens;
+    // Tax Paid
+    public List<UUID> getTaxPaidCitizens() {
+        return taxPaidCitizens;
     }
 
-    public void setTaxPayedCitizens(List<UUID> taxPayedCitizens) {
-        this.taxPayedCitizens = taxPayedCitizens;
+    public void setTaxPaidCitizens(List<UUID> taxPaidCitizens) {
+        this.taxPaidCitizens = taxPaidCitizens;
     }
 
-    public void addTaxPayedCitizen(UUID citizen) {
-        if (!this.taxPayedCitizens.contains(citizen)) {
-            this.taxPayedCitizens.add(citizen);
+    public void addTaxPaidCitizen(UUID citizen) {
+        if (!this.taxPaidCitizens.contains(citizen)) {
+            this.taxPaidCitizens.add(citizen);
         }
     }
 
-    public void removeTaxPayedCitizen(UUID citizen) {
-        this.taxPayedCitizens.remove(citizen);
+    public void removeTaxPaidCitizen(UUID citizen) {
+        this.taxPaidCitizens.remove(citizen);
+    }
+
+    // Tax Unpaid
+    public List<UUID> getTaxUnpaidCitizens() {
+        return taxUnpaidCitizens;
+    }
+
+    public void setTaxUnpaidCitizens(List<UUID> taxUnpaidCitizens) {
+        this.taxUnpaidCitizens = taxUnpaidCitizens;
+    }
+
+    public void addTaxUnpaidCitizen(UUID citizen) {
+        if (!this.taxUnpaidCitizens.contains(citizen)) {
+            this.taxUnpaidCitizens.add(citizen);
+        }
+    }
+
+    public void removeTaxUnpaidCitizen(UUID citizen) {
+        this.taxUnpaidCitizens.remove(citizen);
     }
 
     // Requests

@@ -41,9 +41,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class DeskBlock extends BlockWithEntity {
 
@@ -205,18 +203,20 @@ public class DeskBlock extends BlockWithEntity {
                                         requestingCitizens.put(uuid, StringUtil.getPlayerNameByUuid((ServerWorld) world, uuid));
                                     }
                                 }
-                                Map<UUID, String> taxPayedCitizens = new HashMap<>();
-                                if (!villageData.getCitizenData().getTaxPayedCitizens().isEmpty()) {
-                                    for (UUID uuid : villageData.getCitizenData().getTaxPayedCitizens()) {
-                                        taxPayedCitizens.put(uuid, StringUtil.getPlayerNameByUuid((ServerWorld) world, uuid));
-                                    }
+                                List<UUID> taxPaidCitizens = new ArrayList<>();
+                                if (!villageData.getCitizenData().getTaxPaidCitizens().isEmpty()) {
+                                    taxPaidCitizens.addAll(villageData.getCitizenData().getTaxPaidCitizens());
                                 }
-                                new DeskMayorScreenPacket(pos, villageData.getName(), villageData.getLevel(), true, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxInterval(),villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getVillagers().size(), villageData.getFunds(), MayorConfig.CONFIG.instance().villageFoundingCost, registeredCitizens, requestingCitizens, taxPayedCitizens).sendPacket((ServerPlayerEntity) player);
+                                List<UUID> taxUnpaidCitizens = new ArrayList<>();
+                                if (!villageData.getCitizenData().getTaxUnpaidCitizens().isEmpty()) {
+                                    taxUnpaidCitizens.addAll(villageData.getCitizenData().getTaxUnpaidCitizens());
+                                }
+                                new DeskMayorScreenPacket(pos, villageData.getName(), villageData.getLevel(), true, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxInterval(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getVillagers().size(), villageData.getFunds(), MayorConfig.CONFIG.instance().villageFoundingCost, registeredCitizens, requestingCitizens, taxPaidCitizens, taxUnpaidCitizens).sendPacket((ServerPlayerEntity) player);
                                 return ActionResult.success(true);
                             }
                         }
                         boolean citizen = CitizenHelper.isCitizenOfClosestVillage((ServerWorld) world, player) || player.isCreativeLevelTwoOp();
-                        new DeskCitizenScreenPacket(pos, villageData.getName(), villageData.getLevel(), mayorName, citizen, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getCitizenData().getCitizens().size(), villageData.getVillagers().size(), villageData.getFunds(), villageData.getCitizenData().getTaxPayedCitizens().contains(player.getUuid()), villageData.getCitizenData().getRequestCitizens().contains(player.getUuid())).sendPacket((ServerPlayerEntity) player);
+                        new DeskCitizenScreenPacket(pos, villageData.getName(), villageData.getLevel(), mayorName, citizen, villageData.getCitizenData().getTaxAmount(), villageData.getCitizenData().getTaxTime(), villageData.getCitizenData().getRegistrationFee(), villageData.getCitizenData().getCitizens().size(), villageData.getVillagers().size(), villageData.getFunds(), villageData.getCitizenData().getTaxPaidCitizens().contains(player.getUuid()), villageData.getCitizenData().getRequestCitizens().contains(player.getUuid())).sendPacket((ServerPlayerEntity) player);
                     } else if (world.getBlockEntity(pos) instanceof DeskBlockEntity deskBlockEntity) {
                         deskBlockEntity.setValidated(false);
                     }
@@ -233,7 +233,7 @@ public class DeskBlock extends BlockWithEntity {
                     player.sendMessage(Text.translatable("mayor.screen.desk.village_founding_disabled"), true);
                     return ActionResult.success(false);
                 }
-                new DeskMayorScreenPacket(pos, "", 0, false, 0, 0,0, 0, 0, 0, MayorConfig.CONFIG.instance().villageFoundingCost, new HashMap<>(), new HashMap<>(), new HashMap<>()).sendPacket((ServerPlayerEntity) player);
+                new DeskMayorScreenPacket(pos, "", 0, false, 0, 0, 0, 0, 0, 0, MayorConfig.CONFIG.instance().villageFoundingCost, new HashMap<>(), new HashMap<>(), new ArrayList<>(), new ArrayList<>()).sendPacket((ServerPlayerEntity) player);
             }
         }
         return ActionResult.success(world.isClient());

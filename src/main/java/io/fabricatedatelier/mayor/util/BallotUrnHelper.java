@@ -70,7 +70,7 @@ public class BallotUrnHelper {
                     decoratedPotBlockEntity.markDirty();
 
                     for (UUID uuid : villageData.getCitizenData().getCitizens()) {
-                        if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                        if (serverWorld.getServer().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
                             player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                             player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_election_start")));
                         }
@@ -126,8 +126,8 @@ public class BallotUrnHelper {
                             }
                             if (electedMayorUuid != null) {
                                 String playerName = "";
-                                if (serverWorld.getPlayerByUuid(electedMayorUuid) != null) {
-                                    serverWorld.getPlayerByUuid(electedMayorUuid).getName().getString();
+                                if (serverWorld.getServer().getPlayerManager().getPlayer(electedMayorUuid) != null) {
+                                    serverWorld.getServer().getPlayerManager().getPlayer(electedMayorUuid).getName().getString();
                                 } else {
                                     // New mayor is offline
                                     playerName = StringUtil.getOfflinePlayerUuidNames(serverWorld).getOrDefault(electedMayorUuid, "");
@@ -144,7 +144,7 @@ public class BallotUrnHelper {
                         }
 
                         for (UUID uuid : villageData.getCitizenData().getCitizens()) {
-                            if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                            if (serverWorld.getServer().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
                                 player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                                 player.networkHandler.sendPacket(new SubtitleS2CPacket(text));
                             }
@@ -179,7 +179,7 @@ public class BallotUrnHelper {
             if (villageData.getBallotUrnPos() != null && villageData.getBallotUrnPos().equals(blockPos)) {
                 villageData.setBallotUrnPos(null);
                 for (UUID uuid : villageData.getCitizenData().getCitizens()) {
-                    if (serverWorld.getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                    if (serverWorld.getServer().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
                         player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                         player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.ballot_urn_destroy")));
                     }

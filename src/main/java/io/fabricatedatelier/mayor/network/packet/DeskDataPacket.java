@@ -52,7 +52,7 @@ public record DeskDataPacket(BlockPos deskPos, int code, int donationAmount) imp
                     return;
                 }
                 villageData.getCitizenData().addRequestCitizen(context.player().getUuid());
-                if (villageData.getMayorPlayerUuid() != null && context.player().getServerWorld().getPlayerByUuid(villageData.getMayorPlayerUuid()) instanceof ServerPlayerEntity mayor) {
+                if (villageData.getMayorPlayerUuid() != null && context.server().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()) instanceof ServerPlayerEntity mayor) {
                     mayor.sendMessage(Text.translatable("mayor.village.citizen.registering", context.player().getName()));
                 }
                 if (villageData.getCitizenData().getRegistrationFee() > 0) {
@@ -66,13 +66,13 @@ public record DeskDataPacket(BlockPos deskPos, int code, int donationAmount) imp
                 if (villageData.getMayorPlayerUuid() != null) {
                     if (villageData.getMayorPlayerUuid().equals(context.player().getUuid())) {
                         for (UUID uuid : villageData.getCitizenData().getCitizens()) {
-                            if (context.player().getServerWorld().getPlayerByUuid(uuid) instanceof ServerPlayerEntity player) {
+                            if (context.server().getPlayerManager().getPlayer(uuid) instanceof ServerPlayerEntity player) {
                                 player.networkHandler.sendPacket(new TitleS2CPacket(Text.translatable("mayor.village.news", villageData.getName())));
                                 player.networkHandler.sendPacket(new SubtitleS2CPacket(Text.translatable("mayor.village.mayor_dismissed", StringUtil.getPlayerNameByUuid(context.player().getServerWorld(), villageData.getMayorPlayerUuid()))));
                             }
                         }
                         villageData.setMayorPlayerUuid(null);
-                    } else if (context.player().getServerWorld().getPlayerByUuid(villageData.getMayorPlayerUuid()) instanceof ServerPlayerEntity mayor) {
+                    } else if (context.server().getPlayerManager().getPlayer(villageData.getMayorPlayerUuid()) instanceof ServerPlayerEntity mayor) {
                         mayor.sendMessage(Text.translatable("mayor.village.citizen.deregistering", context.player().getName()));
                     }
                 }
@@ -80,11 +80,11 @@ public record DeskDataPacket(BlockPos deskPos, int code, int donationAmount) imp
             } else if (this.code() == 3) {
                 // pay taxes
                 if (villageData.getCitizenData().getTaxAmount() > 0) {
-                    if (!villageData.getCitizenData().getTaxPayedCitizens().contains(context.player().getUuid())) {
+                    if (!villageData.getCitizenData().getTaxPaidCitizens().contains(context.player().getUuid())) {
                         if (InventoryUtil.hasRequiredPrice(context.player().getInventory(), villageData.getCitizenData().getTaxAmount())) {
                             villageData.setFunds(villageData.getFunds() + villageData.getCitizenData().getTaxAmount());
                             InventoryUtil.consumePrice(context.player().getInventory(), villageData.getCitizenData().getTaxAmount());
-                            villageData.getCitizenData().addTaxPayedCitizen(context.player().getUuid());
+                            villageData.getCitizenData().addTaxPaidCitizen(context.player().getUuid());
 
                             LedgerHelper.updateLedger(context.player(), this.deskPos(), 4, villageData.getCitizenData().getTaxAmount());
                         } else {

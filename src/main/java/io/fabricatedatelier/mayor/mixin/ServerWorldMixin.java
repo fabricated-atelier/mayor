@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.server.world.ServerWorld;
 
+import java.util.function.BooleanSupplier;
+
 @Mixin(ServerWorld.class)
 public class ServerWorldMixin implements MayorVillageStateAccess {
 
@@ -21,6 +23,11 @@ public class ServerWorldMixin implements MayorVillageStateAccess {
     @Inject(at = @At("TAIL"), method = "<init>")
     private void initMixin(CallbackInfo info) {
         this.villageState = this.getPersistentStateManager().getOrCreate(VillageState.getPersistentStateType((ServerWorld) (Object) this), "villages");
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void tickMixin(BooleanSupplier shouldKeepTicking, CallbackInfo info) {
+        this.villageState.tick();
     }
 
     @Override

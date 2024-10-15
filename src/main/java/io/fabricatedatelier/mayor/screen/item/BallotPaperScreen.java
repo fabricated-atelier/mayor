@@ -31,7 +31,7 @@ public class BallotPaperScreen extends Screen {
     private String votedName;
     private final Map<UUID, String> availablePlayers;
 
-    private int selectedIndex;
+    private int selectedIndex = -1;
     private int indexStartOffset;
     private boolean scrolling;
     private final int backgroundWidth = 122;
@@ -211,15 +211,9 @@ public class BallotPaperScreen extends Screen {
             this.drawMessage(context, minecraftClient.textRenderer, i | MathHelper.ceil(this.alpha * 255.0F) << 24);
         }
 
-        @Override
-        public boolean isSelected() {
-            return super.isSelected();
-        }
-
         public int getIndex() {
             return this.index;
         }
-
 
         public void renderTooltip(DrawContext context, int mouseX, int mouseY) {
             if (this.hovered) {
