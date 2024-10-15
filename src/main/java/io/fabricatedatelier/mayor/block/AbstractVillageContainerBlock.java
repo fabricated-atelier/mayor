@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.block;
 import com.mojang.serialization.MapCodec;
 import io.fabricatedatelier.mayor.block.entity.VillageContainerBlockEntity;
 import io.fabricatedatelier.mayor.state.VillageData;
+import io.fabricatedatelier.mayor.util.CitizenHelper;
 import io.fabricatedatelier.mayor.util.ConnectedBlockUtil;
 import io.fabricatedatelier.mayor.util.StateHelper;
 import net.minecraft.block.Block;
@@ -20,6 +21,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemActionResult;
@@ -57,6 +59,11 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         BlockPos originPos = getOrigin(world, pos).orElse(pos);
         if (world.getBlockEntity(originPos) instanceof VillageContainerBlockEntity blockEntity && !world.isClient()) {
+            VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
+            if (villageData != null && villageData.getStorageOriginBlockPosList().contains(originPos) && !CitizenHelper.isCitizenOfClosestVillage((ServerWorld) world, player)) {
+                player.sendMessage(Text.translatable("mayor.village.citizen.unregistered"), true);
+                return ActionResult.FAIL;
+            }
             // extract
             Optional<ItemStack> removedStack = blockEntity.extractFromOrigin(hit.getSide());
             if (removedStack.isPresent() && !removedStack.get().isEmpty()) {
@@ -77,6 +84,11 @@ public abstract class AbstractVillageContainerBlock extends BlockWithEntity {
             return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
 
         if (blockEntity.canInsert(player.getStackInHand(hand).copy(), hit.getSide())) {
+            VillageData villageData = StateHelper.getClosestVillage((ServerWorld) world, pos);
+            if (villageData != null && villageData.getStorageOriginBlockPosList().contains(originPos) && !CitizenHelper.isCitizenOfClosestVillage((ServerWorld) world, player)) {
+                player.sendMessage(Text.translatable("mayor.village.citizen.unregistered"), true);
+                return ItemActionResult.FAIL;
+            }
             if (blockEntity.insertIntoOrigin(player.getStackInHand(hand).copy(), hit.getSide())) {
                 player.getStackInHand(hand).decrementUnlessCreative(player.getStackInHand(hand).getCount(), player);
                 return ItemActionResult.SUCCESS;
