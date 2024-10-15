@@ -333,5 +333,6 @@
     "yacl3.config.mayor:mayor.minVoteCount": "Min Vote Count",
     "yacl3.config.mayor:mayor.minTickMayorTime": "Min Tick Mayor Time",
     "yacl3.config.mayor:mayor.villageFoundingCost": "Village Founding Cost",
-    "yacl3.config.mayor:mayor.villageRenameCost": "Village Rename Cost"
+    "yacl3.config.mayor:mayor.villageRenameCost": "Village Rename Cost",
+    "yacl3.config.mayor:mayor.villageNames": "Village Names"
 }

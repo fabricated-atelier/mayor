@@ -2,6 +2,7 @@ package io.fabricatedatelier.mayor.state;
 
 import java.util.*;
 
+import io.fabricatedatelier.mayor.config.MayorConfig;
 import io.fabricatedatelier.mayor.util.StateHelper;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import io.fabricatedatelier.mayor.util.VillageHelper;
@@ -65,6 +66,9 @@ public class VillageState extends PersistentState {
 
         VillageData villageData = new VillageData(centerPos);
         villageData.setBiomeCategory(StructureHelper.getBiomeCategory(world.getBiome(centerPos)));
+        if (!MayorConfig.CONFIG.instance().villageNames.isEmpty()) {
+            villageData.setName(MayorConfig.CONFIG.instance().villageNames.get(world.getRandom().nextInt(MayorConfig.CONFIG.instance().villageNames.size())));
+        }
         villageData.setAge(world.getTime());
         villageData.setCitizenData(new CitizenData(new ArrayList<>(), null, 0, 0, 0, 0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         this.villages.put(centerPos, villageData);
