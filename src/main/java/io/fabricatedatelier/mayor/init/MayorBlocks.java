@@ -17,9 +17,10 @@ public class MayorBlocks {
 
     public static final Block CONSTRUCTION_TABLE = register("construction_table", new Block(AbstractBlock.Settings.copy(Blocks.SMOOTH_STONE_SLAB)), false);
     public static final Block DESK = register("desk", new DeskBlock(AbstractBlock.Settings.copy(Blocks.LECTERN)), false);
+    @Deprecated
     public static final Block POLE = register("pole", new PoleBlock(AbstractBlock.Settings.copy(Blocks.STONE_SLAB)), false);
 
-    public static final Block LUMBERJACK_TABLE = register("lumberjack_table", new Block(AbstractBlock.Settings.copy(Blocks.STONE_SLAB)), false);
+    public static final Block WOODCUTTER = register("woodcutter", new WoodCutterBlock(AbstractBlock.Settings.copy(Blocks.SPRUCE_PLANKS)), false);
     public static final Block MINER_TABLE = register("miner_table", new Block(AbstractBlock.Settings.copy(Blocks.STONE_SLAB)), false);
 
     /**

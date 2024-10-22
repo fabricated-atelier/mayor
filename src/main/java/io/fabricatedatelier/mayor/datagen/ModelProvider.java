@@ -6,6 +6,7 @@ import io.fabricatedatelier.mayor.init.MayorBlocks;
 import io.fabricatedatelier.mayor.init.MayorItems;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricModelProvider;
+import net.minecraft.block.Blocks;
 import net.minecraft.data.client.*;
 import net.minecraft.util.Identifier;
 
@@ -30,9 +31,17 @@ public class ModelProvider extends FabricModelProvider {
                 .coordinate(createMultiBlockStructureMap("lumber")));   //TODO: use different model?
 
         blockStateModelGenerator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(MayorBlocks.CONSTRUCTION_TABLE, Mayor.identifierOf("block/construction_table")));
+
+        blockStateModelGenerator.blockStateCollector.accept(
+                        VariantsBlockStateSupplier.create(MayorBlocks.WOODCUTTER, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(MayorBlocks.WOODCUTTER)))
+                                .coordinate(BlockStateModelGenerator.createNorthDefaultHorizontalRotationStates()));
+
+        blockStateModelGenerator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(MayorBlocks.MINER_TABLE, Mayor.identifierOf("block/miner_table")));
+
         blockStateModelGenerator.blockStateCollector.accept(
                 VariantsBlockStateSupplier.create(MayorBlocks.DESK, BlockStateVariant.create().put(VariantSettings.MODEL, ModelIds.getBlockModelId(MayorBlocks.DESK)))
                         .coordinate(BlockStateModelGenerator.createNorthDefaultHorizontalRotationStates()));
+
         blockStateModelGenerator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(MayorBlocks.POLE, Mayor.identifierOf("block/pole")));
 
     }
@@ -52,6 +61,12 @@ public class ModelProvider extends FabricModelProvider {
 
         itemModelGenerator.register(MayorItems.POLE,
                 new Model(Optional.of(Mayor.identifierOf("block/pole")), Optional.empty()));
+
+        itemModelGenerator.register(MayorItems.WOODCUTTER,
+                new Model(Optional.of(Mayor.identifierOf("block/woodcutter")), Optional.empty()));
+
+        itemModelGenerator.register(MayorItems.MINER_TABLE,
+                new Model(Optional.of(Mayor.identifierOf("block/miner_table")), Optional.empty()));
 
         itemModelGenerator.register(MayorItems.DECONSTRUCTION_HAMMER, Models.HANDHELD);
 

@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
+@Deprecated
 public class PoleBlock extends BlockWithEntity implements Waterloggable {
 
     public static final MapCodec<PoleBlock> CODEC = createCodec(PoleBlock::new);

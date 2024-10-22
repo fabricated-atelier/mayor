@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "mayor:block/woodcutter",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "mayor:block/woodcutter"
+    },
+    "facing=south": {
+      "model": "mayor:block/woodcutter",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "mayor:block/woodcutter",
+      "y": 270
+    }
+  }
+}

@@ -6,7 +6,9 @@ import io.fabricatedatelier.mayor.screen.block.BallotUrnBlockScreen;
 import io.fabricatedatelier.mayor.screen.block.DeskBlockScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 
 @Environment(EnvType.CLIENT)
@@ -18,5 +20,7 @@ public class MayorRenderers {
 
         HandledScreens.register(MayorBlockEntities.BALLOT_URN_SCREEN_HANDLER, BallotUrnBlockScreen::new);
         HandledScreens.register(MayorBlockEntities.DESK_SCREEN_HANDLER, DeskBlockScreen::new);
+
+        BlockRenderLayerMap.INSTANCE.putBlock(MayorBlocks.WOODCUTTER, RenderLayer.getCutout());
     }
 }

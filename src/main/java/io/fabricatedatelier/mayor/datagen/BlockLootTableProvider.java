@@ -20,5 +20,7 @@ public class BlockLootTableProvider extends FabricBlockLootTableProvider {
         addDrop(MayorBlocks.CONSTRUCTION_TABLE, MayorBlocks.CONSTRUCTION_TABLE);
         addDrop(MayorBlocks.DESK, MayorBlocks.DESK);
         addDrop(MayorBlocks.POLE, MayorBlocks.POLE);
+        addDrop(MayorBlocks.WOODCUTTER, MayorBlocks.WOODCUTTER);
+        addDrop(MayorBlocks.MINER_TABLE, MayorBlocks.MINER_TABLE);
     }
 }

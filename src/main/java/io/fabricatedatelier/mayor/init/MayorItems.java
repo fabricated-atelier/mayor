@@ -29,6 +29,10 @@ public class MayorItems {
 
     public static final Item POLE = register("pole", new BlockItem(MayorBlocks.POLE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
 
+    public static final Item WOODCUTTER = register("woodcutter", new BlockItem(MayorBlocks.WOODCUTTER, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
+
+    public static final Item MINER_TABLE = register("miner_table", new BlockItem(MayorBlocks.MINER_TABLE, new Item.Settings()), List.of(MayorItemGroups.MAYOR_BLOCKS));
+
     public static final Item DECONSTRUCTION_HAMMER = register("deconstruction_hammer",
             new DeconstructionHammerItem(ToolMaterials.IRON,
                     new Item.Settings().attributeModifiers(PickaxeItem.createAttributeModifiers(ToolMaterials.IRON, 1.0F, -2.8F))

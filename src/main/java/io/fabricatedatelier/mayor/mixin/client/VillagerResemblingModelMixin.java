@@ -53,7 +53,9 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
 
     @Inject(method = "setAngles", at = @At("TAIL"))
     private void setAnglesMixin(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, CallbackInfo info) {
-        if (entity instanceof Worker worker && worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !worker.getVillagerEntity().isSleeping()) {
+        if (entity instanceof Worker worker && (worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER)
+                || worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.MINER)
+                || worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.LUMBERJACK)) && !worker.getVillagerEntity().isSleeping()) {
             this.head.xScale = 1.0005f;
             if (worker.getTaskValue() == 2) {
                 this.root.getChild(EntityModelPartNames.ARMS).visible = false;

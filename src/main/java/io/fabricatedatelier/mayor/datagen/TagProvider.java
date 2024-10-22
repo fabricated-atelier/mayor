@@ -28,9 +28,9 @@ public class TagProvider {
         @Override
         protected void configure(RegistryWrapper.WrapperLookup wrapperLookup) {
             getOrCreateTagBuilder(net.minecraft.registry.tag.BlockTags.AXE_MINEABLE)
-                    .add(MayorBlocks.LUMBER_STORAGE, MayorBlocks.STONE_STORAGE, MayorBlocks.DESK).setReplace(false);
+                    .add(MayorBlocks.LUMBER_STORAGE, MayorBlocks.STONE_STORAGE, MayorBlocks.DESK, MayorBlocks.WOODCUTTER).setReplace(false);
             getOrCreateTagBuilder(net.minecraft.registry.tag.BlockTags.PICKAXE_MINEABLE)
-                    .add(MayorBlocks.POLE).setReplace(false);
+                    .add(MayorBlocks.POLE, MayorBlocks.MINER_TABLE).setReplace(false);
             getOrCreateTagBuilder(DECONSTRUCTION_HAMMER_BLOCKS)
                     .add(Blocks.COBBLESTONE, Blocks.BLACKSTONE, Blocks.COBBLED_DEEPSLATE, Blocks.COBBLED_DEEPSLATE_SLAB,
                             Blocks.COBBLED_DEEPSLATE_STAIRS, Blocks.COBBLED_DEEPSLATE_WALL, Blocks.COBBLESTONE_SLAB,
