@@ -149,12 +149,10 @@ public class MayorScreen extends Screen {
 
         if (this.mayorManager.getMayorStructure() != null) {
             this.requiredItemScrollableWidget.setItemStacks(this.mayorManager.getMayorStructure().getRequiredItemStacks());
-            if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || (InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty() && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice()))))) {
-                if (this.mayorManager.getAvailableBuilder() > 0) {
-                    this.buildButton.active = true;
-                }
-                this.buildButton.visible = true;
+            if ((this.client != null && this.client.player != null && (this.client.player.isCreativeLevelTwoOp() || (InventoryUtil.getMissingItems(this.availableStacks, this.mayorManager.getMayorStructure().getRequiredItemStacks()).isEmpty() && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice()) && this.mayorManager.getAvailableBuilder() > 0)))) {
+                this.buildButton.active = true;
             }
+            this.buildButton.visible = true;
         }
     }
 
@@ -260,7 +258,7 @@ public class MayorScreen extends Screen {
                 int extraWidth = 8; // cause of emeralds
                 context.drawText(this.textRenderer, buildingConst, this.width / 2 - this.textRenderer.getWidth(buildingConst) / 2 - extraWidth, this.height / 2 - 5, Colors.GRAY, false);
                 int priceX = this.width / 2 + this.textRenderer.getWidth(buildingConst) / 2 - extraWidth + 4;
-                ScreenHelper.drawPrice(context,this.textRenderer,priceX,this.height / 2 - 10, buildingCost);
+                ScreenHelper.drawPrice(context, this.textRenderer, priceX, this.height / 2 - 10, buildingCost);
                 if (this.client != null && this.client.player != null && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.mayorManager.getMayorStructure().getPrice())) {
                     context.drawTexture(VILLAGE, priceX + 12, this.height / 2 - 10, 46, 0, 7, 6, 128, 128);
                 }
