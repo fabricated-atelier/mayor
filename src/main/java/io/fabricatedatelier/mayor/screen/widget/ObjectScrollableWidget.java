@@ -8,6 +8,7 @@ import io.fabricatedatelier.mayor.screen.MayorScreen;
 import io.fabricatedatelier.mayor.screen.MayorVillageScreen;
 import io.fabricatedatelier.mayor.state.StructureData;
 import io.fabricatedatelier.mayor.util.InventoryUtil;
+import io.fabricatedatelier.mayor.util.RenderUtil;
 import io.fabricatedatelier.mayor.util.StructureHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +25,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockBox;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -147,6 +149,18 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     }
                 }
                 rowCount += 1;
+            }
+            if (this.selectedIndex >= 0) {
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (this.objects.size() > this.selectedIndex && this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
+                    if (client.worldRenderer.isRenderingReady(structureData.getBottomCenterPos())) {
+                        BlockBox box = structureData.getBlockBox();
+                        RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMinZ(), 1);
+                        RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ()+1, 2);
+                        RenderUtil.renderParticlePole(client, box.getMaxX()+1, box.getMinY(), box.getMaxZ()+1, 3);
+                        RenderUtil.renderParticlePole(client, box.getMaxX()+1, box.getMinY(), box.getMinZ(), 4);
+                    }
+                }
             }
         }
     }

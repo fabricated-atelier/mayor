@@ -63,9 +63,9 @@ public class RenderUtil {
                         // Todo: Maybe change this
                         BlockBox box = entry.getValue().getStructureData().getBlockBox();
                         renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMinZ(), 1);
-                        renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ(), 2);
-                        renderParticlePole(client, box.getMaxX(), box.getMinY(), box.getMaxZ(), 3);
-                        renderParticlePole(client, box.getMaxX(), box.getMinY(), box.getMinZ(), 4);
+                        renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ() + 1, 2);
+                        renderParticlePole(client, box.getMaxX() + 1, box.getMinY(), box.getMaxZ() + 1, 3);
+                        renderParticlePole(client, box.getMaxX() + 1, box.getMinY(), box.getMinZ(), 4);
                     }
                 }
             }
@@ -206,7 +206,7 @@ public class RenderUtil {
         context.drawTexture(MayorScreen.VILLAGE, x - 4 + 7 + width - 7, y + height, 39, 14, 7, 7, 128, 128);
     }
 
-    private static void renderParticlePole(MinecraftClient client, int x, int y, int z, int edge) {
+    public static void renderParticlePole(MinecraftClient client, int x, int y, int z, int edge) {
         addParticles(client, x, y, z);
 
         if (edge == 1 || edge == 2) addParticles(client, x + 0.5f, y, z);
