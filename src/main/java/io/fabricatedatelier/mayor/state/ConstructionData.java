@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * To be built structures
+ * To be built/demolished structures
  */
 public class ConstructionData {
 
@@ -21,12 +21,14 @@ public class ConstructionData {
     private final Map<BlockPos, BlockState> blockMap;
     @Nullable
     private UUID villagerUuid;
+    private final boolean demolish;
 
-    public ConstructionData(BlockPos bottomCenterPos, StructureData structureData, Map<BlockPos, BlockState> blockMap, @Nullable UUID villagerUuid) {
+    public ConstructionData(BlockPos bottomCenterPos, StructureData structureData, Map<BlockPos, BlockState> blockMap, @Nullable UUID villagerUuid, boolean demolish) {
         this.bottomCenterPos = bottomCenterPos;
         this.structureData = structureData;
         this.blockMap = blockMap;
         this.villagerUuid = villagerUuid;
+        this.demolish = demolish;
     }
 
     public ConstructionData(NbtCompound nbt) {
@@ -42,6 +44,7 @@ public class ConstructionData {
         } else {
             this.villagerUuid = null;
         }
+        this.demolish = nbt.getBoolean("Demolish");
     }
 
     public void writeDataToNbt(NbtCompound nbt) {
@@ -58,6 +61,7 @@ public class ConstructionData {
         if (this.villagerUuid != null) {
             nbt.putUuid("VillagerUuid", this.villagerUuid);
         }
+        nbt.putBoolean("Demolish", this.demolish);
     }
 
     public NbtCompound writeDataToNbt() {
@@ -75,6 +79,7 @@ public class ConstructionData {
         if (this.villagerUuid != null) {
             nbt.putUuid("VillagerUuid", this.villagerUuid);
         }
+        nbt.putBoolean("Demolish", this.demolish);
         return nbt;
     }
 
@@ -97,6 +102,10 @@ public class ConstructionData {
 
     public void setVillagerUuid(@Nullable UUID villagerUuid) {
         this.villagerUuid = villagerUuid;
+    }
+
+    public boolean getDemolish() {
+        return demolish;
     }
 }
 

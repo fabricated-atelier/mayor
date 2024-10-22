@@ -47,7 +47,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                 if (StateHelper.getMayorVillageState(serverWorld) != null) {
                     VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(worker.getVillageCenterPosition());
                     if (villageData != null) {
-                        if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(worker.getTargetPosition())) {
+                        if (!villageData.getConstructions().isEmpty() && villageData.getConstructions().containsKey(worker.getTargetPosition()) && !villageData.getConstructions().get(worker.getTargetPosition()).getDemolish()) {
                             this.constructionData = villageData.getConstructions().get(worker.getTargetPosition());
 
                             if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
@@ -120,6 +120,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                     if (StructureHelper.getMissingConstructionBlockMap(serverWorld, this.constructionData).isEmpty()) {
                         this.constructionFinished = true;
                         finishBuildTask(serverWorld, villagerEntity, time);
+                        stop(serverWorld, villagerEntity, time);
                     } else if (!placedBlock && !worker.getWorkerInventory().isEmpty()) {
                         stop(serverWorld, villagerEntity, time);
                     }
@@ -142,12 +143,14 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
         return this.ticksRan < MAX_RUN_TIME;
     }
 
-    private void finishBuildTask(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
-        stop(serverWorld, villagerEntity, time);
-
+    public static void finishBuildTask(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
+        // Three following lines probably not needed
+        //        stop(serverWorld, villagerEntity, time);
+        //        this.currentTarget = null;
+        //            this.constructionFinished = false;
         System.out.println("FINALLY FINISHED STRUCTURE BUILD");
 
-        this.currentTarget = null;
+
         if (villagerEntity instanceof Worker worker && worker.getVillageCenterPosition() != null) {
             VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
             VillageData villageData = villageState.getVillageData(worker.getVillageCenterPosition());
@@ -159,11 +162,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
                 }
             }
 
-//            System.out.println("FINALLY LUL " + builder.getBuilderInventory().isEmpty() + " : " + builder.getBuilderInventory().getHeldStacks());
-            // Todo: Edgecase: if building is finished while villager was not there
             serverWorld.sendEntityStatus(villagerEntity, EntityStatuses.ADD_VILLAGER_HAPPY_PARTICLES);
-
-            this.constructionFinished = false;
             worker.setTargetPosition(null);
         }
     }

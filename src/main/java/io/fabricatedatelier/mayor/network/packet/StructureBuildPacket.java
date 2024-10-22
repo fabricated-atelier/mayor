@@ -14,11 +14,14 @@ import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 
-public record StructureBuildPacket(Identifier mayorStructureIdentifier, BlockPos originBlockPos, int structureRotation, boolean center) implements CustomPayload {
+/**
+ * code: 0 = new build, 1 = upgrade, 2 demolish
+ */
+public record StructureBuildPacket(Identifier mayorStructureIdentifier, BlockPos originBlockPos, int structureRotation, boolean center, int code) implements CustomPayload {
 
     public static final CustomPayload.Id<StructureBuildPacket> PACKET_ID = new CustomPayload.Id<>(Mayor.identifierOf("structure_build_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, StructureBuildPacket> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, StructureBuildPacket::mayorStructureIdentifier, BlockPos.PACKET_CODEC, StructureBuildPacket::originBlockPos, PacketCodecs.INTEGER, StructureBuildPacket::structureRotation, PacketCodecs.BOOL, StructureBuildPacket::center, StructureBuildPacket::new);
+    public static final PacketCodec<RegistryByteBuf, StructureBuildPacket> PACKET_CODEC = PacketCodec.tuple(Identifier.PACKET_CODEC, StructureBuildPacket::mayorStructureIdentifier, BlockPos.PACKET_CODEC, StructureBuildPacket::originBlockPos, PacketCodecs.INTEGER, StructureBuildPacket::structureRotation, PacketCodecs.BOOL, StructureBuildPacket::center, PacketCodecs.INTEGER, StructureBuildPacket::code, StructureBuildPacket::new);
 
     @Override
     public Id<? extends CustomPayload> getId() {
@@ -42,7 +45,16 @@ public record StructureBuildPacket(Identifier mayorStructureIdentifier, BlockPos
                     }
                 }
                 if (selectedMayorStructure != null) {
-                    StructureHelper.tryBuildStructure(context.player(), selectedMayorStructure, this.originBlockPos(), StructureHelper.getStructureRotation(this.structureRotation()), this.center());
+                    // build or upgrade
+                    if (this.code() == 0 || this.code() == 1) {
+                        StructureHelper.tryBuildStructure(context.player(), selectedMayorStructure, this.originBlockPos(), StructureHelper.getStructureRotation(this.structureRotation()), this.center(), this.code());
+                    } else
+                        // demolish
+                        if (this.code() == 2) {
+                            if (mayorManager.getVillageData().getStructures().containsKey(this.originBlockPos())) {
+                                StructureHelper.tryDemolishStructure(context.player(), selectedMayorStructure, this.originBlockPos());
+                            }
+                        }
                 }
             }
         });

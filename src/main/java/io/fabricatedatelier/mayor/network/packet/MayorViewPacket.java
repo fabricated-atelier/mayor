@@ -66,7 +66,7 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
 
     public void handleClientPacket(ServerPlayNetworking.Context context) {
         if (this.mayorView) {
-            if (!context.player().isCreativeLevelTwoOp() && CitizenHelper.isCitizenOfClosestVillage(context.player().getServerWorld(), context.player())) {
+            if (!context.player().isCreativeLevelTwoOp() && !CitizenHelper.isCitizenOfClosestVillage(context.player().getServerWorld(), context.player())) {
                 return;
             }
             VillageData villageData = StateHelper.getClosestVillage(context.player().getServerWorld(), context.player().getBlockPos());

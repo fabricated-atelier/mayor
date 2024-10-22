@@ -156,9 +156,9 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     if (client.worldRenderer.isRenderingReady(structureData.getBottomCenterPos())) {
                         BlockBox box = structureData.getBlockBox();
                         RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMinZ(), 1);
-                        RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ()+1, 2);
-                        RenderUtil.renderParticlePole(client, box.getMaxX()+1, box.getMinY(), box.getMaxZ()+1, 3);
-                        RenderUtil.renderParticlePole(client, box.getMaxX()+1, box.getMinY(), box.getMinZ(), 4);
+                        RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ() + 1, 2);
+                        RenderUtil.renderParticlePole(client, box.getMaxX() + 1, box.getMinY(), box.getMaxZ() + 1, 3);
+                        RenderUtil.renderParticlePole(client, box.getMaxX() + 1, box.getMinY(), box.getMinZ(), 4);
                     }
                 }
             }
@@ -321,27 +321,77 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     new EntityViewPacket(villagerEntity.getId()).sendPacket();
                 } else if (this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
                     MayorStructure mayorUpgradeStructure = StructureHelper.getUpgradeStructure(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
-                    if (mayorUpgradeStructure != null) {
-                        List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorUpgradeStructure.getRequiredItemStacks());
-                        mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
-                        if ((MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (requiredItemStacks.isEmpty() && InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice()))) {
-                            if (mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
+
+                    MinecraftClient client = MinecraftClient.getInstance();
+                    if (client.player != null) {
+                        boolean creativeLevelTwoOp = client.player.isCreativeLevelTwoOp();
+
+                        if (mayorUpgradeStructure != null) {
+                            List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorUpgradeStructure.getRequiredItemStacks());
+                            mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
+                            if ((creativeLevelTwoOp || (requiredItemStacks.isEmpty() && InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice()))) && mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
                                 mayorVillageScreen.getUpgradeButton().setUpgradeStructure(mayorUpgradeStructure);
                                 mayorVillageScreen.getUpgradeButton().setStructureData(structureData);
+                                // Todo: Set price has an issue, probably be better to have a demolish price on the structure data so no set price is needed
+                                mayorVillageScreen.getUpgradeButton().setPrice(mayorUpgradeStructure.getPrice());
                                 mayorVillageScreen.getUpgradeButton().active = true;
+                            } else {
+                                mayorVillageScreen.getUpgradeButton().active = false;
                             }
-                            mayorVillageScreen.getUpgradeButton().visible = true;
-                        } else {
+                        }
+                        MayorStructure mayorStructure = StructureHelper.getMayorStructureById(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
+                        if (mayorStructure != null) {
+                            if ((creativeLevelTwoOp || InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorStructure.getPrice())) && mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
+                                mayorVillageScreen.getUpgradeButton().setStructureData(structureData);
+                                mayorVillageScreen.getUpgradeButton().setPrice(mayorStructure.getPrice());
+                                mayorVillageScreen.getDemolishButton().active = true;
+                            } else {
+                                mayorVillageScreen.getDemolishButton().active = false;
+                            }
+                        }
+
+                        if (mayorUpgradeStructure == null && mayorStructure == null) {
                             mayorVillageScreen.getUpgradeButton().setUpgradeStructure(null);
                             mayorVillageScreen.getUpgradeButton().setStructureData(null);
-                            mayorVillageScreen.getUpgradeButton().active = false;
+                            mayorVillageScreen.getUpgradeButton().setPrice(0);
+                            mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(null);
                             mayorVillageScreen.getUpgradeButton().visible = false;
+                            mayorVillageScreen.getDemolishButton().visible = false;
+                            this.selectedIndex = -1;
+                        } else {
+                            mayorVillageScreen.getUpgradeButton().visible = true;
+                            mayorVillageScreen.getDemolishButton().visible = true;
                         }
-                    } else {
-                        this.selectedIndex = -1;
-                        mayorVillageScreen.setUpgradeStructureNotAvailableTicks(60);
-                        mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(null);
                     }
+//                    if (mayorUpgradeStructure != null) {
+//
+//                        mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
+//                        if ((MinecraftClient.getInstance().player != null && (MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) || (requiredItemStacks.isEmpty() && InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice())))) {
+//                            if (mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
+//                                mayorVillageScreen.getUpgradeButton().setStructureData(structureData);
+//                                mayorVillageScreen.getUpgradeButton().active = true;
+//                                mayorVillageScreen.getDemolishButton().active = true;
+//                            } else if (MinecraftClient.getInstance().player.isCreativeLevelTwoOp()) {
+//                                mayorVillageScreen.getDemolishButton().active = true;
+//                            }
+//                            mayorVillageScreen.getUpgradeButton().setUpgradeStructure(mayorUpgradeStructure);
+//                            mayorVillageScreen.getUpgradeButton().visible = true;
+//                            mayorVillageScreen.getDemolishButton().visible = true;
+////                            System.out.println("TESTXX");
+//                        } else {
+////                            System.out.println("::A");
+//                            mayorVillageScreen.getUpgradeButton().setUpgradeStructure(null);
+//                            mayorVillageScreen.getUpgradeButton().setStructureData(null);
+//                            mayorVillageScreen.getUpgradeButton().active = false;
+//                            mayorVillageScreen.getUpgradeButton().visible = false;
+//                            mayorVillageScreen.getDemolishButton().active = false;
+//                            mayorVillageScreen.getDemolishButton().visible = false;
+//                        }
+//                    } else {
+//                        this.selectedIndex = -1;
+//                        mayorVillageScreen.setUpgradeStructureNotAvailableTicks(60);
+//                        mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(null);
+//                    }
                 }
             }
             MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));

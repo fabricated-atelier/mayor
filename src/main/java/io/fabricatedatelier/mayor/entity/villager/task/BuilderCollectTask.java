@@ -38,26 +38,8 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
         super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
-//    @Override
-//    protected boolean hasRequiredMemoryState(VillagerEntity entity) {
-//        boolean test =
-//                super.hasRequiredMemoryState(entity);
-////        System.out.println("LOL TEST "+test);
-////        Mayor.LOGGER.warn("LOL");
-//        return test;
-//    }
-
     @Override
     protected boolean shouldRun(ServerWorld serverWorld, VillagerEntity villagerEntity) {
-
-//        System.out.println("???");
-
-//        "#minecraft:doors",
-//                "minecraft:glass_pane",
-//                "#minecraft:beds",
-//                "minecraft:torch",
-//                "#minecraft:stairs"
-
         if (serverWorld.getTime() < this.nextResponseTime) {
             return false;
         }

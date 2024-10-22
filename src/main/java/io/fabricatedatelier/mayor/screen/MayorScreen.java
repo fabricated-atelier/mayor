@@ -135,7 +135,7 @@ public class MayorScreen extends Screen {
                     }
                 }
 
-                new StructureBuildPacket(this.mayorManager.getMayorStructure().getIdentifier(), this.mayorManager.getStructureOriginBlockPos(), StructureHelper.getStructureRotation(this.mayorManager.getStructureRotation()), this.mayorManager.getStructureCentered()).sendPacket();
+                new StructureBuildPacket(this.mayorManager.getMayorStructure().getIdentifier(), this.mayorManager.getStructureOriginBlockPos(), StructureHelper.getStructureRotation(this.mayorManager.getStructureRotation()), this.mayorManager.getStructureCentered(), 0).sendPacket();
 
                 this.mayorManager.setMayorStructure(null);
                 this.mayorManager.setStructureOriginBlockPos(null);

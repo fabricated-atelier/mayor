@@ -297,6 +297,18 @@ public class StructureHelper {
         return bottomCenterPos;
     }
 
+    @Nullable
+    public static MayorStructure getMayorStructureById(Identifier currentStructureId, MayorCategory.BiomeCategory biomeCategory) {
+        String currentStructureString = StringUtil.getStructureString(currentStructureId);
+        for (int i = 0; i < MayorManager.mayorStructureMap.get(biomeCategory).size(); i++) {
+            MayorStructure mayorStructure = MayorManager.mayorStructureMap.get(biomeCategory).get(i);
+            if (!currentStructureString.equals(StringUtil.getStructureString(mayorStructure.getIdentifier()))) {
+                continue;
+            }
+            return mayorStructure;
+        }
+        return null;
+    }
 
     @Nullable
     public static MayorStructure getUpgradeStructure(Identifier currentStructureId, MayorCategory.BiomeCategory biomeCategory) {
@@ -400,7 +412,48 @@ public class StructureHelper {
         return new BlockBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
-    public static boolean tryBuildStructure(ServerPlayerEntity serverPlayerEntity, MayorStructure mayorStructure, BlockPos originBlockPos, BlockRotation structureRotation, boolean center) {
+    public static boolean tryDemolishStructure(ServerPlayerEntity serverPlayerEntity, MayorStructure mayorStructure, BlockPos originBlockPos) {
+        MayorManager mayorManager = ((MayorManagerAccess) serverPlayerEntity).getMayorManager();
+        boolean isCreativeLevelTwoOp = serverPlayerEntity.isCreativeLevelTwoOp();
+        if (!isCreativeLevelTwoOp && mayorManager.getVillageData().getMayorPlayerUuid() != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
+            serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.is_not_mayor"));
+            return false;
+        }
+        if (!isCreativeLevelTwoOp && !InventoryUtil.hasRequiredPrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice())) {
+            serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_funds"));
+            return false;
+        }
+        if (isCreativeLevelTwoOp || VillageHelper.hasTasklessBuildingVillager(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld())) {
+            if (!mayorManager.getVillageData().getStructures().containsKey(originBlockPos)) {
+                serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.no_structure_found", originBlockPos.toShortString()));
+                return false;
+            }
+            StructureData structureData = mayorManager.getVillageData().getStructures().get(originBlockPos);
+            if (isCreativeLevelTwoOp) {
+                removeBlocks(serverPlayerEntity.getServerWorld(), mayorManager.getVillageData().getStructures().get(originBlockPos).getBlockBox());
+            } else {
+                Worker worker = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
+                ConstructionData constructionData = new ConstructionData(originBlockPos, structureData, getBlockPosBlockStateMap(mayorStructure.getBlockMap(), originBlockPos, mayorStructure.getSize(), getStructureRotation(structureData.getRotation()), true), worker.getVillagerEntity().getUuid(), true);
+
+                InventoryUtil.consumePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice());
+                worker.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
+                worker.setTargetPosition(originBlockPos);
+                mayorManager.getVillageData().addConstruction(constructionData);
+            }
+            mayorManager.getVillageData().removeStructure(structureData);
+            new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), mayorManager.getVillageData().getFunds(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions(), mayorManager.getVillageData().getCitizenData()).sendPacket(serverPlayerEntity);
+            VillageState villageState = StateHelper.getMayorVillageState(serverPlayerEntity.getServerWorld());
+            villageState.markDirty();
+        } else {
+            serverPlayerEntity.sendMessage(Text.translatable("mayor.screen.missing_builder"));
+        }
+        return false;
+    }
+
+    /**
+     * code: 0 = new build, 1 = upgrade
+     */
+    public static boolean tryBuildStructure(ServerPlayerEntity serverPlayerEntity, MayorStructure mayorStructure, BlockPos originBlockPos, BlockRotation structureRotation, boolean center, int code) {
         Map<BlockPos, BlockState> blockPosBlockStateMap = mayorStructure.getBlockMap();
 
         if (!blockPosBlockStateMap.isEmpty()) {
@@ -444,7 +497,7 @@ public class StructureHelper {
                         new VillageDataPacket(mayorManager.getVillageData().getCenterPos(), mayorManager.getVillageData().getBiomeCategory().name(), mayorManager.getVillageData().getLevel(), mayorManager.getVillageData().getName(), mayorManager.getVillageData().getAge(), mayorManager.getVillageData().getFunds(), Optional.ofNullable(mayorManager.getVillageData().getMayorPlayerUuid()), mayorManager.getVillageData().getMayorPlayerTime(), Optional.ofNullable(mayorManager.getVillageData().getBallotUrnPos()), mayorManager.getVillageData().getStorageOriginBlockPosList(), mayorManager.getVillageData().getVillagers(), mayorManager.getVillageData().getIronGolems(), mayorManager.getVillageData().getStructures(), mayorManager.getVillageData().getConstructions(), mayorManager.getVillageData().getCitizenData()).sendPacket(serverPlayerEntity);
                     } else {
                         Worker worker = VillageHelper.getTasklessBuildingVillagerBuilder(mayorManager.getVillageData(), serverPlayerEntity.getServerWorld());
-                        ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), worker.getVillagerEntity().getUuid());
+                        ConstructionData constructionData = new ConstructionData(structureData.getBottomCenterPos(), structureData, getBlockPosBlockStateMap(blockPosBlockStateMap, originBlockPos, mayorManager.getMayorStructure().getSize(), structureRotation, center), worker.getVillagerEntity().getUuid(), false);
 
                         InventoryUtil.consumePrice(serverPlayerEntity.getInventory(), mayorStructure.getPrice());
                         worker.setVillageCenterPosition(mayorManager.getVillageData().getCenterPos());
@@ -498,6 +551,29 @@ public class StructureHelper {
 
             serverWorld.setBlockState(origin.add(pos), state, 3, 0);
         }
+    }
+
+    public static void removeBlocks(ServerWorld serverWorld, BlockBox blockBox) {
+        List<BlockPos> list = getBlockPosList(blockBox);
+        for (BlockPos pos : list) {
+            if (serverWorld.getBlockEntity(pos) instanceof Inventory inventory) {
+                ItemScatterer.spawn(serverWorld, pos, inventory);
+            }
+            serverWorld.setBlockState(pos, Blocks.AIR.getDefaultState());
+        }
+    }
+
+    // listed from top to bottom of blockBox
+    public static List<BlockPos> getBlockPosList(BlockBox blockBox) {
+        List<BlockPos> list = new ArrayList<>();
+        for (int u = blockBox.getMaxY(); u >= blockBox.getMinY(); u--) {
+            for (int i = blockBox.getMinX(); i <= blockBox.getMaxX(); i++) {
+                for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
+                    list.add(new BlockPos(i, u, o));
+                }
+            }
+        }
+        return list;
     }
 
     public static boolean canPlaceStructure(MayorManager mayorManager) {
@@ -567,6 +643,15 @@ public class StructureHelper {
 
     public static Map<BlockPos, BlockState> getObStructiveBlockMap(ServerWorld serverWorld, ConstructionData constructionData) {
         Map<BlockPos, BlockState> blockMap = new HashMap<>();
+        if (constructionData.getDemolish()) {
+            List<BlockPos> list = getBlockPosList(constructionData.getStructureData().getBlockBox());
+            for (BlockPos pos : list) {
+                if (!serverWorld.getBlockState(pos).isAir()) {
+                    blockMap.put(pos, serverWorld.getBlockState(pos));
+                }
+            }
+            return blockMap;
+        }
         for (Map.Entry<BlockPos, BlockState> entry : constructionData.getBlockMap().entrySet()) {
             if (!entry.getValue().isAir() && !serverWorld.getBlockState(entry.getKey()).isAir() && !serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
                 blockMap.put(entry.getKey(), serverWorld.getBlockState(entry.getKey()));
@@ -649,25 +734,43 @@ public class StructureHelper {
     public static boolean breakBlock(ServerWorld serverWorld, ConstructionData constructionData, WorkerInventory workerInventory) {
         Optional<Map.Entry<BlockPos, BlockState>> optional = getObStructiveBlockMap(serverWorld, constructionData).entrySet().stream().findFirst();
         if (optional.isPresent()) {
+            if (serverWorld.getBlockEntity(optional.get().getKey()) instanceof Inventory inventory) {
+                if (inventory.isEmpty()) {
+                    if (!workerInventory.isInventoryFull(optional.get().getValue().getBlock().asItem())) {
+                        serverWorld.breakBlock(optional.get().getKey(), false);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    for (int i = 0; i < inventory.size(); i++) {
+                        if (!inventory.getStack(i).isEmpty()) {
+                            if (!workerInventory.isInventoryFull(inventory.getStack(i))) {
+                                ItemStack itemStack = workerInventory.addStack(inventory.getStack(i));
+                                if (!itemStack.isEmpty()) {
+                                    ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
+                                }
+                                inventory.removeStack(i);
+                                inventory.markDirty();
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
             if (!workerInventory.isInventoryFull(optional.get().getValue().getBlock().asItem())) {
                 ItemStack itemStack = workerInventory.addStack(new ItemStack(optional.get().getValue().getBlock().asItem()));
                 if (!itemStack.isEmpty()) {
                     ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
                 }
+                serverWorld.breakBlock(optional.get().getKey(), false);
+                return true;
+            } else {
+                return false;
             }
-            if (serverWorld.getBlockEntity(optional.get().getKey()) instanceof Inventory inventory) {
-                for (int i = 0; i < inventory.size(); i++) {
-                    if (!inventory.getStack(i).isEmpty()) {
-                        ItemStack itemStack = workerInventory.addStack(inventory.getStack(i));
-                        inventory.removeStack(i);
-                        if (!itemStack.isEmpty()) {
-                            ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
-                        }
-                    }
-                }
-            }
-            serverWorld.breakBlock(optional.get().getKey(), false);
-            return true;
         }
         return false;
     }

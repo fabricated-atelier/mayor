@@ -42,7 +42,8 @@ public class MayorVillageScreen extends Screen {
     private ObjectScrollableWidget villagerScrollableWidget;
     private ObjectScrollableWidget structureScrollableWidget;
     private ItemScrollableWidget upgradeStructureScrollableWidget;
-    private UpgradeButton upgradeButton;
+    private StructureButton upgradeStructureButton;
+    private ButtonWidget demolishStructureButton;
     private ButtonWidget dismissButton;
 
     private int levelX = 0;
@@ -87,16 +88,32 @@ public class MayorVillageScreen extends Screen {
 
             this.upgradeStructureScrollableWidget = this.addDrawableChild(new ItemScrollableWidget(this.width / 2 - 59, this.height / 2 + 18, 118, 28, Text.translatable("mayor.screen.required_items"), this.textRenderer));
             Text upgrade = Text.translatable("mayor.screen.upgrade");
-            this.upgradeButton = this.addDrawableChild(new UpgradeButton(this.width / 2 - (this.textRenderer.getWidth(upgrade) + 7) / 2, this.height / 2 + 90, this.textRenderer.getWidth(upgrade) + 7, 20, upgrade, button -> {
+            this.upgradeStructureButton = this.addDrawableChild(new StructureButton(this.width / 2 - (this.textRenderer.getWidth(upgrade) + 7 + 2), this.height / 2 + 90, this.textRenderer.getWidth(upgrade) + 7, 20, upgrade, button -> {
                 button.active = false;
                 button.visible = false;
                 this.upgradeStructureScrollableWidget.setItemStacks(null);
-                if (((UpgradeButton) button).getUpgradeStructure() != null) {
-                    new StructureBuildPacket(((UpgradeButton) button).getUpgradeStructure().getIdentifier(), ((UpgradeButton) button).getStructureData().getBottomCenterPos(), ((UpgradeButton) button).getStructureData().getRotation(), true).sendPacket();
+                this.demolishStructureButton.active = false;
+                this.demolishStructureButton.visible = false;
+                if (((StructureButton) button).getUpgradeStructure() != null) {
+                    new StructureBuildPacket(((StructureButton) button).getUpgradeStructure().getIdentifier(), ((StructureButton) button).getStructureData().getBottomCenterPos(), ((StructureButton) button).getStructureData().getRotation(), true, 1).sendPacket();
                 }
             }));
-            this.upgradeButton.active = false;
-            this.upgradeButton.visible = false;
+            this.upgradeStructureButton.active = false;
+            this.upgradeStructureButton.visible = false;
+
+            Text demolish = Text.translatable("mayor.screen.demolish");
+            this.demolishStructureButton = this.addDrawableChild(new StructureButton(this.width / 2 +2, this.height / 2 + 90, this.textRenderer.getWidth(demolish) + 7, 20, demolish, button -> {
+                button.active = false;
+                button.visible = false;
+                this.upgradeStructureButton.active = false;
+                this.upgradeStructureButton.visible = false;
+                this.upgradeStructureScrollableWidget.setItemStacks(null);
+                if (this.upgradeStructureButton.getStructureData() != null) {
+                    new StructureBuildPacket(this.upgradeStructureButton.getStructureData().getIdentifier(), this.upgradeStructureButton.getStructureData().getBottomCenterPos(), this.upgradeStructureButton.getStructureData().getRotation(), true, 2).sendPacket();
+                }
+            }));
+            this.demolishStructureButton.active = false;
+            this.demolishStructureButton.visible = false;
 
             Text dismiss = Text.translatable("mayor.screen.dismiss");
             if (this.mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client != null && this.client.player != null && this.client.player.getUuid().equals(this.mayorManager.getVillageData().getMayorPlayerUuid())) {
@@ -141,7 +158,7 @@ public class MayorVillageScreen extends Screen {
                 context.drawTexture(MayorScreen.VILLAGE, this.levelX, this.levelY, 19, 23, 19, 19, 128, 128);
             }
 
-            if (this.upgradeStructureScrollableWidget.getItemStacks() != null && !this.upgradeStructureScrollableWidget.getItemStacks().isEmpty() && this.upgradeButton.visible) {
+            if (this.upgradeStructureScrollableWidget.getItemStacks() != null && !this.upgradeStructureScrollableWidget.getItemStacks().isEmpty() && this.upgradeStructureButton.visible) {
                 // Render upgrade button here, done by widget
             } else if (this.upgradeStructureNotAvailableTicks > 0) {
                 Text text = Text.translatable("mayor.screen.no_structure_upgrade_available");
@@ -201,13 +218,13 @@ public class MayorVillageScreen extends Screen {
                 }
             }
 
-            if (this.upgradeButton.visible && this.upgradeButton.getUpgradeStructure() != null) {
+            if (this.upgradeStructureButton.visible) {
                 RenderUtil.renderCustomBackground(context, this.width / 2 - 56, this.height / 2 + 50, 112, 60);
 
                 Text builder = Text.translatable("mayor.screen.builder", this.mayorManager.getAvailableBuilder());
                 context.drawText(this.textRenderer, builder, this.width / 2 - this.textRenderer.getWidth(builder) / 2, this.height / 2 + 60, Colors.GRAY, false);
 
-                int buildingCost = this.upgradeButton.getUpgradeStructure().getPrice();
+                int buildingCost = this.upgradeStructureButton.getPrice();
                 Text buildingConst = Text.translatable("mayor.screen.building_cost", buildingCost);
 
                 int extraWidth = 8; // cause of emeralds
@@ -215,7 +232,7 @@ public class MayorVillageScreen extends Screen {
                 int priceX = this.width / 2 + this.textRenderer.getWidth(buildingConst) / 2 - extraWidth + 4;
                 context.drawItem(EMERALD, priceX, this.height / 2 + 70);
                 context.drawItemInSlot(this.textRenderer, EMERALD, priceX, this.height / 2 + 70, String.valueOf(buildingCost));
-                if (this.client != null && this.client.player != null && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), this.upgradeButton.getUpgradeStructure().getPrice())) {
+                if (this.client != null && this.client.player != null && InventoryUtil.hasRequiredPrice(this.client.player.getInventory(), buildingCost)) {
                     context.drawTexture(MayorScreen.VILLAGE, priceX + 12, this.height / 2 + 70, 46, 0, 7, 6, 128, 128);
                 }
             }
@@ -266,27 +283,31 @@ public class MayorVillageScreen extends Screen {
         return this.upgradeStructureScrollableWidget;
     }
 
-    public UpgradeButton getUpgradeButton() {
-        return this.upgradeButton;
+    public StructureButton getUpgradeButton() {
+        return this.upgradeStructureButton;
+    }
+
+    public ButtonWidget getDemolishButton() {
+        return this.demolishStructureButton;
     }
 
     public void setUpgradeStructureNotAvailableTicks(int ticks) {
         this.upgradeStructureNotAvailableTicks = ticks;
     }
 
-
     private boolean isMouseWithinBounds(int x, int y, int width, int height, double mouseX, double mouseY) {
         return mouseX >= (double) (x - 1) && mouseX < (double) (x + width + 1) && mouseY >= (double) (y - 1) && mouseY < (double) (y + height + 1);
     }
 
-    public class UpgradeButton extends ButtonWidget {
+    public static class StructureButton extends ButtonWidget {
 
         @Nullable
         private MayorStructure upgradeStructure = null;
         @Nullable
         private StructureData structureData = null;
+        private int price = 0;
 
-        public UpgradeButton(int x, int y, int width, int height, Text message, PressAction onPress) {
+        public StructureButton(int x, int y, int width, int height, Text message, PressAction onPress) {
             super(x, y, width, height, message, onPress, ButtonWidget.DEFAULT_NARRATION_SUPPLIER);
         }
 
@@ -306,6 +327,14 @@ public class MayorVillageScreen extends Screen {
         @Nullable
         public StructureData getStructureData() {
             return this.structureData;
+        }
+
+        public void setPrice(int price) {
+            this.price = price;
+        }
+
+        public int getPrice() {
+            return price;
         }
     }
 }
