@@ -2,6 +2,7 @@
   "plains_small_house_1": {
     "replace": false,
     "experience": 3000,
-    "price": 24
+    "price": 24,
+    "id": "plains_small_house_1_1"
   }
 }

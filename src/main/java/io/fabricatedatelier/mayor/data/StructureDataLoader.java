@@ -40,7 +40,11 @@ public class StructureDataLoader implements SimpleSynchronousResourceReloadListe
                             if (JsonHelper.getBoolean(entry.getValue().getAsJsonObject(), "replace", false)) {
                                 replaceList.add(entry.getKey());
                             }
-                            StructureDataLoader.structureDataMap.put(entry.getKey(), List.of(entry.getValue().getAsJsonObject().get("experience").getAsInt(), entry.getValue().getAsJsonObject().get("price").getAsInt()));
+                            String structureIdentifier = entry.getKey();
+                            if (entry.getValue().getAsJsonObject().get("id") != null && !entry.getValue().getAsJsonObject().get("id").getAsString().isEmpty()) {
+                                structureIdentifier = entry.getValue().getAsJsonObject().get("id").getAsString();
+                            }
+                            StructureDataLoader.structureDataMap.put(structureIdentifier, List.of(entry.getValue().getAsJsonObject().get("experience").getAsInt(), entry.getValue().getAsJsonObject().get("price").getAsInt()));
                         } else {
                             Mayor.LOGGER.error("Error occurred while loading resource {}. {} is not a valid json object.", id.toString(), entry.getKey());
                         }
