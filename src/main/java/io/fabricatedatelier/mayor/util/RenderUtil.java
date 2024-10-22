@@ -83,7 +83,7 @@ public class RenderUtil {
                     context.matrixStack().push();
                     context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
 
-                    boolean canBuildStructure = StructureHelper.canPlaceStructure(mayorManager);
+                    boolean canBuildStructure = StructureHelper.canPlaceStructure(mayorManager, false);
 
                     Framebuffer framebuffer = MayorClientEvents.ALPHA_FRAMEBUFFER.get();
                     framebuffer.clear(MinecraftClient.IS_SYSTEM_MAC);

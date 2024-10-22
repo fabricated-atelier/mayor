@@ -30,6 +30,7 @@ import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BiomeTags;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
@@ -450,10 +451,7 @@ public class StructureHelper {
         return false;
     }
 
-    /**
-     * code: 0 = new build, 1 = upgrade
-     */
-    public static boolean tryBuildStructure(ServerPlayerEntity serverPlayerEntity, MayorStructure mayorStructure, BlockPos originBlockPos, BlockRotation structureRotation, boolean center, int code) {
+    public static boolean tryBuildStructure(ServerPlayerEntity serverPlayerEntity, MayorStructure mayorStructure, BlockPos originBlockPos, BlockRotation structureRotation, boolean center, boolean upgrade) {
         Map<BlockPos, BlockState> blockPosBlockStateMap = mayorStructure.getBlockMap();
 
         if (!blockPosBlockStateMap.isEmpty()) {
@@ -464,7 +462,7 @@ public class StructureHelper {
             mayorManager.setStructureRotation(structureRotation);
             mayorManager.setStructureCentered(center);
 
-            if (canPlaceStructure(mayorManager)) {
+            if (canPlaceStructure(mayorManager, upgrade)) {
                 boolean isCreativeLevelTwoOp = serverPlayerEntity.isCreativeLevelTwoOp();
 
                 if (!isCreativeLevelTwoOp && mayorManager.getVillageData().getMayorPlayerUuid() != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(serverPlayerEntity.getUuid())) {
@@ -576,7 +574,7 @@ public class StructureHelper {
         return list;
     }
 
-    public static boolean canPlaceStructure(MayorManager mayorManager) {
+    public static boolean canPlaceStructure(MayorManager mayorManager, boolean upgrade) {
         if (mayorManager.getVillageData() != null && mayorManager.getMayorStructure() != null) {
             BlockPos origin = mayorManager.getStructureOriginBlockPos();
             if (origin == null) {
@@ -619,7 +617,7 @@ public class StructureHelper {
                 for (int u = blockBox.getMinY(); u <= blockBox.getMaxY(); u++) {
                     for (int o = blockBox.getMinZ(); o <= blockBox.getMaxZ(); o++) {
                         BlockState state = mayorManager.playerEntity().getWorld().getBlockState(BlockPos.ofFloored(i, u, o));
-                        if (!state.isAir() && !state.isIn(MayorTags.Blocks.MAYOR_STRUCTURE_REPLACEABLE)) {
+                        if (!state.isAir() && (!state.isIn(MayorTags.Blocks.MAYOR_STRUCTURE_REPLACEABLE) || (upgrade && !state.isIn(BlockTags.DRAGON_IMMUNE)))) {
                             return false;
                         }
                     }

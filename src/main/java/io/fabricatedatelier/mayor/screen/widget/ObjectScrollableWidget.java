@@ -17,6 +17,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -330,14 +331,26 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                             List<ItemStack> requiredItemStacks = InventoryUtil.getMissingItems(StructureHelper.getStructureItems(MinecraftClient.getInstance().world, structureData.getBlockBox()), mayorUpgradeStructure.getRequiredItemStacks());
                             mayorVillageScreen.getUpgradeStructureScrollableWidget().setItemStacks(requiredItemStacks);
                             if ((creativeLevelTwoOp || (requiredItemStacks.isEmpty() && InventoryUtil.hasRequiredPrice(MinecraftClient.getInstance().player.getInventory(), mayorUpgradeStructure.getPrice()))) && mayorVillageScreen.getMayorManager().getAvailableBuilder() > 0) {
-                                mayorVillageScreen.getUpgradeButton().setUpgradeStructure(mayorUpgradeStructure);
-                                mayorVillageScreen.getUpgradeButton().setStructureData(structureData);
-                                // Todo: Set price has an issue, probably be better to have a demolish price on the structure data so no set price is needed
-                                mayorVillageScreen.getUpgradeButton().setPrice(mayorUpgradeStructure.getPrice());
-                                mayorVillageScreen.getUpgradeButton().active = true;
+                                // Following line might be not the best solution but will work for canPlaceStructure check
+                                mayorVillageScreen.getMayorManager().setMayorStructure(mayorUpgradeStructure);
+                                if (StructureHelper.canPlaceStructure(mayorVillageScreen.getMayorManager(), true)) {
+                                    mayorVillageScreen.getUpgradeButton().setUpgradeStructure(mayorUpgradeStructure);
+                                    mayorVillageScreen.getUpgradeButton().setStructureData(structureData);
+                                    // Todo: Set price has an issue, probably be better to have a demolish price on the structure data so no set price is needed
+                                    mayorVillageScreen.getUpgradeButton().setPrice(mayorUpgradeStructure.getPrice());
+                                    mayorVillageScreen.getUpgradeButton().active = true;
+                                    mayorVillageScreen.getUpgradeButton().setTooltip(null);
+                                } else {
+                                    mayorVillageScreen.getUpgradeButton().setTooltip(Tooltip.of(Text.translatable("mayor.screen.not_enough_space")));
+                                }
+                                // Needed to make sure there is no missbehavior cause of line setting the structure a few lines before
+                                mayorVillageScreen.getMayorManager().setMayorStructure(null);
                             } else {
                                 mayorVillageScreen.getUpgradeButton().active = false;
                             }
+                            mayorVillageScreen.getUpgradeButton().setTooltip(null);
+                        }else{
+                            mayorVillageScreen.getUpgradeButton().setTooltip(Tooltip.of(Text.translatable("mayor.screen.no_structure_upgrade_available")));
                         }
                         MayorStructure mayorStructure = StructureHelper.getMayorStructureById(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
                         if (mayorStructure != null) {

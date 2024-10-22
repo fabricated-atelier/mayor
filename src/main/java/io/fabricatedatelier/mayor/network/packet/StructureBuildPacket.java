@@ -47,7 +47,7 @@ public record StructureBuildPacket(Identifier mayorStructureIdentifier, BlockPos
                 if (selectedMayorStructure != null) {
                     // build or upgrade
                     if (this.code() == 0 || this.code() == 1) {
-                        StructureHelper.tryBuildStructure(context.player(), selectedMayorStructure, this.originBlockPos(), StructureHelper.getStructureRotation(this.structureRotation()), this.center(), this.code());
+                        StructureHelper.tryBuildStructure(context.player(), selectedMayorStructure, this.originBlockPos(), StructureHelper.getStructureRotation(this.structureRotation()), this.center(), this.code() != 0);
                     } else
                         // demolish
                         if (this.code() == 2) {
