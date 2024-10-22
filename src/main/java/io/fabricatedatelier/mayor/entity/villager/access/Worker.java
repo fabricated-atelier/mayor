@@ -29,6 +29,11 @@ public interface Worker {
 
     void setCarryItemStack(ItemStack itemStack);
 
+    /**
+     * 0: Nothing
+     * 1: Front Carry Task
+     * 2: Breaking Task
+     */
     int getTaskValue();
 
     /**
