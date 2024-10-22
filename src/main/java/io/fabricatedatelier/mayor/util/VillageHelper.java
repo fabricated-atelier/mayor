@@ -82,7 +82,7 @@ public class VillageHelper {
                         newWorker.setTargetPosition(worker.getTargetPosition());
                         newWorker.setVillageCenterPosition(worker.getVillageCenterPosition());
                         villageData.getConstructions().get(worker.getTargetPosition()).setVillagerUuid(newWorker.getVillagerEntity().getUuid());
-                    } else {
+                    } else if(villageData.getConstructions().containsKey(worker.getTargetPosition())){
                         villageData.getConstructions().get(worker.getTargetPosition()).setVillagerUuid(null);
                     }
                     worker.setTargetPosition(null);
