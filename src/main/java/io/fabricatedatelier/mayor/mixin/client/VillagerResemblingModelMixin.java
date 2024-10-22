@@ -60,6 +60,7 @@ public class VillagerResemblingModelMixin implements ModelWithArms {
             if (worker.getTaskValue() == 2) {
                 this.root.getChild(EntityModelPartNames.ARMS).visible = false;
             } else if (!worker.getCarryItemStack().isEmpty()) {
+                this.root.getChild(EntityModelPartNames.ARMS).visible = true;
                 if (worker.getTaskValue() == 1) {
                     this.head.pivotZ = 4f;
                     this.head.pivotY = 3.2f;
