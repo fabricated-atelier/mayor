@@ -17,6 +17,7 @@ public class CustomC2SNetworking {
         ServerPlayNetworking.registerGlobalReceiver(DeskScreenPacket.PACKET_ID, DeskScreenPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(DeskMayorDataPacket.PACKET_ID, DeskMayorDataPacket::handlePacket);
         ServerPlayNetworking.registerGlobalReceiver(LedgerPacket.PACKET_ID, LedgerPacket::handlePacket);
+        ServerPlayNetworking.registerGlobalReceiver(AreaPacket.PACKET_ID, AreaPacket::handlePacket);
     }
 
     public static void initialize() {

@@ -34,7 +34,6 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
         super(ImmutableMap.of(MayorVillagerUtilities.BUSY, MemoryModuleState.VALUE_ABSENT), MAX_RUN_TIME * 2 / 3, MAX_RUN_TIME);
     }
 
-
     @Override
     protected boolean shouldRun(ServerWorld serverWorld, VillagerEntity villagerEntity) {
         if (serverWorld.getTime() < this.nextResponseTime) {
@@ -48,17 +47,14 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
                 VillageState villageState = StateHelper.getMayorVillageState(serverWorld);
                 if (villageState.getVillageData(worker.getVillageCenterPosition()) != null) {
                     VillageData villageData = villageState.getVillageData(worker.getVillageCenterPosition());
-                    if (worker.hasTargetPosition()) {
-                        if (villageData.getConstructions().containsKey(worker.getTargetPosition())) {
-                            ConstructionData constructionData = villageData.getConstructions().get(worker.getTargetPosition());
+                    if (worker.hasTargetPosition() && villageData.getConstructions().containsKey(worker.getTargetPosition())) {
+                        ConstructionData constructionData = villageData.getConstructions().get(worker.getTargetPosition());
 
-//                            if (StructureHelper.getMissingConstructionBlockMap(serverWorld, constructionData).isEmpty()) {
-                            if (constructionData.getDemolish() || !StructureHelper.hasMissingConstructionItem(serverWorld, constructionData, worker.getWorkerInventory())) {
-                                this.currentTarget = getTarget(serverWorld, worker, villageData);
-                            } else {
-                                System.out.println("DUMP NOT?");
-                                this.nextResponseTime = serverWorld.getTime() + 100L;
-                            }
+                        if (constructionData.getDemolish() || !StructureHelper.hasMissingConstructionItem(serverWorld, constructionData, worker.getWorkerInventory())) {
+                            this.currentTarget = getTarget(serverWorld, worker, villageData);
+                        } else {
+                            System.out.println("DUMP NOT?");
+                            this.nextResponseTime = serverWorld.getTime() + 100L;
                         }
                     } else {
                         this.currentTarget = getTarget(serverWorld, worker, villageData);
@@ -141,7 +137,7 @@ public class BuilderDumpTask extends MultiTickTask<VillagerEntity> {
 //        System.out.println("?X");
 
         if (this.currentTarget != null) {
-            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
+            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 2) {
                 if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Worker worker) {
                     VillageData villageData = StateHelper.getMayorVillageState(serverWorld).getVillageData(worker.getVillageCenterPosition());
                     if (villageData != null) {

@@ -164,7 +164,7 @@ public class BuilderCollectTask extends MultiTickTask<VillagerEntity> {
 
         if (this.currentTarget != null) {
 
-            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1) {
+            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 2) {
                 if (serverWorld.getBlockEntity(this.currentTarget) instanceof VillageContainerBlockEntity containerBlockEntity && containerBlockEntity.getStructureOriginBlockEntity().isPresent() && villagerEntity instanceof Worker worker) {
 //                    villageContainerBlockEntity.getItems();
 //                    villageContainerBlockEntity.getori

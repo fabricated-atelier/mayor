@@ -1,6 +1,8 @@
 package io.fabricatedatelier.mayor.screen.widget;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
+import io.fabricatedatelier.mayor.init.MayorVillagerUtilities;
 import io.fabricatedatelier.mayor.manager.MayorCategory;
 import io.fabricatedatelier.mayor.manager.MayorStructure;
 import io.fabricatedatelier.mayor.network.packet.EntityViewPacket;
@@ -27,6 +29,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
+import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -245,7 +248,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     }
                     if (isPointWithinBounds(0, rowCount * 13, this.width + 4, 13, mouseX, mouseY)) {
                         this.selectedIndex = i;
-                        clicked();
+                        clicked(button);
                         return true;
                     }
                     rowCount += 1;
@@ -278,7 +281,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
         return mouseX >= (double) this.getX() - extraX && mouseX < this.getX() + this.width + 4 + extraX && mouseY < (double) this.getY() + this.maxRows * 13 + extraY && mouseY >= (double) (this.getY() - extraY);
     }
 
-    private void clicked() {
+    private void clicked(int button) {
         if (this.objects != null && !this.objects.isEmpty() && this.objects.size() > this.selectedIndex) {
             if (this.parentScreen instanceof MayorScreen mayorScreen) {
                 if (this.objects.getFirst() instanceof MayorCategory.BuildingCategory) {
@@ -318,8 +321,32 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                     }
                 }
             } else if (this.parentScreen instanceof MayorVillageScreen mayorVillageScreen) {
-                if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity) {
-                    new EntityViewPacket(villagerEntity.getId()).sendPacket();
+                if (this.objects.get(this.selectedIndex) instanceof VillagerEntity villagerEntity && villagerEntity instanceof Worker worker) {
+                    // button == 1 : right click, 2 : middle, 0 : left click
+                    boolean hasSpecificProfession = worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.LUMBERJACK) || worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.MINER);
+                    if (hasSpecificProfession && (button == 1 || button == 2)) {
+                        if (button == 1) {
+                            MinecraftClient.getInstance().setScreen(null);
+                            mayorVillageScreen.getMayorManager().setAreaModeId(villagerEntity.getId());
+                            mayorVillageScreen.getMayorManager().setMayorStructure(null);
+                            mayorVillageScreen.getMayorManager().setStructureOriginBlockPos(null);
+                        } else {
+                            if (worker.hasTargetPosition()) {
+                                int radius = villagerEntity.getVillagerData().getLevel() * 5 + 5;
+                                BlockPos targetPos = worker.getTargetPosition();
+                                MinecraftClient client = MinecraftClient.getInstance();
+                                BlockBox box = new BlockBox(targetPos.getX() - radius, targetPos.getY(), targetPos.getZ() - radius, targetPos.getX() + radius, targetPos.getY()+1, targetPos.getZ() + radius);
+                                RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMinZ(), 1);
+                                RenderUtil.renderParticlePole(client, box.getMinX(), box.getMinY(), box.getMaxZ() + 1, 2);
+                                RenderUtil.renderParticlePole(client, box.getMaxX() + 1, box.getMinY(), box.getMaxZ() + 1, 3);
+                                RenderUtil.renderParticlePole(client, box.getMaxX() + 1, box.getMinY(), box.getMinZ(), 4);
+                            } else {
+                                mayorVillageScreen.setShowText(Text.translatable("mayor.screen.no_set_area"));
+                            }
+                        }
+                    } else {
+                        new EntityViewPacket(villagerEntity.getId()).sendPacket();
+                    }
                 } else if (this.objects.get(this.selectedIndex) instanceof StructureData structureData) {
                     MayorStructure mayorUpgradeStructure = StructureHelper.getUpgradeStructure(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());
 
@@ -349,7 +376,7 @@ public class ObjectScrollableWidget extends ScrollableWidget {
                                 mayorVillageScreen.getUpgradeButton().active = false;
                             }
                             mayorVillageScreen.getUpgradeButton().setTooltip(null);
-                        }else{
+                        } else {
                             mayorVillageScreen.getUpgradeButton().setTooltip(Tooltip.of(Text.translatable("mayor.screen.no_structure_upgrade_available")));
                         }
                         MayorStructure mayorStructure = StructureHelper.getMayorStructureById(structureData.getIdentifier(), mayorVillageScreen.getMayorManager().getBiomeCategory());

@@ -48,6 +48,7 @@ public record MayorViewPacket(boolean mayorView) implements CustomPayload {
 
     public void handlePacket(ClientPlayNetworking.Context context) {
         MayorManager mayorManager = ((MayorManagerAccess) context.player()).getMayorManager();
+        mayorManager.setAreaModeId(-1);
         if (mayorManager.getVillageData() != null) {
             mayorManager.setMajorView(this.mayorView);
         }

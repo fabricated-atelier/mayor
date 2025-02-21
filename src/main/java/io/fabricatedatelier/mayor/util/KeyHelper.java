@@ -3,8 +3,10 @@ package io.fabricatedatelier.mayor.util;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
 import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.manager.MayorManager;
+import io.fabricatedatelier.mayor.network.packet.AreaPacket;
 import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
+import io.fabricatedatelier.mayor.screen.MayorVillageScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -60,7 +62,11 @@ public class KeyHelper {
                 MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
 
                 if (mayorManager.isInMajorView()) {
-                    if (client.currentScreen instanceof MayorScreen) {
+                    if (mayorManager.isInAreaMode()) {
+                        client.setScreen(new MayorVillageScreen(mayorManager));
+                        mayorManager.setAreaModeId(-1);
+                        mayorManager.setStructureOriginBlockPos(null);
+                    } else if (client.currentScreen instanceof MayorScreen) {
                         client.setScreen(null);
                     } else {
                         client.setScreen(new MayorScreen(mayorManager));
@@ -75,13 +81,26 @@ public class KeyHelper {
         if (!client.options.useKey.wasPressed()) return;
         MayorManager mayorManager = ((MayorManagerAccess) client.player).getMayorManager();
         if (mayorManager.isInMajorView() && !(client.currentScreen instanceof MayorScreen)) {
+            Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(client.player));
             if (mayorManager.getStructureOriginBlockPos() == null) {
-                Optional<BlockHitResult> hitResult = Optional.ofNullable(StructureHelper.findCrosshairTarget(client.player));
                 if (hitResult.isPresent()) {
                     Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
-                    origin.ifPresent(mayorManager::setStructureOriginBlockPos);
+                    if (origin.isPresent()) {
+                        if (mayorManager.isInAreaMode()) {
+                            new AreaPacket(mayorManager.getAreaModeId(), origin.get()).sendPacket();
+                        }
+                        mayorManager.setStructureOriginBlockPos(origin.get());
+                    }
                 }
             } else {
+                if (mayorManager.isInAreaMode() && hitResult.isPresent()) {
+                    Optional<BlockPos> origin = hitResult.map(BlockHitResult::getBlockPos);
+                    if (origin.isPresent() && mayorManager.getStructureOriginBlockPos().equals(origin.get())) {
+                        mayorManager.setAreaModeId(-1);
+                        mayorManager.setMayorStructure(null);
+                        client.setScreen(new MayorVillageScreen(mayorManager));
+                    }
+                }
                 mayorManager.setStructureOriginBlockPos(null);
             }
         }

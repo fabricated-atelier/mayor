@@ -48,7 +48,9 @@ public class MayorVillageScreen extends Screen {
 
     private int levelX = 0;
     private int levelY = 0;
-    private int upgradeStructureNotAvailableTicks = 0;
+    private int showTextTicks = 0;
+    @Nullable
+    private Text showText = null;
 
     private Map<MayorCategory.BuildingCategory, Integer> buildingCategoryExperienceMap = new HashMap<>();
 
@@ -102,7 +104,7 @@ public class MayorVillageScreen extends Screen {
             this.upgradeStructureButton.visible = false;
 
             Text demolish = Text.translatable("mayor.screen.demolish");
-            this.demolishStructureButton = this.addDrawableChild(new StructureButton(this.width / 2 +2, this.height / 2 + 90, this.textRenderer.getWidth(demolish) + 7, 20, demolish, button -> {
+            this.demolishStructureButton = this.addDrawableChild(new StructureButton(this.width / 2 + 2, this.height / 2 + 90, this.textRenderer.getWidth(demolish) + 7, 20, demolish, button -> {
                 button.active = false;
                 button.visible = false;
                 this.upgradeStructureButton.active = false;
@@ -160,9 +162,8 @@ public class MayorVillageScreen extends Screen {
 
             if (this.upgradeStructureScrollableWidget.getItemStacks() != null && !this.upgradeStructureScrollableWidget.getItemStacks().isEmpty() && this.upgradeStructureButton.visible) {
                 // Render upgrade button here, done by widget
-            } else if (this.upgradeStructureNotAvailableTicks > 0) {
-                Text text = Text.translatable("mayor.screen.no_structure_upgrade_available");
-                String[] strings = text.getString().split(" ");
+            } else if (this.showTextTicks > 0 && showText != null) {
+                String[] strings = showText.getString().split(" ");
                 for (int i = 0; i < strings.length; i++) {
                     context.drawText(this.textRenderer, strings[i], this.width / 2 - this.textRenderer.getWidth(strings[i]) / 2, this.height / 2 - strings.length * 5 + i * 10, Colors.WHITE, false);
                 }
@@ -171,6 +172,16 @@ public class MayorVillageScreen extends Screen {
             if (this.client != null && mayorManager.getVillageData().getMayorPlayerUuid() != null && this.client.world != null && this.client.player != null && !mayorManager.getVillageData().getMayorPlayerUuid().equals(this.client.player.getUuid()) && this.client.player.isCreativeLevelTwoOp() && this.client.world.getPlayerByUuid(mayorManager.getVillageData().getMayorPlayerUuid()) != null) {
                 Text mayor = Text.translatable("mayor.screen.mayor", this.client.world.getPlayerByUuid(mayorManager.getVillageData().getMayorPlayerUuid()).getName());
                 context.drawText(this.textRenderer, mayor, this.width - this.textRenderer.getWidth(mayor) - 8, 6, Colors.WHITE, false);
+            }
+            if (isMouseWithinBounds(1, 1, 11, 13, mouseX, mouseY)) {
+                context.drawTexture(MayorScreen.VILLAGE, 1, 1, 67, 0, 11, 13, 128, 128);
+                List<Text> buttonTooltip = new ArrayList<>();
+                for (int i = 0; i < 8; i++) {
+                    buttonTooltip.add(Text.translatable("mayor.screen.button.tooltip." + i));
+                }
+                context.drawTooltip(this.textRenderer, buttonTooltip, mouseX, mouseY + 10);
+            } else {
+                context.drawTexture(MayorScreen.VILLAGE, 1, 1, 56, 0, 11, 13, 128, 128);
             }
         }
     }
@@ -242,8 +253,11 @@ public class MayorVillageScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-        if (this.upgradeStructureNotAvailableTicks > 0) {
-            this.upgradeStructureNotAvailableTicks--;
+        if (this.showTextTicks > 0) {
+            this.showTextTicks--;
+            if (this.showTextTicks <= 0) {
+                this.showText = null;
+            }
         }
     }
 
@@ -291,8 +305,9 @@ public class MayorVillageScreen extends Screen {
         return this.demolishStructureButton;
     }
 
-    public void setUpgradeStructureNotAvailableTicks(int ticks) {
-        this.upgradeStructureNotAvailableTicks = ticks;
+    public void setShowText(Text text) {
+        this.showText = text;
+        this.showTextTicks = 80;
     }
 
     private boolean isMouseWithinBounds(int x, int y, int width, int height, double mouseX, double mouseY) {

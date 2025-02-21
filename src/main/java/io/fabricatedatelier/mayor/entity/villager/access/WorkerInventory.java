@@ -33,6 +33,16 @@ public class WorkerInventory extends SimpleInventory {
         return true;
     }
 
+    // Used for lumberjack/miner
+    public boolean isInventoryAlmostFull() {
+        for (int i = 0; i < this.size(); i++) {
+            if (this.getHeldStacks().get(i).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public ItemStack getFirstStack() {
         for (int i = 0; i < this.getHeldStacks().size(); i++) {
             if (!this.getHeldStacks().get(i).isEmpty()) {

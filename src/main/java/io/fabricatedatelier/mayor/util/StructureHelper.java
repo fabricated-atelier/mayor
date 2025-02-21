@@ -14,10 +14,7 @@ import io.fabricatedatelier.mayor.network.packet.VillageDataPacket;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.VillageState;
 import io.fabricatedatelier.mayor.state.StructureData;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.HorizontalFacingBlock;
+import net.minecraft.block.*;
 import net.minecraft.block.enums.BedPart;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.command.argument.BlockArgumentParser;
@@ -639,16 +636,23 @@ public class StructureHelper {
         return blockMap;
     }
 
+    // Todo: What happens when a fluid pool is given?
     public static Map<BlockPos, BlockState> getObStructiveBlockMap(ServerWorld serverWorld, ConstructionData constructionData) {
-        Map<BlockPos, BlockState> blockMap = new HashMap<>();
+        Map<BlockPos, BlockState> fluidMap = new LinkedHashMap<>();
+        Map<BlockPos, BlockState> blockMap = new LinkedHashMap<>();
         if (constructionData.getDemolish()) {
             List<BlockPos> list = getBlockPosList(constructionData.getStructureData().getBlockBox());
             for (BlockPos pos : list) {
-                if (!serverWorld.getBlockState(pos).isAir()) {
+                if (!serverWorld.getBlockState(pos).getFluidState().isEmpty()) {
+                    fluidMap.put(pos, serverWorld.getBlockState(pos));
+                } else if (!serverWorld.getBlockState(pos).isAir()) {
                     blockMap.put(pos, serverWorld.getBlockState(pos));
                 }
             }
-            return blockMap;
+            Map<BlockPos, BlockState> map = new LinkedHashMap<>();
+            map.putAll(fluidMap);
+            map.putAll(blockMap);
+            return map;
         }
         for (Map.Entry<BlockPos, BlockState> entry : constructionData.getBlockMap().entrySet()) {
             if (!entry.getValue().isAir() && !serverWorld.getBlockState(entry.getKey()).isAir() && !serverWorld.getBlockState(entry.getKey()).equals(entry.getValue())) {
@@ -764,13 +768,35 @@ public class StructureHelper {
                 if (!itemStack.isEmpty()) {
                     ItemScatterer.spawn(serverWorld, optional.get().getKey().getX(), optional.get().getKey().getY(), optional.get().getKey().getZ(), itemStack);
                 }
-                serverWorld.breakBlock(optional.get().getKey(), false);
+                if (!optional.get().getValue().getFluidState().isEmpty()) {
+                    drainFluid(serverWorld, optional.get().getKey(), null);
+                } else {
+                    serverWorld.breakBlock(optional.get().getKey(), false);
+                }
                 return true;
             } else {
                 return false;
             }
         }
         return false;
+    }
+
+    private static void drainFluid(ServerWorld serverWorld, BlockPos pos, @Nullable BlockPos oldPos) {
+        for (int i = 0; i < 4; i++) {
+            BlockPos checkPos = pos.offset(Direction.fromHorizontal(i));
+            if (checkPos.equals(oldPos)) {
+                continue;
+            }
+            BlockState state = serverWorld.getBlockState(checkPos);
+            if (!state.getFluidState().isEmpty()) {
+                if (state.getBlock() instanceof Waterloggable waterloggable) {
+                    waterloggable.tryDrainFluid(null, serverWorld, checkPos, state);
+                } else {
+                    serverWorld.setBlockState(checkPos, Blocks.AIR.getDefaultState());
+                }
+                drainFluid(serverWorld, checkPos, pos);
+            }
+        }
     }
 
 }

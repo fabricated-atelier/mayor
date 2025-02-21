@@ -17,6 +17,7 @@ import net.minecraft.entity.ai.brain.WalkTarget;
 import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Unit;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -97,13 +98,20 @@ public class BuilderBreakTask extends MultiTickTask<VillagerEntity> {
     @Override
     protected void keepRunning(ServerWorld serverWorld, VillagerEntity villagerEntity, long time) {
         if (this.currentTarget != null && this.constructionData != null) {
-            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1 && villagerEntity instanceof Worker worker) {
+//            System.out.println(villagerEntity.getBlockPos()+ " : "+this.currentTarget+ " : "+this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()));
+//            System.out.println(TaskHelper.canReachSite(villagerEntity,this.currentTarget));
+
+            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 2 && villagerEntity instanceof Worker worker) {
                 worker.setTaskValue(2);
-                if (this.ticksRan % 20 == 0) {
+                if (this.ticksRan % 10 == 0) {
                     if (!StructureHelper.getObStructiveBlockMap(serverWorld, this.constructionData).isEmpty()) {
                         boolean breakBlock = StructureHelper.breakBlock(serverWorld, this.constructionData, worker.getWorkerInventory());
                         if (!breakBlock) {
                             stop(serverWorld, villagerEntity, time);
+                        } else {
+                            // TEST
+                            villagerEntity.swingHand(Hand.MAIN_HAND, false);
+                            System.out.println("TEST "+StructureHelper.getObStructiveBlockMap(serverWorld, this.constructionData).size());
                         }
                     } else {
                         if (this.constructionData.getDemolish()) {

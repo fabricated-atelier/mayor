@@ -46,28 +46,43 @@ public abstract class VillagerHeldItemFeatureRendererMixin<T extends LivingEntit
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At("HEAD"), cancellable = true)
     private void renderMixin(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo info) {
-        if (livingEntity instanceof Worker worker && worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER) && !worker.getVillagerEntity().isSleeping()) {
-            matrixStack.push();
-            if (!worker.getCarryItemStack().isEmpty()) {
-                if (worker.getTaskValue() == 1) {
-                    matrixStack.translate(0.0F, 0.7F, -0.5F);
-                } else {
-                    matrixStack.translate(0.0F, 0.62F, 0.3F);
+        if (livingEntity instanceof Worker worker && !worker.getVillagerEntity().isSleeping()) {
+            if (worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.BUILDER)) {
+
+                if (!worker.getCarryItemStack().isEmpty()) {
+                    matrixStack.push();
+                    if (worker.getTaskValue() == 1) {
+                        matrixStack.translate(0.0F, 0.7F, -0.5F);
+                    } else {
+                        matrixStack.translate(0.0F, 0.62F, 0.3F);
+                    }
+                    matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0F));
+                    matrixStack.scale(2.8f, 2.8f, 2.8f);
+                    this.heldItemRenderer.renderItem(livingEntity, worker.getCarryItemStack(), ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i);
+                    matrixStack.pop();
+                    info.cancel();
+                } else if (worker.getTaskValue() == 2) {
+                    renderItemInHand(matrixStack, vertexConsumerProvider, i, livingEntity, HAMMER);
+                    info.cancel();
                 }
-                matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0F));
-                matrixStack.scale(2.8f, 2.8f, 2.8f);
-                this.heldItemRenderer.renderItem(livingEntity, worker.getCarryItemStack(), ModelTransformationMode.GROUND, false, matrixStack, vertexConsumerProvider, i);
-            } else if (worker.getTaskValue() == 2) {
-                if (this.getContextModel() instanceof ModelWithArms modelWithArms) {
-                    modelWithArms.setArmAngle(Arm.RIGHT, matrixStack);
-                }
-                matrixStack.translate(0.0F, 0.6F, 0.0F);
-                matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90.0F));
-                matrixStack.scale(1.3f, 1.3f, 1.3f);
-                this.heldItemRenderer.renderItem(livingEntity, HAMMER, ModelTransformationMode.FIRST_PERSON_RIGHT_HAND, false, matrixStack, vertexConsumerProvider, i);
+            } else if (worker.getVillagerEntity().getVillagerData().getProfession().equals(MayorVillagerUtilities.LUMBERJACK) && worker.getTaskValue() == 3) {
+                renderItemInHand(matrixStack, vertexConsumerProvider, i, livingEntity, AXE);
+                info.cancel();
             }
-            matrixStack.pop();
-            info.cancel();
         }
+    }
+
+    @Unique
+    private void renderItemInHand(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, ItemStack itemStack) {
+        matrixStack.push();
+        if (this.getContextModel() instanceof ModelWithArms modelWithArms) {
+            modelWithArms.setArmAngle(Arm.RIGHT, matrixStack);
+        }
+        matrixStack.translate(0.0F, 0.57F, 0.0F);
+        matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-100.0F));
+        matrixStack.scale(1.3f, 1.3f, 1.3f);
+        this.heldItemRenderer.renderItem(livingEntity, itemStack, ModelTransformationMode.FIRST_PERSON_RIGHT_HAND, false, matrixStack, vertexConsumerProvider, i);
+
+        matrixStack.pop();
     }
 }

@@ -247,17 +247,19 @@ public abstract class VillagerEntityMixin extends MerchantEntity implements Work
             list.add(MayorVillagerUtilities.BUSY);
             return ImmutableList.copyOf(list);
         }*/
-    @WrapOperation(method = "createBrainProfile",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/entity/ai/brain/Brain;createProfile(Ljava/util/Collection;Ljava/util/Collection;)Lnet/minecraft/entity/ai/brain/Brain$Profile;")
-    )
+    @WrapOperation(method = "createBrainProfile", at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/entity/ai/brain/Brain;createProfile(Ljava/util/Collection;Ljava/util/Collection;)Lnet/minecraft/entity/ai/brain/Brain$Profile;"))
     private <E extends LivingEntity> Brain.Profile<E> addMemoryModules(Collection<? extends MemoryModuleType<?>> memoryModules,
                                                                        Collection<? extends SensorType<? extends Sensor<? super E>>> sensors,
                                                                        Operation<Brain.Profile<E>> original) {
         List<MemoryModuleType<?>> memoryModuleTypes = new ArrayList<>(memoryModules);
         memoryModuleTypes.add(MayorVillagerUtilities.BUSY);
         return original.call(ImmutableList.copyOf(memoryModuleTypes), sensors);
+    }
+
+    @Inject(method = "tick",at = @At("TAIL"))
+    private void tickMixin(CallbackInfo info){
+        tickHandSwing();
     }
 
 

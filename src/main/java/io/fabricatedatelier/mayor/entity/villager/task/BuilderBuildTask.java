@@ -109,7 +109,7 @@ public class BuilderBuildTask extends MultiTickTask<VillagerEntity> {
 
 
         if (this.currentTarget != null && this.constructionData != null) {
-            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 1 && villagerEntity instanceof Worker worker && (!worker.getWorkerInventory().isEmpty() || this.constructionFinished)) {
+            if (this.currentTarget.getManhattanDistance(villagerEntity.getBlockPos()) <= 2 && villagerEntity instanceof Worker worker && (!worker.getWorkerInventory().isEmpty() || this.constructionFinished)) {
 
                 if (this.ticksRan % 20 == 0) {
                     boolean placedBlock = StructureHelper.placeBlock(serverWorld, this.constructionData, worker.getWorkerInventory());

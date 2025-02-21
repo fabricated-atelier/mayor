@@ -11,21 +11,21 @@ import io.fabricatedatelier.mayor.screen.MayorScreen;
 import io.fabricatedatelier.mayor.state.ConstructionData;
 import io.fabricatedatelier.mayor.state.StructureData;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.text.Text;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.shape.VoxelShape;
 import org.lwjgl.opengl.GL30C;
 
 import java.util.HashMap;
@@ -46,11 +46,15 @@ public class RenderUtil {
                     }
                 }
             }
+            if (mayorManager.isInAreaMode()) {
+                context.drawText(client.textRenderer, Text.translatable("mayor.screen.area_mode"), 10, client.getWindow().getScaledHeight() - 18, 0xFFFFFF, false);
+            }
         }
     }
 
     private static Map<BlockPos, BlockState> FLUID_MAP = new HashMap<>();
 
+    private static final VoxelShape CENTER = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 16.0, 16.0);
 
     public static void renderVillageStructure(WorldRenderContext context) {
         MinecraftClient client = MinecraftClient.getInstance();
@@ -69,7 +73,32 @@ public class RenderUtil {
                     }
                 }
             }
-            if (mayorManager.getMayorStructure() != null) {
+            if (mayorManager.isInAreaMode()) {
+                if (client.world != null && client.world.getEntityById(mayorManager.getAreaModeId()) instanceof VillagerEntity villagerEntity) {
+                    BlockPos origin = mayorManager.getStructureOriginBlockPos();
+                    if (origin == null && StructureHelper.findCrosshairTarget(client.player) instanceof BlockHitResult blockHitResult) {
+                        origin = blockHitResult.getBlockPos();
+                    }
+                    if (origin != null) {
+                        int radius = villagerEntity.getVillagerData().getLevel() * 5 + 5;
+
+                        VertexConsumer vertexConsumer = context.consumers().getBuffer(RenderLayer.getLines());
+                        context.matrixStack().push();
+                        context.matrixStack().translate(-context.camera().getPos().getX(), -context.camera().getPos().getY(), -context.camera().getPos().getZ());
+                        WorldRenderer.drawShapeOutline(context.matrixStack(), vertexConsumer, CENTER, origin.getX(), origin.getY() + 1, origin.getZ(), 0.7f, 1.0f, 1.0f, 0.3f, true);
+//WorldRenderer.renderFilledBox();
+//                        vertexConsumer = context.consumers().getBuffer(RenderLayer.getDebugFilledBox());
+//                        WorldRenderer.renderFilledBoxFace(context.matrixStack(), vertexConsumer, Direction.NORTH, origin.getX() - radius, origin.getY() + 1, origin.getZ() - radius, origin.getX() + radius + 1, origin.getY() + 3, origin.getZ() + radius + 1, 1, 0.8f, 1, 0.1f);
+//                        WorldRenderer.renderFilledBoxFace(context.matrixStack(), vertexConsumer, Direction.EAST, origin.getX() - radius, origin.getY() + 1, origin.getZ() - radius, origin.getX() + radius + 1, origin.getY() + 3, origin.getZ() + radius + 1, 1, 0.8f, 1, 0.1f);
+//                        WorldRenderer.renderFilledBoxFace(context.matrixStack(), vertexConsumer, Direction.WEST, origin.getX() - radius, origin.getY() + 1, origin.getZ() - radius, origin.getX() + radius + 1, origin.getY() + 3, origin.getZ() + radius + 1, 1, 0.8f, 1, 0.1f);
+//                        WorldRenderer.renderFilledBoxFace(context.matrixStack(), vertexConsumer, Direction.SOUTH, origin.getX() - radius, origin.getY() + 1, origin.getZ() - radius, origin.getX() + radius + 1, origin.getY() + 3, origin.getZ() + radius + 1, 1, 0.8f, 1, 0.1f);
+//                        WorldRenderer.renderFilledBoxFace(context.matrixStack(), vertexConsumer, Direction.SOUTH, origin.getX() , origin.getY() + 1, origin.getZ() - radius, origin.getX() +3, origin.getY() + 3, origin.getZ() + radius + 1, 1f, 0.8f, 1f, 0.1f);
+                        WorldRenderer.drawShapeOutline(context.matrixStack(), vertexConsumer, Block.createCuboidShape(-radius * 16.0f, 0.0, -radius * 16.0f, 16.0f + radius * 16.0f, 32.0f, 16.0f + radius * 16.0f), origin.getX(), origin.getY() + 1, origin.getZ(), 0.5f, 1.0f, 1.0f, 0.3f, true);
+                        context.matrixStack().pop();
+                    }
+                }
+
+            } else if (mayorManager.getMayorStructure() != null) {
                 BlockHitResult blockHitResult = StructureHelper.findCrosshairTarget(client.player);
                 BlockPos origin = mayorManager.getStructureOriginBlockPos();
                 if (origin != null || (blockHitResult != null && !client.world.getBlockState(blockHitResult.getBlockPos()).isAir())) {

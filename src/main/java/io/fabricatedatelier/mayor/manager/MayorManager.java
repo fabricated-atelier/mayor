@@ -28,6 +28,8 @@ public class MayorManager {
     private BlockRotation structureRotation = BlockRotation.NONE;
     private boolean center = false;
 
+    private int areaModeId = -1;
+
     private int availableBuilder = 0;
     @Nullable
     private Perspective oldPerspective = null;
@@ -104,6 +106,19 @@ public class MayorManager {
 
     public boolean getStructureCentered() {
         return this.center;
+    }
+
+    // Area Mode
+    public void setAreaModeId(int areaModeId) {
+        this.areaModeId = areaModeId;
+    }
+
+    public int getAreaModeId() {
+        return areaModeId;
+    }
+
+    public boolean isInAreaMode() {
+        return areaModeId != -1;
     }
 
     // Other

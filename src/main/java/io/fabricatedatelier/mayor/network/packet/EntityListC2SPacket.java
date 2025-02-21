@@ -1,12 +1,14 @@
 package io.fabricatedatelier.mayor.network.packet;
 
 import io.fabricatedatelier.mayor.Mayor;
+import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +29,20 @@ public record EntityListC2SPacket(List<UUID> entityList) implements CustomPayloa
         return PACKET_ID;
     }
 
-
     public void sendPacket() {
         ClientPlayNetworking.send(this);
     }
 
     public void handlePacket(ServerPlayNetworking.Context context) {
         List<Integer> entityIds = new ArrayList<>();
+        List<BlockPos> targetPositions = new ArrayList<>();
         for (int i = 0; i < this.entityList().size(); i++) {
-            if (context.player().getServerWorld().getEntity(this.entityList().get(i)) instanceof LivingEntity livingEntity) {
-                entityIds.add(livingEntity.getId());
+            if (context.player().getServerWorld().getEntity(this.entityList().get(i)) instanceof VillagerEntity villagerEntity && villagerEntity instanceof Worker worker) {
+                entityIds.add(villagerEntity.getId());
+                targetPositions.add(worker.getTargetPosition());
             }
         }
-        new EntityListS2CPacket(entityIds).sendPacket(context.player());
+        new EntityListS2CPacket(entityIds, targetPositions).sendPacket(context.player());
     }
 }
 

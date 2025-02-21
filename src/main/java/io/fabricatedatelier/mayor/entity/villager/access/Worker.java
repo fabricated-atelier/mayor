@@ -33,6 +33,7 @@ public interface Worker {
      * 0: Nothing
      * 1: Front Carry Task
      * 2: Breaking Task
+     * 3: Lumberjack Task
      */
     int getTaskValue();
 
@@ -40,6 +41,7 @@ public interface Worker {
      * 0: Nothing
      * 1: Front Carry Task
      * 2: Breaking Task
+     * 3: Lumberjack Task
      */
     void setTaskValue(int taskValue);
 

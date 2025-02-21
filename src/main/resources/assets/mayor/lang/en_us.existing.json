@@ -9,6 +9,8 @@
     "key.mayor.structure_downward": "Downward Structure",
 
     "entity.minecraft.villager.builder": "Builder",
+    "entity.minecraft.villager.miner": "Miner",
+    "entity.minecraft.villager.lumberjack": "Lumberjack",
 
     "mayor.container.ballot_urn": "Ballot Urn",
     "mayor.container.desk": "Desk",
@@ -53,6 +55,7 @@
     "mayor.screen.building_cost": "Building Cost:",
     "mayor.screen.category_values": "Category Values",
     "mayor.screen.no_structure_upgrade_available": "No structure upgrade available",
+    "mayor.screen.no_set_area": "No area set for this villager",
     "mayor.screen.no_structure_found": "No structure has been found at position %s",
     "mayor.screen.not_enough_space": "Not enough space to upgrade",
     "mayor.screen.upgrade": "Upgrade",
@@ -67,6 +70,15 @@
     "mayor.screen.not_constructible": "Structure can not be build here!",
     "mayor.screen.dismiss": "Dismiss",
     "mayor.screen.dismiss.confirm": "Are you sure you want to dismiss as the mayor?",
+    "mayor.screen.area_mode": "Area Mode",
+    "mayor.screen.button.tooltip.0": "Villager Buttons",
+    "mayor.screen.button.tooltip.1": "- Left click: Entity View",
+    "mayor.screen.button.tooltip.2": "- Middle click: Highlight Work Area",
+    "mayor.screen.button.tooltip.3": "- Right click: Work Area Set Mode",
+    "mayor.screen.button.tooltip.4": "",
+    "mayor.screen.button.tooltip.5": "Building Buttons",
+    "mayor.screen.button.tooltip.6": "- Left click: Upgrade Building",
+    "mayor.screen.button.tooltip.7": "- Right click: Highlight Building",
 
     "mayor.screen.desk.found_village": "Found a Village",
     "mayor.screen.desk.founding_costs": "Costs:",

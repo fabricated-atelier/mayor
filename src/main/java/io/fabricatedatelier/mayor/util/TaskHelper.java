@@ -3,11 +3,16 @@ package io.fabricatedatelier.mayor.util;
 import io.fabricatedatelier.mayor.datagen.TagProvider;
 import io.fabricatedatelier.mayor.entity.villager.access.Worker;
 import io.fabricatedatelier.mayor.state.ConstructionData;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
@@ -20,7 +25,7 @@ public class TaskHelper {
 
 
     public static boolean canReachSite(PathAwareEntity entity, BlockPos pos) {
-        Path path = entity.getNavigation().findPathTo(pos, 256);
+        Path path = entity.getNavigation().findPathTo(pos, 2, 256);
         return path != null && path.reachesTarget();
     }
 
@@ -92,8 +97,38 @@ public class TaskHelper {
                 for (ItemStack stack : worker.getWorkerInventory().getHeldStacks()) {
                     if (!stack.isEmpty() && stack.getItem() instanceof BlockItem && stack.isIn(TagProvider.ItemTags.CARRIABLE)) {
                         worker.setCarryItemStack(stack);
-                        System.out.println("CARRY LOL " + stack);
                         break;
+                    }
+                }
+            }
+        }
+    }
+
+    public static void pickUpItems(ServerWorld serverWorld, VillagerEntity villagerEntity, TagKey<Item>... tags) {
+        if (villagerEntity instanceof Worker worker) {
+            for (ItemEntity itemEntity : serverWorld
+                    .getNonSpectatingEntities(ItemEntity.class, villagerEntity.getBoundingBox().expand(1.5D, 0D, 1.5D))) {
+                if (!itemEntity.isRemoved() && !itemEntity.getStack().isEmpty() && !itemEntity.cannotPickup()) {
+                    boolean canPickUp = false;
+                    for (TagKey<Item> tag : tags) {
+                        if (itemEntity.getStack().isIn(tag)) {
+                            canPickUp = true;
+                            break;
+                        }
+                    }
+                    if (canPickUp) {
+                        ItemStack itemStack = itemEntity.getStack();
+                        if (worker.getWorkerInventory().canInsert(itemEntity.getStack())) {
+                            villagerEntity.triggerItemPickedUpByEntityCriteria(itemEntity);
+                            int i = itemStack.getCount();
+                            ItemStack itemStack2 = worker.getWorkerInventory().addStack(itemStack);
+                            villagerEntity.sendPickup(itemEntity, i - itemStack2.getCount());
+                            if (itemStack2.isEmpty()) {
+                                itemEntity.discard();
+                            } else {
+                                itemStack.setCount(itemStack2.getCount());
+                            }
+                        }
                     }
                 }
             }

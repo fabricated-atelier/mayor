@@ -21,6 +21,7 @@ public class MayorNetworkPayloads {
         registerC2S(DeskScreenPacket.PACKET_ID, DeskScreenPacket.PACKET_CODEC);
         registerC2S(DeskMayorDataPacket.PACKET_ID, DeskMayorDataPacket.PACKET_CODEC);
         registerC2S(LedgerPacket.PACKET_ID, LedgerPacket.PACKET_CODEC);
+        registerC2S(AreaPacket.PACKET_ID, AreaPacket.PACKET_CODEC);
 
         // S2C
         registerS2C(MayorViewPacket.PACKET_ID, MayorViewPacket.PACKET_CODEC);
