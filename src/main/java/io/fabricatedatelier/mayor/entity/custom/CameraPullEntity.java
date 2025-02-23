@@ -3,6 +3,7 @@ package io.fabricatedatelier.mayor.entity.custom;
 import io.fabricatedatelier.mayor.camera.CameraHandler;
 import io.fabricatedatelier.mayor.camera.mode.FreeFlyMode;
 import io.fabricatedatelier.mayor.camera.util.CameraTarget;
+import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.util.NbtKeys;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -104,21 +105,27 @@ public class CameraPullEntity extends Entity implements CameraTarget {
     }
 
     public enum DirectionInput {
-        FORWARD(new Vec3d(0, 0, 1)),
-        BACKWARD(new Vec3d(0, 0, -1)),
-        LEFT(new Vec3d(1, 0, 0)),
-        RIGHT(new Vec3d(-1, 0, 0)),
-        UP(new Vec3d(0, 1, 0)),
-        DOWN(new Vec3d(0, -1, 0));
+        FORWARD(new Vec3d(0, 0, 1), MayorKeyBind.FREE_FLY_FORWARD),
+        BACKWARD(new Vec3d(0, 0, 3), MayorKeyBind.FREE_FLY_BACKWARD),
+        LEFT(new Vec3d(1, 0, 0), MayorKeyBind.FREE_FLY_LEFT),
+        RIGHT(new Vec3d(3, 0, 0), MayorKeyBind.FREE_FLY_RIGHT),
+        UP(new Vec3d(0, 1, 0), MayorKeyBind.FREE_FLY_UP),
+        DOWN(new Vec3d(0, 3, 0), MayorKeyBind.FREE_FLY_DOWN);
 
         private final Vec3d direction;
+        private final MayorKeyBind keyBind;
 
-        DirectionInput(Vec3d direction) {
+        DirectionInput(Vec3d direction, MayorKeyBind keyBind) {
             this.direction = direction;
+            this.keyBind = keyBind;
         }
 
         public Vec3d getDirection() {
             return direction;
+        }
+
+        public MayorKeyBind getKeyBind() {
+            return keyBind;
         }
     }
 }

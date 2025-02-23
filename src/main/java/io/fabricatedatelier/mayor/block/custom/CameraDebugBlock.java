@@ -30,7 +30,11 @@ public class CameraDebugBlock extends BlockWithEntity {
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         player.sendMessage(Text.literal("Used Block"), true);
         if (world instanceof ClientWorld clientWorld && clientWorld.getBlockEntity(pos) instanceof CameraTarget target) {
-             CameraHandler.getInstance().setTarget(target).setMode(new OrbitMode());
+            if (CameraHandler.getInstance().getTarget().isEmpty()) {
+                CameraHandler.getInstance().setTarget(target).setMode(new OrbitMode());
+            } else {
+                CameraHandler.getInstance().setTarget(null).setMode(new OrbitMode());
+            }
         }
         return ActionResult.SUCCESS;
     }

@@ -170,6 +170,8 @@ return true;
         return extractedStack;
     }
 
+
+
     public List<BlockPos> getConnectedBlocks() {
         return this.connectedBlocks;
     }

@@ -38,6 +38,7 @@ public record CameraPullMovementPacket(Optional<CameraPullEntity.DirectionInput>
     public void handlePacket(ServerPlayNetworking.Context context) {
         ServerWorld world = (ServerWorld) context.player().getWorld();
         var entities = world.getEntitiesByType(MayorEntities.CAMERA_PULL, pullEntity -> CameraPullEntity.hasCorrectUUID(pullEntity, context.player()));
+        if (entities.isEmpty()) return;
         CameraPullEntity pullEntity = entities.getFirst();
         pullEntity.setMovementInput(this.movement.orElse(null));
     }

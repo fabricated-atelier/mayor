@@ -1,12 +1,17 @@
 package io.fabricatedatelier.mayor.util;
 
+import io.fabricatedatelier.mayor.Mayor;
 import io.fabricatedatelier.mayor.access.MayorManagerAccess;
+import io.fabricatedatelier.mayor.camera.CameraHandler;
+import io.fabricatedatelier.mayor.entity.custom.CameraPullEntity;
 import io.fabricatedatelier.mayor.init.MayorKeyBind;
 import io.fabricatedatelier.mayor.manager.MayorManager;
 import io.fabricatedatelier.mayor.network.packet.AreaPacket;
+import io.fabricatedatelier.mayor.network.packet.CameraPullMovementPacket;
 import io.fabricatedatelier.mayor.network.packet.MayorViewPacket;
 import io.fabricatedatelier.mayor.screen.MayorScreen;
 import io.fabricatedatelier.mayor.screen.MayorVillageScreen;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -105,5 +110,16 @@ public class KeyHelper {
             }
         }
 
+    }
+
+    public static void cameraKeys(MinecraftClient client) {
+        if (client == null || client.world == null) return;
+        if (CameraHandler.getInstance().getTarget().isEmpty()) return;
+        for (var entry : CameraPullEntity.DirectionInput.values()) {
+            if (entry.getKeyBind().get().isPressed()) {
+                Mayor.LOGGER.info(entry.getDirection().toString());
+                new CameraPullMovementPacket(Optional.of(entry)).sendPacket();
+            }
+        }
     }
 }
